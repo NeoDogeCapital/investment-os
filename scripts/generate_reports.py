@@ -42,15 +42,15 @@ DB_URL      = os.environ["DATABASE_URL"]
 ANTHROPIC_KEY = os.environ["ANTHROPIC_API_KEY"]
 
 NAVY   = "#faf9f4"   # page background
-NAVY2  = "#efecdd"   # card background
-NAVY3  = "#d0c298"   # borders
+NAVY2   = "#efecdd"   # card background
+NAVY3   = "#d0c298"   # borders
 GOLD   = "#af6452"   # terra cotta — primary accent
-GOLD2  = "#633238"   # burgundy — sub-accent
-WHITE  = "#3a1f1d"   # main text
+GOLD2   = "#633238"   # burgundy — sub-accent
+WHITE   = "#3a1f1d"   # main text
 GRAY   = "#7a6055"   # secondary text
-GREEN  = "#2e7d4f"   # positive
-YELLOW = "#8a6e2a"   # caution
-RED    = "#8f3d2c"   # negative
+GREEN   = "#2e7d4f"   # positive
+YELLOW   = "#8a6e2a"   # caution
+RED   = "#8f3d2c"   # negative
 BLUE   = "#3d6080"   # informational
 PAPER  = "#faf9f4"   # lightest background
 

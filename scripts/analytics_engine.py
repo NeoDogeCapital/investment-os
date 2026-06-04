@@ -43,15 +43,15 @@ REPORTS_DIR = PROJECT_DIR / "reports"
 REPORTS_DIR.mkdir(exist_ok=True)
 
 NAVY   = "#faf9f4"
-NAVY2  = "#3a1f1d"
-NAVY3  = "#8f3d2c"
-GOLD   = "#8f3d2c"
-GOLD2  = "#3a1f1d"
-WHITE  = "#3a1f1d"
+NAVY2   = "#efecdd"
+NAVY3   = "#d0c298"
+GOLD   = "#af6452"
+GOLD2   = "#633238"
+WHITE   = "#3a1f1d"
 GRAY   = "#7a6055"
-GREEN  = "#2e7d4f"
-YELLOW = "#8a6e2a"
-RED    = "#8f3d2c"
+GREEN   = "#2e7d4f"
+YELLOW   = "#8a6e2a"
+RED   = "#8f3d2c"
 BLUE   = "#3d6080"
 
 # ── Benchmark definitions per model ──────────────────────────────────────────
@@ -915,7 +915,7 @@ def ytd_scorecard(a):
           <div class="ytd-label">{label}</div>
           <div class="ytd-value" style="color:{c}">{p(val, pct=pct, plus=plus)}</div>
         </div>'''
-    if not a: return '<div class="ytd-scorecard"><div class="ytd-box" style="grid-column:1/-1;color:#8899aa;">No YTD data yet</div></div>'
+    if not a: return '<div class="ytd-scorecard"><div class="ytd-box" style="grid-column:1/-1;color:#7a6055;">No YTD data yet</div></div>'
     return f'''<div class="ytd-scorecard">
       {box("YTD Return",       a.get("ytd_return"))}
       {box("vs Benchmark",     a.get("ytd_excess"))}
@@ -925,7 +925,7 @@ def ytd_scorecard(a):
     </div>'''
 
 def analytics_table(a, stress=None, regime=None):
-    if not a: return '<p style="color:#8899aa;">No analytics computed yet.</p>'
+    if not a: return '<p style="color:#7a6055;">No analytics computed yet.</p>'
     cal = json.loads(a.get("calendar_year_returns") or "{}") if isinstance(a.get("calendar_year_returns"), str) else {}
 
     def section(title):

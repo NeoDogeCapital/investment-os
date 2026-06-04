@@ -7,9 +7,9 @@
   <style>
 *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
 body { background:#faf9f4; color:#3a1f1d; font-family:'Segoe UI',system-ui,sans-serif; font-size:14px; line-height:1.6; }
-.page-header { background:linear-gradient(135deg,#3a1f1d,#8f3d2c); border-bottom:2px solid #8f3d2c;
+.page-header { background:linear-gradient(135deg,#efecdd,#d0c298); border-bottom:2px solid #af6452;
                 padding:24px 36px 18px; display:flex; justify-content:space-between; align-items:flex-start; }
-.page-header h1 { font-size:20px; font-weight:800; color:#8f3d2c; letter-spacing:.06em; text-transform:uppercase; }
+.page-header h1 { font-size:20px; font-weight:800; color:#af6452; letter-spacing:.06em; text-transform:uppercase; }
 .page-header p  { color:#7a6055; font-size:12px; margin-top:3px; }
 .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
 .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; }
@@ -17,30 +17,30 @@ body { background:#faf9f4; color:#3a1f1d; font-family:'Segoe UI',system-ui,sans-
 .full   { grid-column:1/-1; }
 .half   { grid-column:span 2; }
 .content { padding:20px 28px; }
-.card { background:#3a1f1d; border:1px solid #8f3d2c; border-radius:8px; padding:18px 20px; margin-bottom:18px; }
+.card { background:#efecdd; border:1px solid #d0c298; border-radius:8px; padding:18px 20px; margin-bottom:18px; }
 .card-title { font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
-               color:#8f3d2c; border-bottom:1px solid #8f3d2c; padding-bottom:8px; margin-bottom:14px; }
+               color:#af6452; border-bottom:1px solid #d0c298; padding-bottom:8px; margin-bottom:14px; }
 table { width:100%; border-collapse:collapse; font-size:13px; }
 th { text-align:left; padding:7px 12px; font-size:10px; font-weight:700; letter-spacing:.1em;
-      text-transform:uppercase; color:#8f3d2c; border-bottom:1px solid #8f3d2c; }
-td { padding:7px 12px; border-bottom:1px solid #8f3d2c; vertical-align:top; }
+      text-transform:uppercase; color:#af6452; border-bottom:1px solid #d0c298; }
+td { padding:7px 12px; border-bottom:1px solid #d0c298; vertical-align:top; }
 tr:last-child td { border-bottom:none; }
-tr:hover td { background:#8f3d2c33; }
+tr:hover td { background:#d0c29833; }
 .tag { display:inline-block; padding:2px 8px; border-radius:3px; font-size:10px;
         font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
-.ytd-scorecard { display:grid; grid-template-columns:repeat(5,1fr); gap:0; background:#3a1f1d;
-                  border:1px solid #8f3d2c44; border-radius:8px; overflow:hidden; margin-bottom:18px; }
-.ytd-box { padding:14px 16px; border-right:1px solid #8f3d2c; }
+.ytd-scorecard { display:grid; grid-template-columns:repeat(5,1fr); gap:0; background:#efecdd;
+                  border:1px solid #af645244; border-radius:8px; overflow:hidden; margin-bottom:18px; }
+.ytd-box { padding:14px 16px; border-right:1px solid #d0c298; }
 .ytd-box:last-child { border-right:none; }
 .ytd-label { font-size:9px; text-transform:uppercase; letter-spacing:.1em; color:#7a6055; margin-bottom:5px; }
 .ytd-value { font-size:22px; font-weight:800; }
-.page-footer { border-top:1px solid #8f3d2c; padding:14px 28px; display:flex;
+.page-footer { border-top:1px solid #d0c298; padding:14px 28px; display:flex;
                 justify-content:space-between; font-size:11px; color:#7a6055; margin-top:30px; }
-.nav { background:#3a1f1d; border-bottom:1px solid #8f3d2c; padding:8px 28px;
+.nav { background:#efecdd; border-bottom:1px solid #d0c298; padding:8px 28px;
         display:flex; gap:12px; font-size:12px; }
 .nav a { color:#7a6055; text-decoration:none; padding:4px 10px; border-radius:4px; }
-.nav a:hover { color:#8f3d2c; background:#8f3d2c; }
-.nav a.active { color:#8f3d2c; border:1px solid #8f3d2c44; }
+.nav a:hover { color:#af6452; background:#d0c298; }
+.nav a.active { color:#af6452; border:1px solid #af645244; }
  th,td{text-align:right;} th:first-child,td:first-child{text-align:left;}</style>
 </head>
 <body>
@@ -51,11 +51,11 @@ tr:hover td { background:#8f3d2c33; }
 <div class="content">
   <div class="card">
     <div class="card-title">Side-by-Side: All 7 Models</div>
-    <table><thead><tr><th>Model</th><th>YTD</th><th>1Y</th><th>3Y Ann</th><th>Sharpe</th><th>Sortino</th><th>Calmar</th><th>Max DD</th><th>Up/Down Capture</th><th>Batting Avg</th></tr></thead><tbody><tr><td><a href="analytics-balanced-core.html" style="color:#8f3d2c;font-weight:700;">Balanced Core</a></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td><a href="analytics-conservative-core.html" style="color:#8f3d2c;font-weight:700;">Conservative Core</a></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td><a href="analytics-diversified-growth.html" style="color:#8f3d2c;font-weight:700;">Diversified Growth</a></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td><a href="analytics-flex-irr.html" style="color:#8f3d2c;font-weight:700;">Flex IRR</a></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td><a href="analytics-income-real-return.html" style="color:#8f3d2c;font-weight:700;">Income Real Return</a></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td><a href="analytics-liquid-core.html" style="color:#8f3d2c;font-weight:700;">Liquid Core</a></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td><a href="analytics-tax-aware-balanced.html" style="color:#8f3d2c;font-weight:700;">Tax Aware Balanced</a></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr></tbody></table>
+    <table><thead><tr><th>Model</th><th>YTD</th><th>1Y</th><th>3Y Ann</th><th>Sharpe</th><th>Sortino</th><th>Calmar</th><th>Max DD</th><th>Up/Down Capture</th><th>Batting Avg</th></tr></thead><tbody><tr><td><a href="analytics-balanced-core.html" style="color:#af6452;font-weight:700;">Balanced Core</a></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td><a href="analytics-conservative-core.html" style="color:#af6452;font-weight:700;">Conservative Core</a></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td><a href="analytics-diversified-growth.html" style="color:#af6452;font-weight:700;">Diversified Growth</a></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td><a href="analytics-flex-irr.html" style="color:#af6452;font-weight:700;">Flex IRR</a></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td><a href="analytics-income-real-return.html" style="color:#af6452;font-weight:700;">Income Real Return</a></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td><a href="analytics-liquid-core.html" style="color:#af6452;font-weight:700;">Liquid Core</a></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td><a href="analytics-tax-aware-balanced.html" style="color:#af6452;font-weight:700;">Tax Aware Balanced</a></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr></tbody></table>
   </div>
 </div>
 <div class="page-footer">
-  <div><strong style="color:#8f3d2c">Confidential</strong> &nbsp;·&nbsp; IWP Analytics</div>
+  <div><strong style="color:#af6452">Confidential</strong> &nbsp;·&nbsp; IWP Analytics</div>
   <div>Generated June 04, 2026</div>
 </div>
 </body></html>
