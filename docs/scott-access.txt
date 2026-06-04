@@ -1,0 +1,43 @@
+IWP Models — Dashboard Access
+================================
+
+URL:      https://neodogecapital.github.io/investment-os
+Password: IWP2026
+
+Sessions expire after 8 hours. Refresh the page to log back in.
+
+Available Dashboards
+--------------------
+
+Portfolio Dashboard
+  Live holdings, position sizing, trigger status, active alerts,
+  and process scorecard. Auto-refreshes every 60 seconds.
+
+Regime Memo
+  Weekly macro synthesis — three-horizon regime stack (short/medium/long),
+  AI-generated narrative, source sentiment, watchpoints, and
+  positioning implications.
+
+Models Overview
+  All 7 IWP model portfolios side-by-side: cumulative returns,
+  benchmark comparison, alpha vs. custom benchmarks.
+
+Analytics Report
+  Sharpe ratio, Sortino, Calmar, max drawdown, up/down capture,
+  batting average, calendar year returns, stress test results.
+
+Individual Model Reports
+  Liquid Core (30/70), Conservative Core (40/60),
+  Income Real Return (50/50), Flex IRR (55/45),
+  Balanced Core (60/40), Tax Aware Balanced (60/40 munis),
+  Diversified Growth (70/30)
+
+Notes
+-----
+- Dashboards are updated manually by Niko when new research
+  is processed or the regime re-scores
+- The Portfolio Dashboard auto-refreshes live data
+- All other reports are snapshots at time of last publish
+- For questions or access issues, contact Niko directly
+
+Confidential — IWP Wealth Partners — Authorized Users Only

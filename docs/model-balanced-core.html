@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Balanced Core — Performance</title>
+  <style>
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0a1628;
+    color: #f0f4f8;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  a { color: #c9a84c; text-decoration: none; }
+  .gold  { color: #c9a84c;  }
+  .green { color: #2ecc71; }
+  .red   { color: #e74c3c;   }
+  .gray  { color: #8899aa;  }
+  .white { color: #f0f4f8; }
+
+  /* Header */
+  .page-header {
+    background: linear-gradient(135deg, #0f2040 0%, #1a3358 100%);
+    border-bottom: 2px solid #c9a84c;
+    padding: 28px 40px 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .header-left h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #c9a84c;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .header-left p {
+    color: #8899aa;
+    font-size: 12px;
+    margin-top: 3px;
+    letter-spacing: 0.05em;
+  }
+  .header-right {
+    text-align: right;
+  }
+  .regime-badge {
+    display: inline-block;
+    padding: 6px 18px;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    border: 1.5px solid currentColor;
+    margin-bottom: 6px;
+  }
+
+  /* Cards */
+  .card {
+    background: #0f2040;
+    border: 1px solid #1a3358;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .card-header {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #c9a84c;
+    border-bottom: 1px solid #1a3358;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+  }
+
+  /* Score bar */
+  .score-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 6px 0;
+  }
+  .score-bar-label {
+    width: 140px;
+    font-size: 12px;
+    color: #8899aa;
+    flex-shrink: 0;
+  }
+  .score-bar-track {
+    flex: 1;
+    height: 8px;
+    background: #1a3358;
+    border-radius: 4px;
+    position: relative;
+    overflow: visible;
+  }
+  .score-bar-fill {
+    height: 8px;
+    border-radius: 4px;
+    position: absolute;
+  }
+  .score-bar-value {
+    width: 48px;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #c9a84c;
+    border-bottom: 1px solid #1a3358;
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #1a3358;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #1a335833; }
+
+  /* Tags */
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Footer */
+  .page-footer {
+    border-top: 1px solid #1a3358;
+    padding: 16px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: #8899aa;
+    margin-top: 40px;
+  }
+  .confidential {
+    color: #c9a84c;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+    body { max-width: 1100px; margin: 0 auto; }
+    .model-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; padding:20px 30px; }
+    .full  { grid-column:1/-1; }
+    .half  { grid-column:span 2; }
+    .third { grid-column:span 1; }
+    .stat-strip { display:flex; gap:0; padding:20px 30px 0; }
+    .stat-box {
+      flex:1; background:#0f2040; border:1px solid #1a3358; padding:16px 18px;
+    }
+    .stat-box:first-child { border-radius:8px 0 0 8px; }
+    .stat-box:last-child  { border-radius:0 8px 8px 0; }
+    .stat-box + .stat-box { border-left:none; }
+    .stat-label { font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:#8899aa; margin-bottom:6px; }
+    .stat-value { font-size:24px; font-weight:800; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="header-left">
+    <h1>IWP — Balanced Core</h1>
+    <p>60/40 &nbsp;·&nbsp; Benchmark: BlackRock Global Allocation (60/40) &nbsp;·&nbsp; 2022-10-28 → 2026-05-28 &nbsp;·&nbsp; June 02, 2026</p>
+  </div>
+  <div class="header-right" style="text-align:right;">
+    <div style="font-size:11px;color:#8899aa;">Cumulative Return</div>
+    <div style="font-size:28px;font-weight:800;color:#2ecc71">+51.3%</div>
+  </div>
+</div>
+
+<div class="stat-strip">
+  <div class="stat-box">
+    <div class="stat-label">IWP (Cumul)</div>
+    <div class="stat-value" style="color:#2ecc71">+51.3%</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-label">BIGPX Benchmark</div>
+    <div class="stat-value" style="color:#2ecc71">+67.5%</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-label">Alpha vs Benchmark</div>
+    <div class="stat-value" style="color:#e74c3c">-16.2%</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-label">SPY (Cumul)</div>
+    <div class="stat-value" style="color:#2ecc71">+104.3%</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-label">Alpha vs SPY</div>
+    <div class="stat-value" style="color:#e74c3c">-53.1%</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-label">Snapshots</div>
+    <div class="stat-value" style="color:#f0f4f8">118</div>
+  </div>
+</div>
+
+<div class="model-grid">
+
+  <div class="card full">
+    <div class="card-header">Cumulative Return vs Benchmarks</div>
+    <svg viewBox="0 0 860 220" width="100%" xmlns="http://www.w3.org/2000/svg"
+                       style="background:#0f2040;border-radius:6px;">
+          <line x1="50" y1="199.9" x2="840" y2="199.9" stroke="#1a3358" stroke-width="1" stroke-dasharray="4"/>
+          <polyline points="50.0,160.8 56.8,158.1 63.5,150.4 70.3,149.0 77.0,146.5 83.8,141.2 90.5,139.5 97.3,136.3 104.0,136.6 110.8,139.7 117.5,140.7 124.3,145.7 131.0,143.3 137.8,140.5 144.5,137.8 151.3,133.8 158.0,135.3 164.8,129.9 171.5,119.7 178.3,122.6 185.0,120.4 191.8,126.1 198.5,136.9 205.3,130.9 212.1,117.3 218.8,122.3 225.6,112.6 232.3,110.8 239.1,105.7 245.8,106.0 252.6,112.3 259.3,102.6 266.1,99.8 272.8,105.0 279.6,103.9 286.3,103.0 293.1,102.9 299.8,99.7 306.6,95.1 313.3,96.6 320.1,101.7 326.8,99.9 333.6,104.0 340.3,101.3 347.1,102.4 353.8,106.1 360.6,100.9 367.4,97.9 374.1,96.8 380.9,98.6 387.6,96.8 394.4,95.7 401.1,94.7 407.9,97.3 414.6,92.9 421.4,100.2 428.1,105.4 434.9,112.6 441.6,115.5 448.4,112.7 455.1,140.3 461.9,140.7 468.6,144.3 475.4,131.4 482.1,127.1 488.9,130.9 495.6,130.2 502.4,113.5 509.1,102.8 515.9,104.5 522.6,100.8 529.4,101.7 536.2,95.4 542.9,92.8 549.7,87.7 556.4,84.5 563.2,84.8 569.9,78.9 576.7,86.0 583.4,83.1 590.2,67.9 596.9,66.5 603.7,65.5 610.4,62.3 617.2,63.9 623.9,58.3 630.7,62.7 637.4,67.5 644.2,70.9 650.9,67.9 657.7,63.5 664.4,60.6 671.2,58.4 677.9,58.1 684.7,57.4 691.5,55.1 698.2,53.8 705.0,52.9 711.7,51.7 718.5,51.9 725.2,51.8 732.0,50.2 738.7,58.4 745.5,54.4 752.2,57.2 759.0,60.9 765.7,65.5 772.5,66.7 779.2,77.8 786.0,58.3 792.7,53.6 799.5,42.5 806.2,42.0 813.0,40.1 819.7,28.0 826.5,23.7 833.2,21.8 840.0,20.0" fill="none" stroke="#8899aa" stroke-width="1.5" stroke-linejoin="round"/>
+          <polyline points="50.0,172.1 56.8,170.7 63.5,166.6 70.3,167.4 77.0,164.8 83.8,160.6 90.5,161.0 97.3,159.2 104.0,159.1 110.8,160.9 117.5,160.9 124.3,166.0 131.0,164.2 137.8,162.3 144.5,160.5 151.3,158.1 158.0,159.2 164.8,155.1 171.5,149.5 178.3,150.9 185.0,150.8 191.8,154.4 198.5,158.5 205.3,155.4 212.1,145.7 218.8,148.8 225.6,143.3 232.3,144.0 239.1,141.9 245.8,143.0 252.6,146.8 259.3,143.3 266.1,143.0 272.8,143.7 279.6,144.8 286.3,144.1 293.1,144.1 299.8,141.9 306.6,138.6 313.3,140.0 320.1,145.7 326.8,142.1 333.6,145.4 340.3,143.9 347.1,144.5 353.8,147.4 360.6,143.9 367.4,141.3 374.1,140.6 380.9,141.3 387.6,140.0 394.4,138.6 401.1,138.0 407.9,139.5 414.6,136.8 421.4,139.5 428.1,141.0 434.9,144.5 441.6,145.9 448.4,144.2 455.1,159.3 461.9,161.2 468.6,163.3 475.4,156.7 482.1,154.3 488.9,154.7 495.6,154.1 502.4,143.9 509.1,139.1 515.9,139.5 522.6,137.1 529.4,137.3 536.2,133.9 542.9,131.8 549.7,128.7 556.4,128.7 563.2,128.7 569.9,125.1 576.7,127.9 583.4,126.1 590.2,115.9 596.9,114.7 603.7,113.6 610.4,111.8 617.2,112.7 623.9,109.8 630.7,112.7 637.4,115.6 644.2,117.8 650.9,116.5 657.7,113.7 664.4,112.2 671.2,110.7 677.9,111.0 684.7,110.6 691.5,108.3 698.2,106.0 705.0,105.5 711.7,103.9 718.5,104.2 725.2,103.7 732.0,102.9 738.7,107.3 745.5,102.1 752.2,105.0 759.0,107.9 765.7,111.5 772.5,111.2 779.2,118.4 786.0,104.2 792.7,101.8 799.5,95.9 806.2,96.9 813.0,96.2 819.7,89.9 826.5,85.0 833.2,84.0 840.0,83.6" fill="none" stroke="#3498db" stroke-width="2.0" stroke-linejoin="round"/>
+          <polyline points="50.0,180.0 56.8,179.7 63.5,178.0 70.3,178.7 77.0,177.6 83.8,174.7 90.5,174.7 97.3,173.6 104.0,173.4 110.8,172.9 117.5,173.3 124.3,175.1 131.0,174.1 137.8,173.3 144.5,172.3 151.3,171.3 158.0,171.8 164.8,170.6 171.5,169.4 178.3,169.4 185.0,168.6 191.8,170.4 198.5,173.1 205.3,171.9 212.1,167.9 218.8,168.3 225.6,165.1 232.3,164.9 239.1,163.5 245.8,163.7 252.6,165.0 259.3,163.2 266.1,162.6 272.8,163.6 279.6,163.0 286.3,162.6 293.1,162.3 299.8,161.4 306.6,159.6 313.3,160.2 320.1,162.8 326.8,162.4 333.6,162.7 340.3,161.9 347.1,161.6 353.8,162.3 360.6,160.3 367.4,158.6 374.1,158.2 380.9,158.1 387.6,157.3 394.4,156.5 401.1,156.6 407.9,157.0 414.6,155.1 421.4,156.3 428.1,156.1 434.9,156.4 441.6,156.3 448.4,155.4 455.1,163.6 461.9,165.0 468.6,165.9 475.4,161.9 482.1,160.4 488.9,159.1 495.6,158.6 502.4,154.6 509.1,153.0 515.9,152.5 522.6,152.0 529.4,152.2 536.2,149.6 542.9,149.9 549.7,148.3 556.4,147.2 563.2,147.4 569.9,146.1 576.7,147.4 583.4,146.1 590.2,138.2 596.9,134.6 603.7,134.6 610.4,132.9 617.2,135.1 623.9,134.9 630.7,136.0 637.4,135.1 644.2,136.2 650.9,135.7 657.7,134.6 664.4,134.0 671.2,133.2 677.9,132.1 684.7,130.3 691.5,127.4 698.2,125.8 705.0,125.1 711.7,123.1 718.5,123.7 725.2,122.9 732.0,123.7 738.7,125.4 745.5,122.4 752.2,119.8 759.0,119.5 765.7,121.2 772.5,123.1 779.2,125.9 786.0,120.6 792.7,120.0 799.5,117.2 806.2,117.5 813.0,117.7 819.7,114.4 826.5,112.7 833.2,112.3 840.0,111.5" fill="none" stroke="#c9a84c" stroke-width="2.5" stroke-linejoin="round"/>
+          <text x="44" y="184.0" text-anchor="end" fill="#8899aa" font-size="9">+12%</text><text x="44" y="203.9" text-anchor="end" fill="#8899aa" font-size="9">+0%</text><text x="44" y="24.0" text-anchor="end" fill="#8899aa" font-size="9">+104%</text>
+          <text x="50.0" y="212" text-anchor="middle" fill="#8899aa" font-size="9">2022-10</text><text x="144.5" y="212" text-anchor="middle" fill="#8899aa" font-size="9">2024-05</text><text x="239.1" y="212" text-anchor="middle" fill="#8899aa" font-size="9">2024-10</text><text x="333.6" y="212" text-anchor="middle" fill="#8899aa" font-size="9">2024-12</text><text x="428.1" y="212" text-anchor="middle" fill="#8899aa" font-size="9">2025-02</text><text x="522.6" y="212" text-anchor="middle" fill="#8899aa" font-size="9">2025-05</text><text x="617.2" y="212" text-anchor="middle" fill="#8899aa" font-size="9">2025-10</text><text x="711.7" y="212" text-anchor="middle" fill="#8899aa" font-size="9">2026-01</text><text x="806.2" y="212" text-anchor="middle" fill="#8899aa" font-size="9">2026-04</text>
+          
+        <rect x="50" y="4" width="10" height="10" fill="#c9a84c"/>
+        <text x="64" y="13" fill="#c9a84c" font-size="9">IWP Model</text>
+        <rect x="140" y="4" width="10" height="10" fill="#3498db"/>
+        <text x="154" y="13" fill="#3498db" font-size="9">BIGPX (benchmark)</text>
+        <rect x="270" y="4" width="10" height="10" fill="#8899aa"/>
+        <text x="284" y="13" fill="#8899aa" font-size="9">SPY</text>
+        </svg>
+  </div>
+
+  <div class="card half">
+    <div class="card-header">Current Allocation
+      <span style="color:#8899aa;font-weight:400;font-size:10px;margin-left:8px;">2026-05-28 snapshot</span>
+    </div>
+    <table>
+      <thead><tr><th>Ticker</th><th>Name</th><th>Weight</th><th>Last Period</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>KSPY</strong></td>
+          <td style="color:#8899aa;font-size:12px;max-width:200px;">KraneShares Hedgeye ETF</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:6px;background:#1a3358;border-radius:3px;">
+                <div style="width:80%;height:6px;background:#c9a84c;border-radius:3px;"></div>
+              </div>
+              <span style="color:#c9a84c;font-weight:700;width:36px;text-align:right;">12.0%</span>
+            </div>
+          </td>
+          <td style="color:#2ecc71;font-weight:600;">+0.21%</td>
+        </tr>
+        <tr>
+          <td><strong>CEF</strong></td>
+          <td style="color:#8899aa;font-size:12px;max-width:200px;">Sprott Physical Gold and Silver Trust</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:6px;background:#1a3358;border-radius:3px;">
+                <div style="width:55%;height:6px;background:#c9a84c;border-radius:3px;"></div>
+              </div>
+              <span style="color:#c9a84c;font-weight:700;width:36px;text-align:right;">8.2%</span>
+            </div>
+          </td>
+          <td style="color:#e74c3c;font-weight:600;">-0.74%</td>
+        </tr>
+        <tr>
+          <td><strong>APDPX</strong></td>
+          <td style="color:#8899aa;font-size:12px;max-width:200px;">Artisan Global Unconstrained Advisor</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:6px;background:#1a3358;border-radius:3px;">
+                <div style="width:53%;height:6px;background:#c9a84c;border-radius:3px;"></div>
+              </div>
+              <span style="color:#c9a84c;font-weight:700;width:36px;text-align:right;">8.0%</span>
+            </div>
+          </td>
+          <td style="color:#2ecc71;font-weight:600;">+0.09%</td>
+        </tr>
+        <tr>
+          <td><strong>QDSIX</strong></td>
+          <td style="color:#8899aa;font-size:12px;max-width:200px;">AQR Diversifying Strategies I</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:6px;background:#1a3358;border-radius:3px;">
+                <div style="width:53%;height:6px;background:#c9a84c;border-radius:3px;"></div>
+              </div>
+              <span style="color:#c9a84c;font-weight:700;width:36px;text-align:right;">8.0%</span>
+            </div>
+          </td>
+          <td style="color:#2ecc71;font-weight:600;">+0.34%</td>
+        </tr>
+        <tr>
+          <td><strong>PRWCX</strong></td>
+          <td style="color:#8899aa;font-size:12px;max-width:200px;">T. Rowe Price Capital Appreciation</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:6px;background:#1a3358;border-radius:3px;">
+                <div style="width:53%;height:6px;background:#c9a84c;border-radius:3px;"></div>
+              </div>
+              <span style="color:#c9a84c;font-weight:700;width:36px;text-align:right;">8.0%</span>
+            </div>
+          </td>
+          <td style="color:#2ecc71;font-weight:600;">+0.13%</td>
+        </tr>
+        <tr>
+          <td><strong>BDMIX</strong></td>
+          <td style="color:#8899aa;font-size:12px;max-width:200px;">BlackRock Global Equity Mkt Netrl Instl</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:6px;background:#1a3358;border-radius:3px;">
+                <div style="width:53%;height:6px;background:#c9a84c;border-radius:3px;"></div>
+              </div>
+              <span style="color:#c9a84c;font-weight:700;width:36px;text-align:right;">8.0%</span>
+            </div>
+          </td>
+          <td style="color:#2ecc71;font-weight:600;">+1.55%</td>
+        </tr>
+        <tr>
+          <td><strong>FEOE</strong></td>
+          <td style="color:#8899aa;font-size:12px;max-width:200px;">The RBB Fund Trust - First Eagle Overseas Equity ETF</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:6px;background:#1a3358;border-radius:3px;">
+                <div style="width:40%;height:6px;background:#c9a84c;border-radius:3px;"></div>
+              </div>
+              <span style="color:#c9a84c;font-weight:700;width:36px;text-align:right;">6.0%</span>
+            </div>
+          </td>
+          <td style="color:#2ecc71;font-weight:600;">+0.46%</td>
+        </tr>
+        <tr>
+          <td><strong>CBYYX</strong></td>
+          <td style="color:#8899aa;font-size:12px;max-width:200px;">Victory Pioneer CAT Bond Y</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:6px;background:#1a3358;border-radius:3px;">
+                <div style="width:40%;height:6px;background:#c9a84c;border-radius:3px;"></div>
+              </div>
+              <span style="color:#c9a84c;font-weight:700;width:36px;text-align:right;">6.0%</span>
+            </div>
+          </td>
+          <td style="color:#2ecc71;font-weight:600;">+0.09%</td>
+        </tr>
+        <tr>
+          <td><strong>HOBIX</strong></td>
+          <td style="color:#8899aa;font-size:12px;max-width:200px;">Holbrook Income I</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:6px;background:#1a3358;border-radius:3px;">
+                <div style="width:40%;height:6px;background:#c9a84c;border-radius:3px;"></div>
+              </div>
+              <span style="color:#c9a84c;font-weight:700;width:36px;text-align:right;">6.0%</span>
+            </div>
+          </td>
+          <td style="color:#2ecc71;font-weight:600;">+0.00%</td>
+        </tr>
+        <tr>
+          <td><strong>LCTIX</strong></td>
+          <td style="color:#8899aa;font-size:12px;max-width:200px;">Leader Capital High Quality Income Instl</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:6px;background:#1a3358;border-radius:3px;">
+                <div style="width:40%;height:6px;background:#c9a84c;border-radius:3px;"></div>
+              </div>
+              <span style="color:#c9a84c;font-weight:700;width:36px;text-align:right;">6.0%</span>
+            </div>
+          </td>
+          <td style="color:#2ecc71;font-weight:600;">+0.00%</td>
+        </tr>
+        <tr>
+          <td><strong>CASH</strong></td>
+          <td style="color:#8899aa;font-size:12px;max-width:200px;">CASH</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:6px;background:#1a3358;border-radius:3px;">
+                <div style="width:38%;height:6px;background:#c9a84c;border-radius:3px;"></div>
+              </div>
+              <span style="color:#c9a84c;font-weight:700;width:36px;text-align:right;">5.8%</span>
+            </div>
+          </td>
+          <td style="color:#2ecc71;font-weight:600;">+0.00%</td>
+        </tr>
+        <tr>
+          <td><strong>HGER</strong></td>
+          <td style="color:#8899aa;font-size:12px;max-width:200px;">Harbor Commodity ETF</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:6px;background:#1a3358;border-radius:3px;">
+                <div style="width:33%;height:6px;background:#c9a84c;border-radius:3px;"></div>
+              </div>
+              <span style="color:#c9a84c;font-weight:700;width:36px;text-align:right;">5.0%</span>
+            </div>
+          </td>
+          <td style="color:#e74c3c;font-weight:600;">-0.16%</td>
+        </tr>
+        <tr>
+          <td><strong>BFGIX</strong></td>
+          <td style="color:#8899aa;font-size:12px;max-width:200px;">Baron Focused Growth Institutional</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:6px;background:#1a3358;border-radius:3px;">
+                <div style="width:33%;height:6px;background:#c9a84c;border-radius:3px;"></div>
+              </div>
+              <span style="color:#c9a84c;font-weight:700;width:36px;text-align:right;">5.0%</span>
+            </div>
+          </td>
+          <td style="color:#2ecc71;font-weight:600;">+3.00%</td>
+        </tr>
+        <tr>
+          <td><strong>EMEQ</strong></td>
+          <td style="color:#8899aa;font-size:12px;max-width:200px;">Macquarie Focused EM Equity ETF</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:6px;background:#1a3358;border-radius:3px;">
+                <div style="width:27%;height:6px;background:#c9a84c;border-radius:3px;"></div>
+              </div>
+              <span style="color:#c9a84c;font-weight:700;width:36px;text-align:right;">4.0%</span>
+            </div>
+          </td>
+          <td style="color:#2ecc71;font-weight:600;">+3.61%</td>
+        </tr>
+        <tr>
+          <td><strong>SHLD</strong></td>
+          <td style="color:#8899aa;font-size:12px;max-width:200px;">Global X Defense ETF</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:6px;background:#1a3358;border-radius:3px;">
+                <div style="width:27%;height:6px;background:#c9a84c;border-radius:3px;"></div>
+              </div>
+              <span style="color:#c9a84c;font-weight:700;width:36px;text-align:right;">4.0%</span>
+            </div>
+          </td>
+          <td style="color:#e74c3c;font-weight:600;">-3.39%</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <div class="card third">
+    <div class="card-header">Performance by Regime</div>
+    <table>
+      <thead><tr><th>Regime</th><th>Periods</th><th>Avg Return</th><th>Avg Alpha</th></tr></thead>
+      <tbody><tr><td colspan="4" style="color:#8899aa;">No regime data linked yet</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="card half">
+    <div class="card-header">Recent Period Returns <span style="color:#8899aa;font-weight:400;font-size:10px;">(latest 20 · benchmark: BIGPX)</span></div>
+    <table>
+      <thead><tr><th>From Date</th><th>Model</th><th>BIGPX</th><th>Excess</th><th>Regime</th></tr></thead>
+      <tbody>
+        <tr>
+          <td style="color:#8899aa;">2026-05-28</td>
+          <td style="color:#2ecc71;font-weight:600;">+0.32%</td>
+          <td style="color:#2ecc71;">+0.17%</td>
+          <td style="color:#2ecc71;font-weight:600;">+0.15%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-05-26</td>
+          <td style="color:#2ecc71;font-weight:600;">+0.16%</td>
+          <td style="color:#2ecc71;">+0.34%</td>
+          <td style="color:#e74c3c;font-weight:600;">-0.18%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-05-20</td>
+          <td style="color:#2ecc71;font-weight:600;">+0.65%</td>
+          <td style="color:#2ecc71;">+1.73%</td>
+          <td style="color:#e74c3c;font-weight:600;">-1.08%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-04-27</td>
+          <td style="color:#2ecc71;font-weight:600;">+1.33%</td>
+          <td style="color:#2ecc71;">+2.30%</td>
+          <td style="color:#e74c3c;font-weight:600;">-0.97%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-04-22</td>
+          <td style="color:#e74c3c;font-weight:600;">-0.11%</td>
+          <td style="color:#2ecc71;">+0.24%</td>
+          <td style="color:#e74c3c;font-weight:600;">-0.35%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-04-17</td>
+          <td style="color:#e74c3c;font-weight:600;">-0.11%</td>
+          <td style="color:#e74c3c;">-0.35%</td>
+          <td style="color:#2ecc71;font-weight:600;">+0.24%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-04-13</td>
+          <td style="color:#2ecc71;font-weight:600;">+1.12%</td>
+          <td style="color:#2ecc71;">+2.16%</td>
+          <td style="color:#e74c3c;font-weight:600;">-1.05%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-04-08</td>
+          <td style="color:#2ecc71;font-weight:600;">+0.23%</td>
+          <td style="color:#2ecc71;">+0.91%</td>
+          <td style="color:#e74c3c;font-weight:600;">-0.68%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-03-27</td>
+          <td style="color:#2ecc71;font-weight:600;">+2.15%</td>
+          <td style="color:#2ecc71;">+5.57%</td>
+          <td style="color:#e74c3c;font-weight:600;">-3.43%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-03-19</td>
+          <td style="color:#e74c3c;font-weight:600;">-1.12%</td>
+          <td style="color:#e74c3c;">-2.74%</td>
+          <td style="color:#2ecc71;font-weight:600;">+1.62%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-03-13</td>
+          <td style="color:#e74c3c;font-weight:600;">-0.76%</td>
+          <td style="color:#2ecc71;">+0.12%</td>
+          <td style="color:#e74c3c;font-weight:600;">-0.88%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-03-06</td>
+          <td style="color:#e74c3c;font-weight:600;">-0.68%</td>
+          <td style="color:#e74c3c;">-1.35%</td>
+          <td style="color:#2ecc71;font-weight:600;">+0.68%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-03-03</td>
+          <td style="color:#2ecc71;font-weight:600;">+0.13%</td>
+          <td style="color:#e74c3c;">-1.10%</td>
+          <td style="color:#2ecc71;font-weight:600;">+1.23%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-02-18</td>
+          <td style="color:#2ecc71;font-weight:600;">+1.05%</td>
+          <td style="color:#e74c3c;">-1.08%</td>
+          <td style="color:#2ecc71;font-weight:600;">+2.14%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-02-05</td>
+          <td style="color:#2ecc71;font-weight:600;">+1.22%</td>
+          <td style="color:#2ecc71;">+1.96%</td>
+          <td style="color:#e74c3c;font-weight:600;">-0.74%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-02-02</td>
+          <td style="color:#e74c3c;font-weight:600;">-0.70%</td>
+          <td style="color:#e74c3c;">-1.63%</td>
+          <td style="color:#2ecc71;font-weight:600;">+0.93%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-01-30</td>
+          <td style="color:#e74c3c;font-weight:600;">-0.33%</td>
+          <td style="color:#2ecc71;">+0.30%</td>
+          <td style="color:#e74c3c;font-weight:600;">-0.63%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-01-16</td>
+          <td style="color:#2ecc71;font-weight:600;">+0.32%</td>
+          <td style="color:#2ecc71;">+0.18%</td>
+          <td style="color:#2ecc71;font-weight:600;">+0.14%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-01-15</td>
+          <td style="color:#e74c3c;font-weight:600;">-0.22%</td>
+          <td style="color:#e74c3c;">-0.12%</td>
+          <td style="color:#e74c3c;font-weight:600;">-0.10%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr>
+        <tr>
+          <td style="color:#8899aa;">2026-01-07</td>
+          <td style="color:#2ecc71;font-weight:600;">+0.78%</td>
+          <td style="color:#2ecc71;">+0.61%</td>
+          <td style="color:#2ecc71;font-weight:600;">+0.17%</td>
+          <td><span style="font-size:10px;color:#8899aa;">—</span></td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <div class="card third">
+    <div class="card-header">Top Contributors (all-time)</div>
+    <table>
+      <thead><tr><th>Ticker</th><th>Total</th><th>Periods</th><th>Avg/Period</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>PRWCX</strong></td>
+          <td style="color:#2ecc71;font-weight:700;">+5.59%</td>
+          <td style="color:#8899aa;">118</td>
+          <td style="color:#2ecc71;">+0.42%</td>
+        </tr>
+        <tr>
+          <td><strong>PHYS</strong></td>
+          <td style="color:#2ecc71;font-weight:700;">+4.75%</td>
+          <td style="color:#8899aa;">73</td>
+          <td style="color:#2ecc71;">+0.89%</td>
+        </tr>
+        <tr>
+          <td><strong>CEF</strong></td>
+          <td style="color:#2ecc71;font-weight:700;">+3.00%</td>
+          <td style="color:#8899aa;">45</td>
+          <td style="color:#2ecc71;">+1.04%</td>
+        </tr>
+        <tr>
+          <td><strong>QLEIX</strong></td>
+          <td style="color:#2ecc71;font-weight:700;">+2.80%</td>
+          <td style="color:#8899aa;">96</td>
+          <td style="color:#2ecc71;">+0.35%</td>
+        </tr>
+        <tr>
+          <td><strong>HGER</strong></td>
+          <td style="color:#2ecc71;font-weight:700;">+2.24%</td>
+          <td style="color:#8899aa;">63</td>
+          <td style="color:#2ecc71;">+0.73%</td>
+        </tr>
+        <tr>
+          <td><strong>BDMIX</strong></td>
+          <td style="color:#2ecc71;font-weight:700;">+2.22%</td>
+          <td style="color:#8899aa;">68</td>
+          <td style="color:#2ecc71;">+0.39%</td>
+        </tr>
+        <tr>
+          <td><strong>MOAT</strong></td>
+          <td style="color:#2ecc71;font-weight:700;">+2.21%</td>
+          <td style="color:#8899aa;">19</td>
+          <td style="color:#2ecc71;">+1.84%</td>
+        </tr>
+        <tr>
+          <td><strong>SPBC</strong></td>
+          <td style="color:#2ecc71;font-weight:700;">+2.06%</td>
+          <td style="color:#8899aa;">55</td>
+          <td style="color:#2ecc71;">+0.49%</td>
+        </tr>
+        <tr>
+          <td><strong>PONPX</strong></td>
+          <td style="color:#2ecc71;font-weight:700;">+1.90%</td>
+          <td style="color:#8899aa;">70</td>
+          <td style="color:#2ecc71;">+0.29%</td>
+        </tr>
+        <tr>
+          <td><strong>QYLG</strong></td>
+          <td style="color:#2ecc71;font-weight:700;">+1.88%</td>
+          <td style="color:#8899aa;">13</td>
+          <td style="color:#2ecc71;">+2.98%</td>
+        </tr>
+        <tr>
+          <td><strong>EMEQ</strong></td>
+          <td style="color:#2ecc71;font-weight:700;">+1.81%</td>
+          <td style="color:#8899aa;">13</td>
+          <td style="color:#2ecc71;">+3.34%</td>
+        </tr>
+        <tr>
+          <td><strong>QLENX</strong></td>
+          <td style="color:#2ecc71;font-weight:700;">+1.63%</td>
+          <td style="color:#8899aa;">17</td>
+          <td style="color:#2ecc71;">+3.13%</td>
+        </tr>
+        <tr>
+          <td><strong>USFR</strong></td>
+          <td style="color:#2ecc71;font-weight:700;">+1.47%</td>
+          <td style="color:#8899aa;">104</td>
+          <td style="color:#2ecc71;">+0.15%</td>
+        </tr>
+        <tr>
+          <td><strong>HEQT</strong></td>
+          <td style="color:#2ecc71;font-weight:700;">+1.33%</td>
+          <td style="color:#8899aa;">77</td>
+          <td style="color:#2ecc71;">+0.21%</td>
+        </tr>
+        <tr>
+          <td><strong>APDKX</strong></td>
+          <td style="color:#2ecc71;font-weight:700;">+1.06%</td>
+          <td style="color:#8899aa;">55</td>
+          <td style="color:#2ecc71;">+0.25%</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="page-footer">
+  <div><span class="confidential">Confidential</span> &nbsp;·&nbsp; IWP Balanced Core</div>
+  <div>Generated 18:57 UTC &nbsp;·&nbsp; Prices via yfinance &nbsp;·&nbsp; June 02, 2026</div>
+</div>
+</body>
+</html>

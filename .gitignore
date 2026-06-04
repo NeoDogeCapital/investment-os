@@ -14,8 +14,9 @@ __pycache__/
 dist/
 build/
 
-# Generated reports (HTML)
+# Generated reports (HTML) — excluded from root reports/ but docs/ is tracked for GitHub Pages
 reports/*.html
+# docs/ is intentionally NOT excluded — it's served by GitHub Pages
 
 # Data files
 data/

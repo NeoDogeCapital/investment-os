@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IWP Models Overview</title>
+  <style>
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0a1628;
+    color: #f0f4f8;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  a { color: #c9a84c; text-decoration: none; }
+  .gold  { color: #c9a84c;  }
+  .green { color: #2ecc71; }
+  .red   { color: #e74c3c;   }
+  .gray  { color: #8899aa;  }
+  .white { color: #f0f4f8; }
+
+  /* Header */
+  .page-header {
+    background: linear-gradient(135deg, #0f2040 0%, #1a3358 100%);
+    border-bottom: 2px solid #c9a84c;
+    padding: 28px 40px 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .header-left h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #c9a84c;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .header-left p {
+    color: #8899aa;
+    font-size: 12px;
+    margin-top: 3px;
+    letter-spacing: 0.05em;
+  }
+  .header-right {
+    text-align: right;
+  }
+  .regime-badge {
+    display: inline-block;
+    padding: 6px 18px;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    border: 1.5px solid currentColor;
+    margin-bottom: 6px;
+  }
+
+  /* Cards */
+  .card {
+    background: #0f2040;
+    border: 1px solid #1a3358;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .card-header {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #c9a84c;
+    border-bottom: 1px solid #1a3358;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+  }
+
+  /* Score bar */
+  .score-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 6px 0;
+  }
+  .score-bar-label {
+    width: 140px;
+    font-size: 12px;
+    color: #8899aa;
+    flex-shrink: 0;
+  }
+  .score-bar-track {
+    flex: 1;
+    height: 8px;
+    background: #1a3358;
+    border-radius: 4px;
+    position: relative;
+    overflow: visible;
+  }
+  .score-bar-fill {
+    height: 8px;
+    border-radius: 4px;
+    position: absolute;
+  }
+  .score-bar-value {
+    width: 48px;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #c9a84c;
+    border-bottom: 1px solid #1a3358;
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #1a3358;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #1a335833; }
+
+  /* Tags */
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Footer */
+  .page-footer {
+    border-top: 1px solid #1a3358;
+    padding: 16px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: #8899aa;
+    margin-top: 40px;
+  }
+  .confidential {
+    color: #c9a84c;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+    body { max-width: 1100px; margin: 0 auto; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; padding:20px 30px; }
+    .full { grid-column:1/-1; }
+    tr:hover td { background:#1a335844 !important; }
+    tr { transition: background 0.15s; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="header-left">
+    <h1>IWP Model Portfolios — Overview</h1>
+    <p>All 7 models &nbsp;·&nbsp; Click any row to open full report &nbsp;·&nbsp; June 02, 2026</p>
+  </div>
+  <div class="header-right" style="text-align:right;">
+    <div style="font-size:11px;color:#8899aa;">Models</div>
+    <div style="font-size:28px;font-weight:800;color:#c9a84c">7</div>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- Comparison table -->
+  <div class="card full">
+    <div class="card-header">Performance Comparison — All Models (click row to open detail)</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Benchmark</th>
+          <th>Inception</th>
+          <th>Snaps</th>
+          <th>IWP Return</th>
+          <th>Benchmark</th>
+          <th>Alpha</th>
+          <th style="color:#8899aa;font-weight:400;">SPY</th>
+          <th>Last Period</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="cursor:pointer;" onclick="window.open('model-balanced-core.html','_blank')">
+          <td>
+            <div style="font-weight:700;color:#c9a84c">Balanced Core
+              <span style="font-size:10px;color:#8899aa;margin-left:4px;">↗</span>
+            </div>
+            <div style="font-size:10px;color:#8899aa;">60/40</div>
+          </td>
+          <td style="color:#c9a84c;font-size:11px;font-weight:600;">BIGPX</td>
+          <td style="color:#8899aa;font-size:12px;">2022-10-28</td>
+          <td style="color:#8899aa;">118</td>
+          <td style="color:#2ecc71;font-weight:700;">+51.3%</td>
+          <td style="color:#2ecc71;">+67.5%</td>
+          <td style="color:#e74c3c;font-weight:700;">-16.2%</td>
+          <td style="color:#2ecc71;font-size:11px;color:#8899aa;">+104.3%</td>
+          <td style="color:#2ecc71;">+0.32%</td>
+        </tr>
+        <tr style="cursor:pointer;" onclick="window.open('model-conservative-core.html','_blank')">
+          <td>
+            <div style="font-weight:700;color:#c9a84c">Conservative Core
+              <span style="font-size:10px;color:#8899aa;margin-left:4px;">↗</span>
+            </div>
+            <div style="font-size:10px;color:#8899aa;">40/60</div>
+          </td>
+          <td style="color:#c9a84c;font-size:11px;font-weight:600;">BIMPX</td>
+          <td style="color:#8899aa;font-size:12px;">2022-10-28</td>
+          <td style="color:#8899aa;">112</td>
+          <td style="color:#2ecc71;font-weight:700;">+46.9%</td>
+          <td style="color:#2ecc71;">+50.6%</td>
+          <td style="color:#e74c3c;font-weight:700;">-3.7%</td>
+          <td style="color:#2ecc71;font-size:11px;color:#8899aa;">+104.3%</td>
+          <td style="color:#2ecc71;">+0.14%</td>
+        </tr>
+        <tr style="cursor:pointer;" onclick="window.open('model-diversified-growth.html','_blank')">
+          <td>
+            <div style="font-weight:700;color:#c9a84c">Diversified Growth
+              <span style="font-size:10px;color:#8899aa;margin-left:4px;">↗</span>
+            </div>
+            <div style="font-size:10px;color:#8899aa;">70/30</div>
+          </td>
+          <td style="color:#c9a84c;font-size:11px;font-weight:600;">FASGX</td>
+          <td style="color:#8899aa;font-size:12px;">2022-10-28</td>
+          <td style="color:#8899aa;">58</td>
+          <td style="color:#2ecc71;font-weight:700;">+59.0%</td>
+          <td style="color:#2ecc71;">+74.3%</td>
+          <td style="color:#e74c3c;font-weight:700;">-15.3%</td>
+          <td style="color:#2ecc71;font-size:11px;color:#8899aa;">+104.3%</td>
+          <td style="color:#2ecc71;">+0.57%</td>
+        </tr>
+        <tr style="cursor:pointer;" onclick="window.open('model-flex-irr.html','_blank')">
+          <td>
+            <div style="font-weight:700;color:#c9a84c">Flex IRR
+              <span style="font-size:10px;color:#8899aa;margin-left:4px;">↗</span>
+            </div>
+            <div style="font-size:10px;color:#8899aa;">55/45</div>
+          </td>
+          <td style="color:#c9a84c;font-size:11px;font-weight:600;">FASMX</td>
+          <td style="color:#8899aa;font-size:12px;">2022-10-28</td>
+          <td style="color:#8899aa;">113</td>
+          <td style="color:#2ecc71;font-weight:700;">+50.8%</td>
+          <td style="color:#2ecc71;">+56.8%</td>
+          <td style="color:#e74c3c;font-weight:700;">-6.0%</td>
+          <td style="color:#2ecc71;font-size:11px;color:#8899aa;">+104.3%</td>
+          <td style="color:#2ecc71;">+0.32%</td>
+        </tr>
+        <tr style="cursor:pointer;" onclick="window.open('model-income-real-return.html','_blank')">
+          <td>
+            <div style="font-weight:700;color:#c9a84c">Income Real Return
+              <span style="font-size:10px;color:#8899aa;margin-left:4px;">↗</span>
+            </div>
+            <div style="font-size:10px;color:#8899aa;">50/50</div>
+          </td>
+          <td style="color:#c9a84c;font-size:11px;font-weight:600;">FASMX</td>
+          <td style="color:#8899aa;font-size:12px;">2020-02-03</td>
+          <td style="color:#8899aa;">96</td>
+          <td style="color:#2ecc71;font-weight:700;">+36.6%</td>
+          <td style="color:#2ecc71;">+63.0%</td>
+          <td style="color:#e74c3c;font-weight:700;">-26.5%</td>
+          <td style="color:#2ecc71;font-size:11px;color:#8899aa;">+156.1%</td>
+          <td style="color:#2ecc71;">+0.32%</td>
+        </tr>
+        <tr style="cursor:pointer;" onclick="window.open('model-liquid-core.html','_blank')">
+          <td>
+            <div style="font-weight:700;color:#c9a84c">Liquid Core
+              <span style="font-size:10px;color:#8899aa;margin-left:4px;">↗</span>
+            </div>
+            <div style="font-size:10px;color:#8899aa;">30/70</div>
+          </td>
+          <td style="color:#c9a84c;font-size:11px;font-weight:600;">FTANX</td>
+          <td style="color:#8899aa;font-size:12px;">2020-02-03</td>
+          <td style="color:#8899aa;">96</td>
+          <td style="color:#2ecc71;font-weight:700;">+36.6%</td>
+          <td style="color:#2ecc71;">+40.9%</td>
+          <td style="color:#e74c3c;font-weight:700;">-4.3%</td>
+          <td style="color:#2ecc71;font-size:11px;color:#8899aa;">+156.1%</td>
+          <td style="color:#2ecc71;">+0.32%</td>
+        </tr>
+        <tr style="cursor:pointer;" onclick="window.open('model-tax-aware-balanced.html','_blank')">
+          <td>
+            <div style="font-weight:700;color:#c9a84c">Tax Aware Balanced
+              <span style="font-size:10px;color:#8899aa;margin-left:4px;">↗</span>
+            </div>
+            <div style="font-size:10px;color:#8899aa;">60/40</div>
+          </td>
+          <td style="color:#c9a84c;font-size:11px;font-weight:600;">VBIAX</td>
+          <td style="color:#8899aa;font-size:12px;">2022-02-10</td>
+          <td style="color:#8899aa;">104</td>
+          <td style="color:#2ecc71;font-weight:700;">+41.0%</td>
+          <td style="color:#2ecc71;">+43.7%</td>
+          <td style="color:#e74c3c;font-weight:700;">-2.8%</td>
+          <td style="color:#2ecc71;font-size:11px;color:#8899aa;">+79.0%</td>
+          <td style="color:#2ecc71;">+0.34%</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <!-- Bar chart -->
+  <div class="card full">
+    <div class="card-header">Cumulative Return Comparison</div>
+    <div style="padding:8px 0;">
+      
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <div style="width:180px;font-size:12px;color:#f0f4f8;flex-shrink:0;">Diversified Growth</div>
+          <div style="flex:1;height:20px;background:#1a3358;border-radius:3px;position:relative;">
+            <div style="width:80.0%;height:20px;background:#2ecc71;border-radius:3px;
+                        opacity:0.85;"></div>
+          </div>
+          <div style="width:60px;text-align:right;font-weight:700;color:#2ecc71;font-size:13px;">+59.0%</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <div style="width:180px;font-size:12px;color:#f0f4f8;flex-shrink:0;">Balanced Core</div>
+          <div style="flex:1;height:20px;background:#1a3358;border-radius:3px;position:relative;">
+            <div style="width:69.5%;height:20px;background:#2ecc71;border-radius:3px;
+                        opacity:0.85;"></div>
+          </div>
+          <div style="width:60px;text-align:right;font-weight:700;color:#2ecc71;font-size:13px;">+51.3%</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <div style="width:180px;font-size:12px;color:#f0f4f8;flex-shrink:0;">Flex IRR</div>
+          <div style="flex:1;height:20px;background:#1a3358;border-radius:3px;position:relative;">
+            <div style="width:68.9%;height:20px;background:#2ecc71;border-radius:3px;
+                        opacity:0.85;"></div>
+          </div>
+          <div style="width:60px;text-align:right;font-weight:700;color:#2ecc71;font-size:13px;">+50.8%</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <div style="width:180px;font-size:12px;color:#f0f4f8;flex-shrink:0;">Conservative Core</div>
+          <div style="flex:1;height:20px;background:#1a3358;border-radius:3px;position:relative;">
+            <div style="width:63.6%;height:20px;background:#2ecc71;border-radius:3px;
+                        opacity:0.85;"></div>
+          </div>
+          <div style="width:60px;text-align:right;font-weight:700;color:#2ecc71;font-size:13px;">+46.9%</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <div style="width:180px;font-size:12px;color:#f0f4f8;flex-shrink:0;">Tax Aware Balanced</div>
+          <div style="flex:1;height:20px;background:#1a3358;border-radius:3px;position:relative;">
+            <div style="width:55.5%;height:20px;background:#2ecc71;border-radius:3px;
+                        opacity:0.85;"></div>
+          </div>
+          <div style="width:60px;text-align:right;font-weight:700;color:#2ecc71;font-size:13px;">+41.0%</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <div style="width:180px;font-size:12px;color:#f0f4f8;flex-shrink:0;">Income Real Return</div>
+          <div style="flex:1;height:20px;background:#1a3358;border-radius:3px;position:relative;">
+            <div style="width:49.6%;height:20px;background:#2ecc71;border-radius:3px;
+                        opacity:0.85;"></div>
+          </div>
+          <div style="width:60px;text-align:right;font-weight:700;color:#2ecc71;font-size:13px;">+36.6%</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <div style="width:180px;font-size:12px;color:#f0f4f8;flex-shrink:0;">Liquid Core</div>
+          <div style="flex:1;height:20px;background:#1a3358;border-radius:3px;position:relative;">
+            <div style="width:49.6%;height:20px;background:#2ecc71;border-radius:3px;
+                        opacity:0.85;"></div>
+          </div>
+          <div style="width:60px;text-align:right;font-weight:700;color:#2ecc71;font-size:13px;">+36.6%</div>
+        </div>
+      <div style="margin-top:14px;padding-top:10px;border-top:1px solid #1a3358;
+                  display:flex;gap:20px;font-size:11px;color:#8899aa;">
+        <span>Benchmark reference: SPY cumulative over matching period</span>
+        <span>Note: inception dates differ — compare same-period models directly</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-footer">
+  <div><span class="confidential">Confidential</span> &nbsp;·&nbsp; IWP Model Portfolios</div>
+  <div>Generated 18:57 UTC &nbsp;·&nbsp; Prices via yfinance &nbsp;·&nbsp; June 02, 2026</div>
+</div>
+</body>
+</html>

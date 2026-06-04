@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="60">
+  <title>Portfolio Dashboard</title>
+  <style>
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0a1628;
+    color: #f0f4f8;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  a { color: #c9a84c; text-decoration: none; }
+  .gold  { color: #c9a84c;  }
+  .green { color: #2ecc71; }
+  .red   { color: #e74c3c;   }
+  .gray  { color: #8899aa;  }
+  .white { color: #f0f4f8; }
+
+  /* Header */
+  .page-header {
+    background: linear-gradient(135deg, #0f2040 0%, #1a3358 100%);
+    border-bottom: 2px solid #c9a84c;
+    padding: 28px 40px 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .header-left h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #c9a84c;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .header-left p {
+    color: #8899aa;
+    font-size: 12px;
+    margin-top: 3px;
+    letter-spacing: 0.05em;
+  }
+  .header-right {
+    text-align: right;
+  }
+  .regime-badge {
+    display: inline-block;
+    padding: 6px 18px;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    border: 1.5px solid currentColor;
+    margin-bottom: 6px;
+  }
+
+  /* Cards */
+  .card {
+    background: #0f2040;
+    border: 1px solid #1a3358;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .card-header {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #c9a84c;
+    border-bottom: 1px solid #1a3358;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+  }
+
+  /* Score bar */
+  .score-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 6px 0;
+  }
+  .score-bar-label {
+    width: 140px;
+    font-size: 12px;
+    color: #8899aa;
+    flex-shrink: 0;
+  }
+  .score-bar-track {
+    flex: 1;
+    height: 8px;
+    background: #1a3358;
+    border-radius: 4px;
+    position: relative;
+    overflow: visible;
+  }
+  .score-bar-fill {
+    height: 8px;
+    border-radius: 4px;
+    position: absolute;
+  }
+  .score-bar-value {
+    width: 48px;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #c9a84c;
+    border-bottom: 1px solid #1a3358;
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #1a3358;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #1a335833; }
+
+  /* Tags */
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Footer */
+  .page-footer {
+    border-top: 1px solid #1a3358;
+    padding: 16px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: #8899aa;
+    margin-top: 40px;
+  }
+  .confidential {
+    color: #c9a84c;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+    body { padding: 0; }
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 18px;
+      padding: 20px 30px;
+    }
+    .dash-full  { grid-column: 1 / -1; }
+    .dash-half  { grid-column: span 2; }
+    .dash-third { grid-column: span 1; }
+    .refresh-bar {
+      background: #1a3358;
+      padding: 6px 30px;
+      font-size:11px;
+      color:#8899aa;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .pulse {
+      display:inline-block;width:7px;height:7px;border-radius:50%;
+      background:#2ecc71;margin-right:6px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.85)}
+    }
+    #countdown { color:#c9a84c; font-weight:700; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="header-left">
+    <h1>Portfolio Dashboard</h1>
+    <p>June 02, 2026 &nbsp;·&nbsp; Investment OS &nbsp;·&nbsp; Auto-refreshes every 60s</p>
+  </div>
+  <div class="header-right">
+    <div class="regime-badge" style="color:#2ecc71">RISK ON</div>
+    <div style="color:#8899aa;font-size:11px;margin-top:4px;">Score: <strong style="color:#2ecc71">+0.7125</strong></div>
+  </div>
+</div>
+
+<div class="refresh-bar">
+  <div><span class="pulse"></span>Live &nbsp;·&nbsp; Last loaded: 17:51 UTC</div>
+  <div>Refreshes in <span id="countdown">60</span>s</div>
+</div>
+
+<div class="dash-grid">
+
+  <!-- Positions table — full width -->
+  <div class="card dash-full">
+    <div class="card-header">Current Holdings
+      <span style="color:#8899aa;font-weight:400;font-size:11px;margin-left:10px;">0 positions open</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Instrument</th>
+          <th>Direction</th>
+          <th>Allocation</th>
+          <th>Entry Date</th>
+          <th>Regime at Entry</th>
+          <th>Thesis</th>
+          <th>Trigger Status</th>
+        </tr>
+      </thead>
+      <tbody><tr><td colspan="7" style="text-align:center;padding:40px;color:#8899aa;">
+          No open positions. Use decision_gate.py to enter a trade.
+        </td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- Allocation summary -->
+  <div class="card dash-third">
+    <div class="card-header">Allocation Summary</div>
+    
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+            <span style="color:#8899aa;font-size:12px;">Deployed</span>
+            <span style="color:#c9a84c;font-weight:700;">0.0%</span>
+          </div>
+          <div style="height:6px;background:#1a3358;border-radius:3px;">
+            <div style="height:6px;width:0.0%;background:#c9a84c;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+            <span style="color:#8899aa;font-size:12px;">Available</span>
+            <span style="color:#2ecc71;font-weight:700;">100.0%</span>
+          </div>
+          <div style="height:6px;background:#1a3358;border-radius:3px;">
+            <div style="height:6px;width:100.0%;background:#2ecc71;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+            <span style="color:#8899aa;font-size:12px;">Largest Position</span>
+            <span style="color:#3498db;font-weight:700;">0.0%</span>
+          </div>
+          <div style="height:6px;background:#1a3358;border-radius:3px;">
+            <div style="height:6px;width:0.0%;background:#3498db;border-radius:3px;"></div>
+          </div>
+        </div>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid #1a3358;font-size:12px;color:#8899aa;">
+      Max per position: <strong style="color:#c9a84c">12%</strong> &nbsp;·&nbsp;
+      Ladder: <strong style="color:#c9a84c">2→4→7→10→12%</strong>
+    </div>
+  </div>
+
+  <!-- Regime gauge -->
+  <div class="card dash-third" style="display:flex;flex-direction:column;align-items:center;">
+    <div class="card-header" style="width:100%">Regime Score</div>
+    <svg viewBox="0 0 180 120" width="180" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background arcs -->
+  <path d="M 13.6 90.0 A 76.4 76.4 0 0 1 66.4 17.3" fill="none" stroke="#e74c3c" stroke-width="10" stroke-linecap="round" opacity="0.85"/>
+  <path d="M 66.4 17.3 A 76.4 76.4 0 0 1 113.6 17.3" fill="none" stroke="#c9a84c" stroke-width="10" stroke-linecap="round" opacity="0.85"/>
+  <path d="M 113.6 17.3 A 76.4 76.4 0 0 1 166.4 90.0" fill="none" stroke="#2ecc71" stroke-width="10" stroke-linecap="round" opacity="0.85"/>
+  <!-- Needle -->
+  <line x1="90.0" y1="90.0" x2="142.3" y2="64.6"
+        stroke="#2ecc71" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="90.0" cy="90.0" r="6" fill="#2ecc71"/>
+  <!-- Score label -->
+  <text x="90.0" y="112.0" text-anchor="middle" fill="#2ecc71"
+        font-family="system-ui" font-size="15" font-weight="700">+0.713</text>
+  <!-- Labels -->
+  <text x="10" y="94.0" fill="#e74c3c" font-family="system-ui" font-size="9" font-weight="600">RISK OFF</text>
+  <text x="170" y="94.0" fill="#2ecc71" font-family="system-ui" font-size="9"
+        font-weight="600" text-anchor="end">RISK ON</text>
+</svg>
+    <div style="font-size:12px;color:#8899aa;margin-top:8px;text-align:center;">
+      Confidence: <strong style="color:#8899aa">9%</strong>
+    </div>
+  </div>
+
+  <!-- Process scorecard -->
+  <div class="card dash-third">
+    <div class="card-header">Process Scorecard <span style="color:#8899aa;font-weight:400;font-size:10px;">(trailing 90d)</span></div>
+    
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="background:#1a3358;border-radius:6px;padding:14px;text-align:center;">
+        <div style="font-size:28px;font-weight:800;color:#2ecc71">100%</div>
+        <div style="font-size:10px;color:#8899aa;text-transform:uppercase;letter-spacing:.08em;margin-top:4px;">Process Followed</div>
+      </div>
+      <div style="background:#1a3358;border-radius:6px;padding:14px;text-align:center;">
+        <div style="font-size:28px;font-weight:800;color:#f0f4f8">0</div>
+        <div style="font-size:10px;color:#8899aa;text-transform:uppercase;letter-spacing:.08em;margin-top:4px;">Decisions (90d)</div>
+      </div>
+      <div style="background:#1a3358;border-radius:6px;padding:14px;text-align:center;">
+        <div style="font-size:28px;font-weight:800;color:#2ecc71">0</div>
+        <div style="font-size:10px;color:#8899aa;text-transform:uppercase;letter-spacing:.08em;margin-top:4px;">Gates Passed</div>
+      </div>
+      <div style="background:#1a3358;border-radius:6px;padding:14px;text-align:center;">
+        <div style="font-size:28px;font-weight:800;color:#8899aa">0</div>
+        <div style="font-size:10px;color:#8899aa;text-transform:uppercase;letter-spacing:.08em;margin-top:4px;">Soft Overrides</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts — 2/3 width -->
+  <div class="card dash-half">
+    <div class="card-header">Active Alerts
+      <span style="color:#8899aa;font-weight:400;font-size:11px;margin-left:8px;">
+        0 unacknowledged
+      </span>
+    </div>
+    <div style="text-align:center;padding:24px;color:#8899aa;">No active alerts</div>
+  </div>
+
+  <!-- Model rules reminder -->
+  <div class="card dash-third">
+    <div class="card-header">Model Rules (Hard)</div>
+    <div style="font-size:12px;line-height:2;">
+      <div style="display:flex;justify-content:space-between;border-bottom:1px solid #1a3358;padding:4px 0;">
+        <span style="color:#8899aa">Max allocation</span>
+        <strong style="color:#c9a84c">12%</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;border-bottom:1px solid #1a3358;padding:4px 0;">
+        <span style="color:#8899aa">Min initiation</span>
+        <strong style="color:#c9a84c">2%</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;border-bottom:1px solid #1a3358;padding:4px 0;">
+        <span style="color:#8899aa">Ladder steps</span>
+        <strong style="color:#c9a84c">2→4→7→10→12</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;border-bottom:1px solid #1a3358;padding:4px 0;">
+        <span style="color:#8899aa">Thesis required</span>
+        <span style="color:#2ecc71">✓ Enforced</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:4px 0;">
+        <span style="color:#8899aa">Invalidation required</span>
+        <span style="color:#2ecc71">✓ Enforced</span>
+      </div>
+    </div>
+    <div style="margin-top:14px;padding:10px;background:#e74c3c11;border:1px solid #e74c3c33;
+                border-radius:6px;font-size:11px;color:#e74c3c;">
+      Hard rules enforced at database level. Cannot be bypassed.
+    </div>
+  </div>
+
+</div>
+
+<div class="page-footer">
+  <div><span class="confidential">Confidential</span> &nbsp;·&nbsp; Investment OS</div>
+  <div>Auto-refreshes every 60s &nbsp;·&nbsp; June 02, 2026</div>
+</div>
+
+<script>
+  let t = 60;
+  const el = document.getElementById('countdown');
+  setInterval(() => {
+    t--;
+    if (el) el.textContent = t;
+    if (t <= 0) location.reload();
+  }, 1000);
+</script>
+
+</body>
+</html>
