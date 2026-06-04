@@ -2213,7 +2213,13 @@ def main():
     parser.add_argument("--dash-only",  action="store_true")
     parser.add_argument("--model-only", action="store_true")
     parser.add_argument("--no-ai",      action="store_true", help="Skip AI enrichment (faster)")
+    parser.add_argument("--full",       action="store_true",
+                        help="Generate everything: memo, dashboard, models, analytics for all 7 models, publish")
     args = parser.parse_args()
+
+    # --full runs everything
+    if args.full:
+        args.memo_only = args.dash_only = args.model_only = False
 
     REPORTS_DIR.mkdir(exist_ok=True)
     generated_at = datetime.now(timezone.utc)
@@ -2223,9 +2229,10 @@ def main():
     db     = get_db()
     client = anthropic.Anthropic(api_key=ANTHROPIC_KEY) if not args.no_ai else None
 
-    do_memo  = not args.dash_only  and not args.model_only
-    do_dash  = not args.memo_only  and not args.model_only
-    do_model = not args.memo_only  and not args.dash_only
+    do_memo      = not args.dash_only  and not args.model_only
+    do_dash      = not args.memo_only  and not args.model_only
+    do_model     = not args.memo_only  and not args.dash_only
+    do_analytics = args.full  # only run full analytics engine when --full
 
     snap = None
 
@@ -2284,6 +2291,39 @@ def main():
             ov_path.write_text(overview, encoding="utf-8")
             print(f"✅  Models overview    → {ov_path}")
 
+    # ── Full analytics run (--full flag) ──────────────────────────
+    if do_analytics:
+        import subprocess
+        print("\n━━━ Running analytics engine for all 7 models ━━━")
+        result = subprocess.run(
+            [sys.executable,
+             str(PROJECT_DIR / "scripts" / "analytics_engine.py"),
+             "--all"],
+            capture_output=False,
+        )
+        if result.returncode == 0:
+            # Copy analytics reports to docs/
+            import shutil
+            analytics_files = [
+                ("analytics-balanced-core.html",     "docs/analytics-balanced-core.html"),
+                ("analytics-conservative-core.html", "docs/analytics-conservative-core.html"),
+                ("analytics-diversified-growth.html","docs/analytics-report.html"),
+                ("analytics-income-real-return.html","docs/analytics-income-real-return.html"),
+                ("analytics-flex-irr.html",          "docs/analytics-flex-irr.html"),
+                ("analytics-liquid-core.html",       "docs/analytics-liquid-core.html"),
+                ("analytics-tax-aware-balanced.html","docs/analytics-tax-aware-balanced.html"),
+                ("analytics-comparison.html",        "docs/analytics-comparison.html"),
+                ("analytics-firmwide.html",          "docs/analytics-firm-wide.html"),
+            ]
+            for src, dst in analytics_files:
+                s = REPORTS_DIR / src
+                d = PROJECT_DIR / dst
+                if s.exists():
+                    d.parent.mkdir(exist_ok=True)
+                    shutil.copy(str(s), str(d))
+                    print(f"  ✅  {src} → docs/")
+        print("━━━ Analytics complete ━━━\n")
+
     db.close()
 
     print(f"\nDone. Open with:")
@@ -2293,6 +2333,8 @@ def main():
         print(f"  open ~/Documents/investment-os/reports/portfolio-dashboard.html")
     if do_model and summaries:
         print(f"  open ~/Documents/investment-os/reports/models-overview.html")
+    if do_analytics:
+        print(f"  open ~/Documents/investment-os/reports/analytics-comparison.html")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,79 @@
+[
+  {
+    "model_name": "Balanced Core",
+    "snapshot_date": "2026-06-04",
+    "ytd_return": 0.070813,
+    "sharpe_ratio": 1.648998,
+    "max_drawdown": -0.024721,
+    "batting_average": 0.7333,
+    "sortino_ratio": 3.206082,
+    "calmar_ratio": 4.833569,
+    "return_1y": 0.178243
+  },
+  {
+    "model_name": "Conservative Core",
+    "snapshot_date": "2026-06-04",
+    "ytd_return": 0.05194,
+    "sharpe_ratio": 1.713335,
+    "max_drawdown": -0.023517,
+    "batting_average": 0.7556,
+    "sortino_ratio": 3.700906,
+    "calmar_ratio": 4.716256,
+    "return_1y": 0.152381
+  },
+  {
+    "model_name": "Diversified Growth",
+    "snapshot_date": "2026-06-04",
+    "ytd_return": 0.052966,
+    "sharpe_ratio": 1.171584,
+    "max_drawdown": -0.047524,
+    "batting_average": 0.6889,
+    "sortino_ratio": 1.898179,
+    "calmar_ratio": 2.700978,
+    "return_1y": 0.182426
+  },
+  {
+    "model_name": "Flex IRR",
+    "snapshot_date": "2026-06-04",
+    "ytd_return": 0.069453,
+    "sharpe_ratio": 1.718629,
+    "max_drawdown": -0.02205,
+    "batting_average": 0.7556,
+    "sortino_ratio": 3.375808,
+    "calmar_ratio": 5.364288,
+    "return_1y": 0.175554
+  },
+  {
+    "model_name": "Income Real Return",
+    "snapshot_date": "2026-06-04",
+    "ytd_return": 0.064294,
+    "sharpe_ratio": 0.474105,
+    "max_drawdown": -0.012232,
+    "batting_average": 0.3117,
+    "sortino_ratio": 1.981125,
+    "calmar_ratio": 4.106542,
+    "return_1y": 0.157871
+  },
+  {
+    "model_name": "Liquid Core",
+    "snapshot_date": "2026-06-04",
+    "ytd_return": 0.064294,
+    "sharpe_ratio": 0.474105,
+    "max_drawdown": -0.012232,
+    "batting_average": 0.3117,
+    "sortino_ratio": 1.981125,
+    "calmar_ratio": 4.106542,
+    "return_1y": 0.157871
+  },
+  {
+    "model_name": "Tax Aware Balanced",
+    "snapshot_date": "2026-06-04",
+    "ytd_return": 0.069524,
+    "sharpe_ratio": 0.8961,
+    "max_drawdown": -0.063534,
+    "batting_average": 0.6981,
+    "sortino_ratio": 1.669693,
+    "calmar_ratio": 1.305941,
+    "return_1y": 0.173538
+  }
+]

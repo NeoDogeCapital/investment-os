@@ -1302,7 +1302,128 @@ def run_model(portfolio, prices_df, db, gen_html=True, pages=None):
         path.write_text(html, encoding="utf-8")
         log.info("  → %s", path.name)
 
+    # ── Save permanent snapshot to analytics_snapshots ──────────────
+    save_analytics_snapshot(db, portfolio, a_itd, a_ytd, alloc_df, prices_df, today)
+
     return a_itd, a_ytd, alloc_df, stress
+
+
+def save_analytics_snapshot(db, portfolio, a_itd, a_ytd, alloc_df, prices_df, snap_date):
+    """Persist today's analytics to analytics_snapshots + model_holdings_snapshot."""
+    if not a_itd:
+        return
+    pid   = portfolio["id"]
+    name  = portfolio["name"]
+    bench = portfolio.get("benchmark_ticker") or "SPY"
+
+    def s(v):
+        if v is None: return None
+        try:
+            f = float(v)
+            return None if f != f else round(f, 6)
+        except: return None
+
+    try:
+        with db.cursor() as cur:
+            cur.execute("""
+                INSERT INTO analytics_snapshots (
+                    model_name, portfolio_id, snapshot_date, period_label, benchmark_name,
+                    ytd_return, ytd_vs_benchmark, ytd_excess_return, ytd_sharpe,
+                    ytd_max_drawdown, ytd_batting_average,
+                    return_1m, return_3m, return_6m, return_1y, return_3y,
+                    annualized_return_itd,
+                    benchmark_ytd, benchmark_sharpe,
+                    std_dev_annualized, downside_deviation,
+                    max_drawdown, max_drawdown_duration,
+                    var_95, var_99, cvar_95,
+                    sharpe_ratio, sortino_ratio, calmar_ratio,
+                    information_ratio, omega_ratio,
+                    batting_average, up_capture, down_capture,
+                    updown_capture_ratio, win_loss_ratio, slugging_pct,
+                    effective_n_positions, hhi_concentration,
+                    beta_to_spy, beta_to_agg
+                ) VALUES (
+                    %s,%s,%s,%s,%s,
+                    %s,%s,%s,%s,%s,%s,
+                    %s,%s,%s,%s,%s,%s,
+                    %s,%s,
+                    %s,%s,%s,%s,%s,%s,%s,
+                    %s,%s,%s,%s,%s,
+                    %s,%s,%s,%s,%s,%s,
+                    %s,%s,%s,%s
+                )
+            """, (
+                name, pid, snap_date, f"YTD {snap_date.year}", bench,
+                s(a_ytd.get("ytd_return")),
+                s(a_ytd.get("ytd_benchmark_return")),
+                s(a_ytd.get("ytd_excess")),
+                s(a_ytd.get("ytd_sharpe")),
+                s(a_ytd.get("ytd_max_drawdown")),
+                s(a_ytd.get("ytd_batting_average")),
+                s(a_itd.get("return_1m")),
+                s(a_itd.get("return_3m")),
+                s(a_itd.get("return_6m")),
+                s(a_itd.get("return_1y")),
+                s(a_itd.get("return_3y_ann")),
+                s(a_itd.get("annualized_return")),
+                s(a_itd.get("benchmark_total_return")),
+                None,  # benchmark_sharpe — not computed separately
+                s(a_itd.get("volatility_ann")),
+                s(a_itd.get("downside_deviation")),
+                s(a_itd.get("max_drawdown")),
+                a_itd.get("max_drawdown_duration_days"),
+                s(a_itd.get("var_95")),
+                s(a_itd.get("var_99")),
+                s(a_itd.get("cvar_95")),
+                s(a_itd.get("sharpe_ratio")),
+                s(a_itd.get("sortino_ratio")),
+                s(a_itd.get("calmar_ratio")),
+                s(a_itd.get("information_ratio")),
+                s(a_itd.get("omega_ratio")),
+                s(a_itd.get("batting_average")),
+                s(a_itd.get("up_capture")),
+                s(a_itd.get("down_capture")),
+                s(a_itd.get("up_down_capture")),
+                s(a_itd.get("win_loss_ratio")),
+                s(a_itd.get("slugging_pct")),
+                s(a_itd.get("effective_n_positions")),
+                s(a_itd.get("hhi_concentration")),
+                s(a_itd.get("beta_spy")),
+                s(a_itd.get("beta_agg")),
+            ))
+
+        # Holdings snapshot
+        if not alloc_df.empty:
+            latest = alloc_df["snapshot_date"].max()
+            holdings = alloc_df[alloc_df["snapshot_date"] == latest]
+            with db.cursor() as cur:
+                for _, row in holdings.iterrows():
+                    ticker = str(row["ticker"])
+                    weight = float(row["weight"])
+                    # Get YTD contribution from model_position_returns
+                    cur.execute("""
+                        SELECT SUM(contribution) AS ytd_contrib,
+                               SUM(contribution) / NULLIF(SUM(weight),0) AS ytd_ret
+                        FROM model_position_returns
+                        WHERE portfolio_id=%s AND ticker=%s
+                          AND snapshot_date >= %s
+                    """, (pid, ticker, date(snap_date.year, 1, 1)))
+                    pr = cur.fetchone()
+                    ytd_c = float(pr["ytd_contrib"]) if pr and pr["ytd_contrib"] else None
+                    ytd_r = float(pr["ytd_ret"])    if pr and pr["ytd_ret"]    else None
+                    cur.execute("""
+                        INSERT INTO model_holdings_snapshot
+                            (model_name, portfolio_id, snapshot_date, ticker,
+                             fund_name, weight, ytd_contribution, position_ytd_return)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                    """, (name, pid, snap_date, ticker,
+                          str(row.get("instrument_name","")) if "instrument_name" in row.index else "",
+                          weight, ytd_c, ytd_r))
+        db.commit()
+        log.info("  → Snapshot saved to analytics_snapshots")
+    except Exception as e:
+        db.rollback()
+        log.warning("  Could not save analytics snapshot: %s", e)
 
 # ═════════════════════════════════════════════════════════════════════════════
 # Entry point
@@ -1365,7 +1486,58 @@ def main():
         fw_html = build_firmwide_page(all_results, prices_df, pages, stress_all, db)
         (REPORTS_DIR / "analytics-firmwide.html").write_text(fw_html, encoding="utf-8")
 
+        # Save firm-wide snapshot
+        save_firmwide_snapshot(db, all_results, date.today())
+
     db.close()
+
+
+def save_firmwide_snapshot(db, all_results, snap_date):
+    """Save aggregated firm-wide metrics to firm_wide_snapshots."""
+    ytd_returns = {}
+    sharpes     = {}
+    valid = [(p, a) for p, a in all_results if a and a.get("ytd_return") is not None]
+    if not valid:
+        return
+
+    for p, a in valid:
+        ytd_returns[p["name"]] = round(float(a.get("ytd_return") or 0), 6)
+        sharpes[p["name"]]     = round(float(a.get("sharpe_ratio") or 0), 6)
+
+    def avg(key):
+        vals = [float(a.get(key) or 0) for _, a in valid if a.get(key) is not None]
+        return round(sum(vals)/len(vals), 6) if vals else None
+
+    best  = max(valid, key=lambda x: float(x[1].get("ytd_return") or -99))
+    worst = min(valid, key=lambda x: float(x[1].get("ytd_return") or 99))
+
+    try:
+        with db.cursor() as cur:
+            cur.execute("""
+                INSERT INTO firm_wide_snapshots (
+                    snapshot_date, models_included,
+                    firm_ytd_return, firm_sharpe, firm_sortino,
+                    firm_calmar, firm_max_drawdown, firm_batting_average,
+                    firm_up_capture, firm_down_capture,
+                    best_model_ytd, best_model_ytd_return,
+                    worst_model_ytd, worst_model_ytd_return,
+                    model_ytd_returns, model_sharpes
+                ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """, (
+                snap_date, len(valid),
+                avg("ytd_return"), avg("sharpe_ratio"), avg("sortino_ratio"),
+                avg("calmar_ratio"), avg("max_drawdown"), avg("batting_average"),
+                avg("up_capture"), avg("down_capture"),
+                best[0]["name"],  round(float(best[1].get("ytd_return") or 0), 6),
+                worst[0]["name"], round(float(worst[1].get("ytd_return") or 0), 6),
+                __import__("json").dumps(ytd_returns),
+                __import__("json").dumps(sharpes),
+            ))
+        db.commit()
+        log.info("  → Firm-wide snapshot saved")
+    except Exception as e:
+        db.rollback()
+        log.warning("  Could not save firm-wide snapshot: %s", e)
 
     log.info("\n✅  Done. Open with:")
     if args.all:

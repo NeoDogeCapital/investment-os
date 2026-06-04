@@ -6,288 +6,70 @@
   <title>IWP Models — Dashboard Hub</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg:     #faf9f4;
-      --cream:  #efecdd;
-      --tan:    #d0c298;
-      --terra:  #af6452;
-      --burg:   #633238;
-      --dark:   #3a1f1d;
-      --gray:   #7a6055;
-      --green:  #2e7d4f;
-      --red:    #8f3d2c;
-      --blue:   #3d6080;
+      --bg:#faf9f4; --cream:#efecdd; --tan:#d0c298; --terra:#af6452;
+      --burg:#633238; --dark:#3a1f1d; --gray:#7a6055; --green:#2e7d4f;
+      --red:#8f3d2c; --blue:#3d6080;
     }
-
-    body {
-      background: var(--bg);
-      color: var(--dark);
-      font-family: 'Segoe UI', Georgia, system-ui, sans-serif;
-      min-height: 100vh;
-    }
-
-    /* ── Login screen ── */
-    #login-screen {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background: var(--bg);
-    }
-    .login-card {
-      background: var(--cream);
-      border: 1px solid var(--tan);
-      border-top: 4px solid var(--terra);
-      border-radius: 10px;
-      padding: 48px 44px 40px;
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-      box-shadow: 0 4px 24px rgba(58,31,29,0.10);
-    }
-    .login-logo {
-      margin-bottom: 28px;
-    }
-    .login-card h1 {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--burg);
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-    .login-card p {
-      color: var(--gray);
-      font-size: 13px;
-      margin-bottom: 32px;
-    }
-    .login-card input[type="password"] {
-      width: 100%;
-      padding: 12px 16px;
-      border: 1.5px solid var(--tan);
-      border-radius: 6px;
-      background: var(--bg);
-      color: var(--dark);
-      font-size: 15px;
-      letter-spacing: .15em;
-      outline: none;
-      transition: border-color .2s;
-      margin-bottom: 14px;
-    }
-    .login-card input[type="password"]:focus { border-color: var(--terra); }
-    .login-btn {
-      width: 100%;
-      padding: 12px;
-      background: var(--terra);
-      color: var(--cream);
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background .2s;
-    }
-    .login-btn:hover { background: var(--burg); }
-    .login-error {
-      color: var(--red);
-      font-size: 13px;
-      margin-top: 12px;
-      min-height: 18px;
-    }
-    .login-footer {
-      margin-top: 28px;
-      color: var(--gray);
-      font-size: 11px;
-    }
-
-    /* ── Dashboard hub ── */
-    #hub-screen { display: none; }
-
-    header {
-      background: var(--cream);
-      border-bottom: 3px solid var(--terra);
-      border-top: 5px solid var(--burg);
-      padding: 18px 36px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 1px 4px rgba(58,31,29,0.07);
-    }
-    .header-brand { display: flex; align-items: center; gap: 18px; }
-    .header-brand h1 {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--burg);
-      letter-spacing: .06em;
-      text-transform: uppercase;
-    }
-    .header-brand p { color: var(--gray); font-size: 11px; margin-top: 2px; }
-    .logout-btn {
-      padding: 6px 16px;
-      background: transparent;
-      border: 1.5px solid var(--tan);
-      border-radius: 5px;
-      color: var(--gray);
-      font-size: 12px;
-      cursor: pointer;
-      transition: all .2s;
-    }
-    .logout-btn:hover { border-color: var(--terra); color: var(--terra); }
-
-    .hub-body { max-width: 1100px; margin: 0 auto; padding: 36px 28px; }
-
-    /* Regime banner */
-    #regime-banner {
-      background: var(--cream);
-      border: 1px solid var(--tan);
-      border-left: 4px solid var(--terra);
-      border-radius: 8px;
-      padding: 16px 22px;
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      margin-bottom: 32px;
-      flex-wrap: wrap;
-    }
-    .regime-pill {
-      padding: 5px 18px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      border: 1.5px solid currentColor;
-    }
-    #regime-banner .label { font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: .08em; }
-    #regime-banner .value { font-size: 16px; font-weight: 700; }
-
-    /* Section title */
-    .section-title {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: var(--terra);
-      margin-bottom: 14px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--tan);
-    }
-
-    /* Dashboard grid */
-    .dash-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 16px;
-      margin-bottom: 36px;
-    }
-
-    .dash-card {
-      background: var(--cream);
-      border: 1px solid var(--tan);
-      border-radius: 10px;
-      padding: 22px 24px;
-      text-decoration: none;
-      color: inherit;
-      display: block;
-      transition: all .2s;
-      position: relative;
-      overflow: hidden;
-    }
-    .dash-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: var(--terra);
-      opacity: 0;
-      transition: opacity .2s;
-    }
-    .dash-card:hover { box-shadow: 0 4px 16px rgba(58,31,29,0.12); transform: translateY(-2px); border-color: var(--terra); }
-    .dash-card:hover::before { opacity: 1; }
-
-    .dash-icon { font-size: 28px; margin-bottom: 12px; }
-    .dash-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--burg);
-      margin-bottom: 5px;
-    }
-    .dash-desc { font-size: 12px; color: var(--gray); line-height: 1.5; }
-    .dash-tag {
-      display: inline-block;
-      margin-top: 12px;
-      padding: 2px 10px;
-      background: rgba(175,100,82,0.10);
-      color: var(--terra);
-      border-radius: 20px;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-    .dash-card.unavailable { opacity: .45; cursor: not-allowed; }
-    .dash-card.unavailable:hover { transform: none; box-shadow: none; border-color: var(--tan); }
-    .dash-card.unavailable::before { display: none; }
-    .coming-soon {
-      display: inline-block;
-      margin-top: 12px;
-      padding: 2px 10px;
-      background: rgba(122,96,85,0.12);
-      color: var(--gray);
-      border-radius: 20px;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-
-    /* Model grid (smaller cards) */
-    .model-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 12px;
-      margin-bottom: 36px;
-    }
-    .model-card {
-      background: var(--cream);
-      border: 1px solid var(--tan);
-      border-radius: 8px;
-      padding: 16px 18px;
-      text-decoration: none;
-      color: inherit;
-      display: block;
-      transition: all .18s;
-    }
-    .model-card:hover { border-color: var(--terra); box-shadow: 0 2px 10px rgba(58,31,29,0.09); }
-    .model-name { font-size: 13px; font-weight: 700; color: var(--burg); margin-bottom: 3px; }
-    .model-profile { font-size: 11px; color: var(--gray); }
-
-    footer {
-      border-top: 1px solid var(--tan);
-      padding: 18px 28px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-      color: var(--gray);
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    .confidential { color: var(--terra); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-    #session-timer { color: var(--gray); }
+    body { background:var(--bg); color:var(--dark); font-family:'Segoe UI',Georgia,system-ui,sans-serif; min-height:100vh; }
+    /* ── Login ── */
+    #login-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; }
+    .login-card { background:var(--cream); border:1px solid var(--tan); border-top:4px solid var(--terra); border-radius:10px; padding:48px 44px 40px; width:100%; max-width:400px; text-align:center; box-shadow:0 4px 24px rgba(58,31,29,0.10); }
+    .login-card h1 { font-size:18px; font-weight:700; color:var(--burg); letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; }
+    .login-card p { color:var(--gray); font-size:13px; margin-bottom:32px; }
+    .login-card input { width:100%; padding:12px 16px; border:1.5px solid var(--tan); border-radius:6px; background:var(--bg); color:var(--dark); font-size:15px; letter-spacing:.15em; outline:none; transition:border-color .2s; margin-bottom:14px; }
+    .login-card input:focus { border-color:var(--terra); }
+    .login-btn { width:100%; padding:12px; background:var(--terra); color:var(--cream); border:none; border-radius:6px; font-size:14px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; transition:background .2s; }
+    .login-btn:hover { background:var(--burg); }
+    .login-error { color:var(--red); font-size:13px; margin-top:12px; min-height:18px; }
+    /* ── Hub ── */
+    #hub-screen { display:none; }
+    header { background:var(--cream); border-bottom:3px solid var(--terra); border-top:5px solid var(--burg); padding:16px 32px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 1px 4px rgba(58,31,29,.07); }
+    .header-brand { display:flex; align-items:center; gap:16px; }
+    .header-brand h1 { font-size:16px; font-weight:700; color:var(--burg); letter-spacing:.06em; text-transform:uppercase; }
+    .header-brand p { color:var(--gray); font-size:11px; margin-top:2px; }
+    .logout-btn { padding:5px 14px; background:transparent; border:1.5px solid var(--tan); border-radius:5px; color:var(--gray); font-size:12px; cursor:pointer; transition:all .2s; }
+    .logout-btn:hover { border-color:var(--terra); color:var(--terra); }
+    .hub-body { max-width:1200px; margin:0 auto; padding:28px 24px; }
+    .section-title { font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--terra); margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid var(--tan); }
+    /* ── Firm-wide banner ── */
+    .firm-banner { background:var(--cream); border:1px solid var(--tan); border-left:4px solid var(--burg); border-radius:8px; padding:20px 24px; margin-bottom:28px; display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:16px; }
+    .firm-stat .label { font-size:9px; text-transform:uppercase; letter-spacing:.1em; color:var(--gray); margin-bottom:5px; }
+    .firm-stat .value { font-size:22px; font-weight:800; }
+    /* ── Analytics cards ── */
+    .analytics-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; margin-bottom:28px; }
+    .model-analytics-card { background:var(--cream); border:1px solid var(--tan); border-radius:10px; padding:20px 22px; text-decoration:none; color:inherit; display:block; transition:all .2s; cursor:pointer; }
+    .model-analytics-card:hover { box-shadow:0 4px 16px rgba(58,31,29,.12); transform:translateY(-2px); }
+    .model-name { font-size:14px; font-weight:700; color:var(--burg); }
+    .metric-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:12px; }
+    .metric-box { text-align:center; }
+    .metric-label { font-size:9px; text-transform:uppercase; letter-spacing:.08em; color:var(--gray); margin-bottom:3px; }
+    .metric-val { font-size:14px; font-weight:700; color:var(--dark); }
+    /* ── Dash grid ── */
+    .dash-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; margin-bottom:28px; }
+    .dash-card { background:var(--cream); border:1px solid var(--tan); border-radius:10px; padding:20px 22px; text-decoration:none; color:inherit; display:block; transition:all .2s; }
+    .dash-card:hover { box-shadow:0 4px 14px rgba(58,31,29,.10); transform:translateY(-2px); border-color:var(--terra); }
+    .dash-icon { font-size:26px; margin-bottom:10px; }
+    .dash-title { font-size:14px; font-weight:700; color:var(--burg); margin-bottom:5px; }
+    .dash-desc { font-size:12px; color:var(--gray); line-height:1.5; }
+    .dash-tag { display:inline-block; margin-top:10px; padding:2px 9px; background:rgba(175,100,82,.10); color:var(--terra); border-radius:20px; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    .model-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:10px; margin-bottom:28px; }
+    .model-card { background:var(--cream); border:1px solid var(--tan); border-radius:8px; padding:14px 16px; text-decoration:none; color:inherit; display:block; transition:all .15s; }
+    .model-card:hover { border-color:var(--terra); box-shadow:0 2px 8px rgba(58,31,29,.08); }
+    .coming-soon { display:inline-block; margin-top:10px; padding:2px 9px; background:rgba(122,96,85,.10); color:var(--gray); border-radius:20px; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    .unavailable { opacity:.45; cursor:not-allowed; pointer-events:none; }
+    footer { border-top:1px solid var(--tan); padding:14px 24px; display:flex; justify-content:space-between; font-size:11px; color:var(--gray); max-width:1200px; margin:0 auto; }
+    .confidential { color:var(--terra); font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    #session-timer { font-size:11px; color:var(--gray); }
   </style>
 </head>
 <body>
 
-<!-- ── LOGIN SCREEN ── -->
+<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-card">
-    <div class="login-logo">
-      <!-- IWP Logo SVG -->
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" width="160" height="64" style="margin:0 auto;display:block;">
+    <div style="margin-bottom:24px;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" width="150" height="60" style="margin:0 auto;display:block;">
         <circle cx="40" cy="40" r="34" fill="none" stroke="#af6452" stroke-width="6"/>
         <rect x="33" y="15" width="14" height="3.5" rx="0.5" fill="#633238"/>
         <rect x="38.5" y="18.5" width="3" height="23" fill="#633238"/>
@@ -299,19 +81,18 @@
     </div>
     <h1>IWP Models</h1>
     <p>Investment OS — Dashboard Access</p>
-    <input type="password" id="pwd-input" placeholder="Enter access password"
-           onkeydown="if(event.key==='Enter') attemptLogin()">
+    <input type="password" id="pwd-input" placeholder="Enter access password" onkeydown="if(event.key==='Enter')attemptLogin()">
     <button class="login-btn" onclick="attemptLogin()">Access Dashboards</button>
     <div class="login-error" id="login-error"></div>
-    <p class="login-footer">Session expires after 8 hours &nbsp;·&nbsp; Confidential</p>
+    <p style="margin-top:24px;color:var(--gray);font-size:11px;">Session expires after 8 hours · Confidential</p>
   </div>
 </div>
 
-<!-- ── HUB SCREEN ── -->
+<!-- HUB -->
 <div id="hub-screen">
   <header>
     <div class="header-brand">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" width="120" height="48">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" width="110" height="44">
         <circle cx="40" cy="40" r="34" fill="none" stroke="#af6452" stroke-width="6"/>
         <rect x="33" y="15" width="14" height="3.5" rx="0.5" fill="#633238"/>
         <rect x="38.5" y="18.5" width="3" height="23" fill="#633238"/>
@@ -322,217 +103,338 @@
       </svg>
       <div>
         <h1>IWP Models — Dashboard Hub</h1>
-        <p id="last-updated">Loading...</p>
+        <p>Updated: 2026-06-04 &nbsp;·&nbsp; 7 active models &nbsp;·&nbsp; All data live from Supabase</p>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:14px;">
-      <span id="session-timer" style="font-size:11px;color:#7a6055;"></span>
+      <span id="session-timer"></span>
       <button class="logout-btn" onclick="logout()">Sign Out</button>
     </div>
   </header>
 
   <div class="hub-body">
 
-    <!-- Regime banner -->
-    <div id="regime-banner">
-      <div>
-        <div class="label">Current Regime</div>
-        <div class="value" id="regime-label" style="color:#8a6e2a;">NEUTRAL</div>
+    <!-- Firm-Wide Analytics Banner -->
+    <div class="section-title">Firm-Wide Analytics — 2026-06-04</div>
+    <div class="firm-banner">
+      <div class="firm-stat">
+        <div class="label">Avg YTD Return</div>
+        <div class="value" style="color:#2e7d4f">+6.3%</div>
       </div>
-      <div>
-        <div class="label">Model Action</div>
-        <div class="value" id="regime-action" style="color:#7a6055;">HOLD & WATCH</div>
+      <div class="firm-stat">
+        <div class="label">Avg Sharpe</div>
+        <div class="value" style="color:#af6452">1.16</div>
       </div>
-      <div>
-        <div class="label">Stack Alignment</div>
-        <div class="value" id="regime-align">FULL</div>
+      <div class="firm-stat">
+        <div class="label">Avg Max DD</div>
+        <div class="value" style="color:#8f3d2c">-2.9%</div>
       </div>
-      <div style="margin-left:auto;">
-        <div class="label">Last Updated</div>
-        <div class="value" id="regime-updated" style="font-size:13px;">—</div>
+      <div class="firm-stat">
+        <div class="label">Best YTD</div>
+        <div class="value" style="color:#2e7d4f;font-size:15px;">Balanced Core</div>
+        <div style="font-size:12px;color:#2e7d4f;font-weight:700;">+7.1%</div>
+      </div>
+      <div class="firm-stat">
+        <div class="label">Models Tracked</div>
+        <div class="value" style="color:#633238">7</div>
+      </div>
+      <div class="firm-stat" style="align-self:center;">
+        <a href="analytics-firm-wide.html" style="display:inline-block;padding:8px 18px;background:#af6452;color:#efecdd;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;letter-spacing:.06em;text-transform:uppercase;">
+          Full Firm Report →
+        </a>
       </div>
     </div>
 
-    <!-- Primary dashboards -->
-    <div class="section-title">Primary Dashboards</div>
-    <div class="dash-grid">
+    <!-- Individual Model Analytics Cards -->
+    <div class="section-title">Model Analytics — Click Any Card for Full Report</div>
+    <div class="analytics-grid">
+      
+      <a href="analytics-balanced-core.html" class="model-analytics-card" style="border-top:3px solid #d0c298;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+          <div class="model-name">Balanced Core</div>
+          <span style="font-size:10px;color:#d0c298;">🥇 Best YTD</span>
+        </div>
+        <div class="metric-row">
+          <div class="metric-box">
+            <div class="metric-label">YTD Return</div>
+            <div class="metric-val" style="color:#2e7d4f">+7.1%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Sharpe</div>
+            <div class="metric-val">1.65</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Max DD</div>
+            <div class="metric-val" style="color:#8f3d2c">-2.5%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Batting Avg</div>
+            <div class="metric-val">73.3%</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:#7a6055;">
+          Excess: <strong style="color:#2e7d4f">+0.1%</strong>
+          &nbsp;·&nbsp; Sortino: <strong>3.21</strong>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:#af6452;font-weight:700;letter-spacing:.06em;">
+          VIEW FULL ANALYTICS →
+        </div>
+      </a>
+      <a href="analytics-tax-aware-balanced.html" class="model-analytics-card" style="border-top:3px solid #2e7d4f;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+          <div class="model-name">Tax Aware Balanced</div>
+          
+        </div>
+        <div class="metric-row">
+          <div class="metric-box">
+            <div class="metric-label">YTD Return</div>
+            <div class="metric-val" style="color:#2e7d4f">+7.0%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Sharpe</div>
+            <div class="metric-val">0.90</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Max DD</div>
+            <div class="metric-val" style="color:#8f3d2c">-6.4%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Batting Avg</div>
+            <div class="metric-val">69.8%</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:#7a6055;">
+          Excess: <strong style="color:#2e7d4f">+1.6%</strong>
+          &nbsp;·&nbsp; Sortino: <strong>1.67</strong>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:#af6452;font-weight:700;letter-spacing:.06em;">
+          VIEW FULL ANALYTICS →
+        </div>
+      </a>
+      <a href="analytics-flex-irr.html" class="model-analytics-card" style="border-top:3px solid #2e7d4f;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+          <div class="model-name">Flex IRR</div>
+          
+        </div>
+        <div class="metric-row">
+          <div class="metric-box">
+            <div class="metric-label">YTD Return</div>
+            <div class="metric-val" style="color:#2e7d4f">+6.9%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Sharpe</div>
+            <div class="metric-val">1.72</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Max DD</div>
+            <div class="metric-val" style="color:#8f3d2c">-2.2%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Batting Avg</div>
+            <div class="metric-val">75.6%</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:#7a6055;">
+          Excess: <strong style="color:#2e7d4f">+3.1%</strong>
+          &nbsp;·&nbsp; Sortino: <strong>3.38</strong>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:#af6452;font-weight:700;letter-spacing:.06em;">
+          VIEW FULL ANALYTICS →
+        </div>
+      </a>
+      <a href="analytics-income-real-return.html" class="model-analytics-card" style="border-top:3px solid #2e7d4f;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+          <div class="model-name">Income Real Return</div>
+          
+        </div>
+        <div class="metric-row">
+          <div class="metric-box">
+            <div class="metric-label">YTD Return</div>
+            <div class="metric-val" style="color:#2e7d4f">+6.4%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Sharpe</div>
+            <div class="metric-val">0.47</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Max DD</div>
+            <div class="metric-val" style="color:#8f3d2c">-1.2%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Batting Avg</div>
+            <div class="metric-val">31.2%</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:#7a6055;">
+          Excess: <strong style="color:#2e7d4f">+2.5%</strong>
+          &nbsp;·&nbsp; Sortino: <strong>1.98</strong>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:#af6452;font-weight:700;letter-spacing:.06em;">
+          VIEW FULL ANALYTICS →
+        </div>
+      </a>
+      <a href="analytics-liquid-core.html" class="model-analytics-card" style="border-top:3px solid #2e7d4f;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+          <div class="model-name">Liquid Core</div>
+          
+        </div>
+        <div class="metric-row">
+          <div class="metric-box">
+            <div class="metric-label">YTD Return</div>
+            <div class="metric-val" style="color:#2e7d4f">+6.4%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Sharpe</div>
+            <div class="metric-val">0.47</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Max DD</div>
+            <div class="metric-val" style="color:#8f3d2c">-1.2%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Batting Avg</div>
+            <div class="metric-val">31.2%</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:#7a6055;">
+          Excess: <strong style="color:#2e7d4f">+1.7%</strong>
+          &nbsp;·&nbsp; Sortino: <strong>1.98</strong>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:#af6452;font-weight:700;letter-spacing:.06em;">
+          VIEW FULL ANALYTICS →
+        </div>
+      </a>
+      <a href="analytics-diversified-growth.html" class="model-analytics-card" style="border-top:3px solid #2e7d4f;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+          <div class="model-name">Diversified Growth</div>
+          
+        </div>
+        <div class="metric-row">
+          <div class="metric-box">
+            <div class="metric-label">YTD Return</div>
+            <div class="metric-val" style="color:#2e7d4f">+5.3%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Sharpe</div>
+            <div class="metric-val">1.17</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Max DD</div>
+            <div class="metric-val" style="color:#8f3d2c">-4.8%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Batting Avg</div>
+            <div class="metric-val">68.9%</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:#7a6055;">
+          Excess: <strong style="color:#8f3d2c">-6.1%</strong>
+          &nbsp;·&nbsp; Sortino: <strong>1.90</strong>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:#af6452;font-weight:700;letter-spacing:.06em;">
+          VIEW FULL ANALYTICS →
+        </div>
+      </a>
+      <a href="analytics-conservative-core.html" class="model-analytics-card" style="border-top:3px solid #2e7d4f;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+          <div class="model-name">Conservative Core</div>
+          
+        </div>
+        <div class="metric-row">
+          <div class="metric-box">
+            <div class="metric-label">YTD Return</div>
+            <div class="metric-val" style="color:#2e7d4f">+5.2%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Sharpe</div>
+            <div class="metric-val">1.71</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Max DD</div>
+            <div class="metric-val" style="color:#8f3d2c">-2.4%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Batting Avg</div>
+            <div class="metric-val">75.6%</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:#7a6055;">
+          Excess: <strong style="color:#2e7d4f">+2.6%</strong>
+          &nbsp;·&nbsp; Sortino: <strong>3.70</strong>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:#af6452;font-weight:700;letter-spacing:.06em;">
+          VIEW FULL ANALYTICS →
+        </div>
+      </a>
+    </div>
 
+    <!-- Primary Dashboards -->
+    <div class="section-title">Operational Dashboards</div>
+    <div class="dash-grid">
       <a href="portfolio-dashboard.html" class="dash-card">
         <div class="dash-icon">📊</div>
         <div class="dash-title">Portfolio Dashboard</div>
         <div class="dash-desc">Live holdings, positions, trigger status, allocation summary, active alerts, and model rules.</div>
         <span class="dash-tag">Live · 60s refresh</span>
       </a>
-
       <a href="regime-memo.html" class="dash-card">
         <div class="dash-icon">🗺</div>
         <div class="dash-title">Regime Memo</div>
         <div class="dash-desc">Three-horizon regime stack, AI narrative, source sentiment, watchpoints, and positioning implications.</div>
         <span class="dash-tag">Weekly synthesis</span>
       </a>
-
-      <a href="models-overview.html" class="dash-card">
-        <div class="dash-icon">📈</div>
-        <div class="dash-title">Models Overview</div>
-        <div class="dash-desc">All 7 IWP model portfolios side-by-side — cumulative returns, benchmarks, and alpha comparison.</div>
+      <a href="performance-history.html" class="dash-card">
+        <div class="dash-icon">📅</div>
+        <div class="dash-title">Performance History</div>
+        <div class="dash-desc">Track any metric over time. Sharpe ratio trends, drawdown evolution, quarter-by-quarter model rankings.</div>
+        <span class="dash-tag">Historical tracking</span>
+      </a>
+      <a href="analytics-comparison.html" class="dash-card">
+        <div class="dash-icon">⚖️</div>
+        <div class="dash-title">Model Comparison</div>
+        <div class="dash-desc">All 7 models side-by-side: YTD, 1Y, 3Y, Sharpe, Sortino, Calmar, Max DD, up/down capture.</div>
         <span class="dash-tag">7 Models</span>
       </a>
-
-      <a href="analytics-report.html" class="dash-card">
-        <div class="dash-icon">🔬</div>
-        <div class="dash-title">Analytics Report</div>
-        <div class="dash-desc">Sharpe, Sortino, Calmar, max drawdown, up/down capture, batting average, stress tests, and regime performance.</div>
-        <span class="dash-tag">Diversified Growth</span>
-      </a>
-
     </div>
 
-    <!-- Individual model reports -->
+    <!-- Model Performance Reports -->
     <div class="section-title">Model Performance Reports</div>
     <div class="model-grid">
-      <a href="model-liquid-core.html" class="model-card">
-        <div class="model-name">Liquid Core</div>
-        <div class="model-profile">30/70 · Benchmark: FTANX</div>
-      </a>
-      <a href="model-conservative-core.html" class="model-card">
-        <div class="model-name">Conservative Core</div>
-        <div class="model-profile">40/60 · Benchmark: BIMPX</div>
-      </a>
-      <a href="model-income-real-return.html" class="model-card">
-        <div class="model-name">Income Real Return</div>
-        <div class="model-profile">50/50 · Benchmark: FASMX</div>
-      </a>
-      <a href="model-flex-irr.html" class="model-card">
-        <div class="model-name">Flex IRR</div>
-        <div class="model-profile">55/45 · Benchmark: FASMX</div>
-      </a>
-      <a href="model-balanced-core.html" class="model-card">
-        <div class="model-name">Balanced Core</div>
-        <div class="model-profile">60/40 · Benchmark: BIGPX</div>
-      </a>
-      <a href="model-tax-aware-balanced.html" class="model-card">
-        <div class="model-name">Tax Aware Balanced</div>
-        <div class="model-profile">60/40 munis · VBIAX</div>
-      </a>
-      <a href="model-diversified-growth.html" class="model-card">
-        <div class="model-name">Diversified Growth</div>
-        <div class="model-profile">70/30 · Benchmark: FASGX</div>
-      </a>
+      <a href="model-liquid-core.html" class="model-card"><div style="font-size:13px;font-weight:700;color:#633238;">Liquid Core</div><div style="font-size:11px;color:#7a6055;">30/70 · FTANX</div></a>
+      <a href="model-conservative-core.html" class="model-card"><div style="font-size:13px;font-weight:700;color:#633238;">Conservative Core</div><div style="font-size:11px;color:#7a6055;">40/60 · BIMPX</div></a>
+      <a href="model-income-real-return.html" class="model-card"><div style="font-size:13px;font-weight:700;color:#633238;">Income Real Return</div><div style="font-size:11px;color:#7a6055;">50/50 · FASMX</div></a>
+      <a href="model-flex-irr.html" class="model-card"><div style="font-size:13px;font-weight:700;color:#633238;">Flex IRR</div><div style="font-size:11px;color:#7a6055;">55/45 · FASMX</div></a>
+      <a href="model-balanced-core.html" class="model-card"><div style="font-size:13px;font-weight:700;color:#633238;">Balanced Core</div><div style="font-size:11px;color:#7a6055;">60/40 · BIGPX</div></a>
+      <a href="model-tax-aware-balanced.html" class="model-card"><div style="font-size:13px;font-weight:700;color:#633238;">Tax Aware Balanced</div><div style="font-size:11px;color:#7a6055;">60/40 munis · VBIAX</div></a>
+      <a href="model-diversified-growth.html" class="model-card"><div style="font-size:13px;font-weight:700;color:#633238;">Diversified Growth</div><div style="font-size:11px;color:#7a6055;">70/30 · FASGX</div></a>
     </div>
 
-    <!-- Coming soon -->
+    <!-- Coming Soon -->
     <div class="section-title">Coming Soon</div>
     <div class="dash-grid">
-      <div class="dash-card unavailable">
-        <div class="dash-icon">📡</div>
-        <div class="dash-title">Macro Technicals</div>
-        <div class="dash-desc">Cross-asset technical analysis across equities, rates, commodities, and currency.</div>
-        <span class="coming-soon">In Development</span>
-      </div>
-      <div class="dash-card unavailable">
-        <div class="dash-icon">👁</div>
-        <div class="dash-title">Watchlist</div>
-        <div class="dash-desc">Position candidates under research with entry criteria and regime prerequisites.</div>
-        <span class="coming-soon">In Development</span>
-      </div>
-      <div class="dash-card unavailable">
-        <div class="dash-icon">🏗</div>
-        <div class="dash-title">IC Dashboard</div>
-        <div class="dash-desc">Investment Committee view — aggregate firm-wide exposure, risk budget, and process scorecard.</div>
-        <span class="coming-soon">In Development</span>
-      </div>
+      <div class="dash-card unavailable"><div class="dash-icon">📡</div><div class="dash-title">Macro Technicals</div><div class="dash-desc">Cross-asset technical analysis across equities, rates, commodities, and currency.</div><span class="coming-soon">In Development</span></div>
+      <div class="dash-card unavailable"><div class="dash-icon">👁</div><div class="dash-title">Watchlist</div><div class="dash-desc">Position candidates under research with entry criteria and regime prerequisites.</div><span class="coming-soon">In Development</span></div>
+      <div class="dash-card unavailable"><div class="dash-icon">🏗</div><div class="dash-title">IC Dashboard</div><div class="dash-desc">Investment Committee view — aggregate exposure, risk budget, process scorecard.</div><span class="coming-soon">In Development</span></div>
     </div>
 
   </div>
 
   <footer>
-    <div><span class="confidential">Confidential</span> &nbsp;·&nbsp; IWP Wealth Partners &nbsp;·&nbsp; For authorized users only</div>
-    <div id="footer-date"></div>
+    <div><span class="confidential">Confidential</span> &nbsp;·&nbsp; IWP Wealth Partners</div>
+    <div id="footer-date">2026-06-04</div>
   </footer>
 </div>
 
 <script>
-// ── Password config ──────────────────────────────────────────
-const PW_HASH     = '3072dd90285d9544de373c9d91d388459aa8682ffbffffd5eeeaf3e86850dc10';
-const SESSION_KEY = 'iwp_session';
-const SESSION_TTL = 8 * 60 * 60 * 1000; // 8 hours in ms
-
-// ── Crypto hash ───────────────────────────────────────────────
-async function sha256(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-}
-
-// ── Login logic ───────────────────────────────────────────────
-async function attemptLogin() {
-  const pw  = document.getElementById('pwd-input').value;
-  const err = document.getElementById('login-error');
-  if (!pw) { err.textContent = 'Enter the access password.'; return; }
-
-  const hash = await sha256(pw);
-  if (hash === PW_HASH) {
-    localStorage.setItem(SESSION_KEY, Date.now().toString());
-    showHub();
-  } else {
-    err.textContent = 'Incorrect password. Contact IWP for access.';
-    document.getElementById('pwd-input').value = '';
-    document.getElementById('pwd-input').focus();
-  }
-}
-
-function logout() {
-  localStorage.removeItem(SESSION_KEY);
-  document.getElementById('hub-screen').style.display  = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('pwd-input').value = '';
-}
-
-// ── Session check ─────────────────────────────────────────────
-function checkSession() {
-  const ts = localStorage.getItem(SESSION_KEY);
-  if (!ts) return false;
-  const age = Date.now() - parseInt(ts);
-  if (age > SESSION_TTL) { localStorage.removeItem(SESSION_KEY); return false; }
-  return true;
-}
-
-// ── Session countdown ─────────────────────────────────────────
-function updateTimer() {
-  const ts = localStorage.getItem(SESSION_KEY);
-  if (!ts) return;
-  const remaining = SESSION_TTL - (Date.now() - parseInt(ts));
-  if (remaining <= 0) { logout(); return; }
-  const h = Math.floor(remaining / 3600000);
-  const m = Math.floor((remaining % 3600000) / 60000);
-  document.getElementById('session-timer').textContent =
-    `Session: ${h}h ${m}m remaining`;
-}
-
-// ── Hub init ──────────────────────────────────────────────────
-function showHub() {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('hub-screen').style.display   = 'block';
-
-  const now = new Date();
-  document.getElementById('footer-date').textContent =
-    now.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
-  document.getElementById('last-updated').textContent =
-    'Last updated: ' + now.toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'});
-
-  updateTimer();
-  setInterval(updateTimer, 60000);
-}
-
-// ── Boot ──────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  if (checkSession()) {
-    showHub();
-  } else {
-    document.getElementById('login-screen').style.display = 'flex';
-    document.getElementById('hub-screen').style.display   = 'none';
-    setTimeout(() => document.getElementById('pwd-input').focus(), 100);
-  }
-});
+const PW_HASH='3072dd90285d9544de373c9d91d388459aa8682ffbffffd5eeeaf3e86850dc10';
+const SESSION_KEY='iwp_session',SESSION_TTL=8*60*60*1000;
+async function sha256(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(b=>b.toString(16).padStart(2,'0')).join('');}
+async function attemptLogin(){const pw=document.getElementById('pwd-input').value,err=document.getElementById('login-error');if(!pw){err.textContent='Enter the access password.';return;}const h=await sha256(pw);if(h===PW_HASH){localStorage.setItem(SESSION_KEY,Date.now().toString());showHub();}else{err.textContent='Incorrect password.';document.getElementById('pwd-input').value='';}}
+function logout(){localStorage.removeItem(SESSION_KEY);document.getElementById('hub-screen').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('pwd-input').value='';}
+function checkSession(){const ts=localStorage.getItem(SESSION_KEY);if(!ts)return false;if(Date.now()-parseInt(ts)>SESSION_TTL){localStorage.removeItem(SESSION_KEY);return false;}return true;}
+function updateTimer(){const ts=localStorage.getItem(SESSION_KEY);if(!ts)return;const r=SESSION_TTL-(Date.now()-parseInt(ts));if(r<=0){logout();return;}const h=Math.floor(r/3600000),m=Math.floor((r%3600000)/60000);document.getElementById('session-timer').textContent=`Session: ${h}h ${m}m`;}
+function showHub(){document.getElementById('login-screen').style.display='none';document.getElementById('hub-screen').style.display='block';updateTimer();setInterval(updateTimer,60000);}
+window.addEventListener('DOMContentLoaded',()=>{if(checkSession())showHub();else{document.getElementById('login-screen').style.display='flex';document.getElementById('hub-screen').style.display='none';setTimeout(()=>document.getElementById('pwd-input').focus(),100);}});
 </script>
 </body>
 </html>
