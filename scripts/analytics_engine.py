@@ -1079,16 +1079,16 @@ def build_model_page(portfolio, model_daily, bench_daily, prices_df, alloc_df,
 def build_comparison_page(all_results, pages):
     date_str = date.today().strftime("%B %d, %Y")
     METRICS = [
-        ("Model",               lambda a,p: f'<a href="analytics-{p["id"].replace("_","-")}.html" style="color:{GOLD};font-weight:700;">{p["name"]}</a>', False),
-        ("YTD",                 lambda a,p: p(a.get("ytd_return"))           if a else "—", True),
-        ("1Y",                  lambda a,p: p(a.get("return_1y"))            if a else "—", True),
-        ("3Y Ann",              lambda a,p: p(a.get("return_3y_ann"))        if a else "—", True),
-        ("Sharpe",              lambda a,p: p(a.get("sharpe_ratio"),pct=False) if a else "—", True),
-        ("Sortino",             lambda a,p: p(a.get("sortino_ratio"),pct=False) if a else "—", True),
-        ("Calmar",              lambda a,p: p(a.get("calmar_ratio"),pct=False) if a else "—", True),
-        ("Max DD",              lambda a,p: p(a.get("max_drawdown"))         if a else "—", True),
-        ("Up/Down Capture",     lambda a,p: p(a.get("up_down_capture"),pct=False) if a else "—", True),
-        ("Batting Avg",         lambda a,p: p(a.get("batting_average"))      if a else "—", True),
+        ("Model",               lambda a,ptf: f'<a href="analytics-{ptf["id"].replace("_","-")}.html" style="color:{GOLD};font-weight:700;">{ptf["name"]}</a>', False),
+        ("YTD",                 lambda a,ptf: p(a.get("ytd_return"))           if a else "—", True),
+        ("1Y",                  lambda a,ptf: p(a.get("return_1y"))            if a else "—", True),
+        ("3Y Ann",              lambda a,ptf: p(a.get("return_3y_ann"))        if a else "—", True),
+        ("Sharpe",              lambda a,ptf: p(a.get("sharpe_ratio"),pct=False) if a else "—", True),
+        ("Sortino",             lambda a,ptf: p(a.get("sortino_ratio"),pct=False) if a else "—", True),
+        ("Calmar",              lambda a,ptf: p(a.get("calmar_ratio"),pct=False) if a else "—", True),
+        ("Max DD",              lambda a,ptf: p(a.get("max_drawdown"))         if a else "—", True),
+        ("Up/Down Capture",     lambda a,ptf: p(a.get("up_down_capture"),pct=False) if a else "—", True),
+        ("Batting Avg",         lambda a,ptf: p(a.get("batting_average"))      if a else "—", True),
     ]
     header = "".join(f"<th>{m[0]}</th>" for m in METRICS)
     body = ""
