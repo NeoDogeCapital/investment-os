@@ -16,9 +16,12 @@ def load_env():
     env_file = PROJECT_DIR / ".env"
     if env_file.exists():
         for line in env_file.read_text().splitlines():
-            if "=" in line and not line.startswith("#"):
-                k, v = line.split("=", 1)
-                os.environ.setdefault(k.strip(), v.strip().strip('"'))
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            v = v.strip().strip('"').strip("'")
+            os.environ.setdefault(k.strip(), v)
 
 load_env()
 
