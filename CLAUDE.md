@@ -1,0 +1,81 @@
+# Investment OS — Project Context
+
+GITHUB:     https://github.com/NeoDogeCapital/investment-os
+MODEL:      IWP Models — Macro Investment OS
+DATABASE:   Supabase (credentials in .env)
+TO PULL LATEST: git pull origin main
+PROJECT DIR: ~/Documents/investment-os
+
+## What This Is
+A personal investment research and decision management system that aggregates research from 10 macro/market sources, scores market regime, gates trade entries via hard rules, and journals decisions.
+
+## Project Structure
+```
+investment-os/
+├── config/sources.yaml          # Source definitions, weights, metadata
+├── database/migrations/         # PostgreSQL schema (run in order 001–007)
+├── scripts/
+│   ├── vault_watcher.py         # Watches Obsidian vault for new research notes
+│   ├── regime_scanner.py        # Scores regime across analytical layers
+│   ├── decision_gate.py         # Validates trades against hard/soft rules
+│   └── trigger_monitor.py       # Monitors open positions for invalidation
+├── obsidian-templates/
+│   ├── research-note.md         # Template for source research
+│   └── tweet-note.md            # Template for tweet/social captures
+├── requirements.txt
+└── .env                         # DATABASE_URL, ANTHROPIC_API_KEY, OBSIDIAN_VAULT_PATH
+```
+
+## Sources (10)
+| Source | Specialty |
+|--------|-----------|
+| Hedgeye | Risk range process, macro regime |
+| 42 Macro | Quantitative macro, regime scoring |
+| FFTT / Luke Gromen | Global liquidity, dollar cycle |
+| Michael Howell / CrossBorder Capital | Global liquidity flows |
+| Mike Green / Simplify | Passive flows, market structure |
+| Milton Berg | Cycle analysis, sentiment extremes |
+| Investech | Technical/fundamental hybrid |
+| SpotGamma | Options flow, GEX, dealer positioning |
+| Samantha LaDuc | Market structure, tape reading |
+| Jarred Dillian | Sentiment, contrarian signals |
+
+## Model Rules (HARDCODED — NEVER BYPASS)
+- Max allocation per position: **12%**
+- Min initiation size: **2%**
+- Allocation ladder: **2% → 4% → 7% → 10% → 12%** (sequential, no skipping)
+- Every trade requires a **locked thesis** before entry
+- Every trade requires **documented invalidation conditions**
+- Hard rules cannot be bypassed under any circumstances
+- Soft rules require written documentation to override
+
+## Regime System
+- **RISK_ON**: composite score > +0.40
+- **NEUTRAL**: score between -0.40 and +0.40
+- **RISK_OFF**: composite score < -0.40
+- Scoring dimensions: `macro_regime`, `micro_levels`, `options_flow`, `timing`
+- Recency decay applied to research older than configured staleness window
+- Analytical layers: `global_liquidity`, `macro_regime`, `market_structure`, `cycle_sentiment`, `options_flow`, `macro_to_micro`
+
+## Database
+PostgreSQL via Supabase. Connect using `DATABASE_URL` from `.env`.
+Migrations in `database/migrations/` — run in order 001–007.
+
+## Key Scripts
+- **vault_watcher.py**: Watches `OBSIDIAN_VAULT_PATH` for new/modified `.md` files and ingests research into the DB.
+- **regime_scanner.py**: Pulls recent research, scores each source/dimension, computes composite regime.
+- **decision_gate.py**: Given a proposed trade, validates all hard rules and flags soft rule violations.
+- **trigger_monitor.py**: Polls open positions and alerts when invalidation conditions are met.
+
+## Claude Model
+Use `claude-sonnet-4-6` for all Claude API calls in this project.
+
+## Running
+```bash
+pip install -r requirements.txt
+# Apply migrations (already run against Supabase)
+python scripts/vault_watcher.py      # daemon
+python scripts/regime_scanner.py     # on-demand or scheduled
+python scripts/decision_gate.py      # called with trade params
+python scripts/trigger_monitor.py    # daemon or scheduled
+```

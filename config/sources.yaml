@@ -1,0 +1,310 @@
+sources:
+  - id: hedgeye
+    name: "Hedgeye Risk Management"
+    short: "Hedgeye"
+    active: true
+    tier: 1
+    specialty: ["macro_regime", "risk_range", "quad_framework"]
+    analytical_layers:
+      macro_regime: 0.35
+      micro_levels: 0.30
+      options_flow: 0.00
+      timing: 0.20
+      global_liquidity: 0.10
+      market_structure: 0.05
+    dimension_weights:
+      macro_regime: 0.35
+      micro_levels: 0.30
+      options_flow: 0.00
+      timing: 0.35
+    recency_half_life_days: 7
+    notes: "Quad framework (GIP model). Very process-driven. Weight timing heavily."
+
+  - id: 42macro
+    name: "42 Macro"
+    short: "42 Macro"
+    active: true
+    tier: 1
+    specialty: ["quantitative_macro", "regime_scoring", "cross_asset"]
+    analytical_layers:
+      macro_regime: 0.40
+      micro_levels: 0.20
+      options_flow: 0.00
+      timing: 0.20
+      global_liquidity: 0.15
+      market_structure: 0.05
+    dimension_weights:
+      macro_regime: 0.45
+      micro_levels: 0.25
+      options_flow: 0.00
+      timing: 0.30
+    recency_half_life_days: 7
+    notes: "Quantitative regime scoring. Strong cross-asset macro framework."
+
+  - id: fftt
+    name: "FFTT / Luke Gromen"
+    short: "Gromen"
+    active: true
+    tier: 1
+    specialty: ["global_liquidity", "dollar_cycle", "fiscal_dominance"]
+    analytical_layers:
+      macro_regime: 0.20
+      micro_levels: 0.00
+      options_flow: 0.00
+      timing: 0.10
+      global_liquidity: 0.55
+      market_structure: 0.15
+    dimension_weights:
+      macro_regime: 0.25
+      micro_levels: 0.00
+      options_flow: 0.00
+      timing: 0.75
+    recency_half_life_days: 14
+    notes: "Long-cycle global liquidity and fiscal dominance thesis. Lower timing precision."
+
+  - id: crossborder
+    name: "CrossBorder Capital / Michael Howell"
+    short: "Howell"
+    active: true
+    tier: 1
+    specialty: ["global_liquidity", "collateral_cycles", "capital_flows"]
+    analytical_layers:
+      macro_regime: 0.15
+      micro_levels: 0.00
+      options_flow: 0.00
+      timing: 0.15
+      global_liquidity: 0.60
+      market_structure: 0.10
+    dimension_weights:
+      macro_regime: 0.20
+      micro_levels: 0.00
+      options_flow: 0.00
+      timing: 0.80
+    recency_half_life_days: 14
+    notes: "Global liquidity cycle model. Proprietary GLI index. Complements Gromen."
+
+  - id: mike_green
+    name: "Mike Green / Simplify"
+    short: "M. Green"
+    active: true
+    tier: 1
+    specialty: ["passive_flows", "market_structure", "vol_dynamics"]
+    analytical_layers:
+      macro_regime: 0.10
+      micro_levels: 0.15
+      options_flow: 0.25
+      timing: 0.10
+      global_liquidity: 0.10
+      market_structure: 0.30
+    dimension_weights:
+      macro_regime: 0.10
+      micro_levels: 0.20
+      options_flow: 0.30
+      timing: 0.40
+    recency_half_life_days: 10
+    notes: "Passive flow dynamics and structural market plumbing. Options vol overlay."
+
+  - id: milton_berg
+    name: "Milton Berg"
+    short: "M. Berg"
+    active: true
+    tier: 1
+    specialty: ["cycle_analysis", "sentiment_extremes", "breadth"]
+    analytical_layers:
+      macro_regime: 0.15
+      micro_levels: 0.20
+      options_flow: 0.10
+      timing: 0.25
+      global_liquidity: 0.05
+      market_structure: 0.25
+    dimension_weights:
+      macro_regime: 0.15
+      micro_levels: 0.25
+      options_flow: 0.15
+      timing: 0.45
+    recency_half_life_days: 5
+    notes: "Cycle turning points, breadth divergences, sentiment extremes. High timing value."
+
+  - id: investech
+    name: "InvesTech Research"
+    short: "InvesTech"
+    active: true
+    tier: 2
+    specialty: ["technical_fundamental", "monetary_policy", "historical_analogs"]
+    analytical_layers:
+      macro_regime: 0.25
+      micro_levels: 0.25
+      options_flow: 0.00
+      timing: 0.20
+      global_liquidity: 0.15
+      market_structure: 0.15
+    dimension_weights:
+      macro_regime: 0.30
+      micro_levels: 0.30
+      options_flow: 0.00
+      timing: 0.40
+    recency_half_life_days: 21
+    notes: "Monthly newsletter cadence. Historical analog analysis. Monetary policy focus."
+
+  - id: spotgamma
+    name: "SpotGamma"
+    short: "SpotGamma"
+    active: true
+    tier: 3
+    specialty: ["options_flow", "gamma_exposure", "dealer_positioning"]
+    analytical_layers:
+      macro_regime: 0.00
+      micro_levels: 0.20
+      options_flow: 0.65
+      timing: 0.10
+      global_liquidity: 0.00
+      market_structure: 0.05
+    dimension_weights:
+      macro_regime: 0.00
+      micro_levels: 0.15
+      options_flow: 0.70
+      timing: 0.15
+    recency_half_life_days: 2
+    notes: "GEX, dealer gamma, key option levels. Very short decay — stale quickly."
+
+  - id: laduc
+    name: "Samantha LaDuc"
+    short: "LaDuc"
+    active: true
+    tier: 2
+    specialty: ["market_structure", "tape_reading", "intermarket"]
+    analytical_layers:
+      macro_regime: 0.10
+      micro_levels: 0.30
+      options_flow: 0.15
+      timing: 0.25
+      global_liquidity: 0.05
+      market_structure: 0.15
+    dimension_weights:
+      macro_regime: 0.10
+      micro_levels: 0.35
+      options_flow: 0.20
+      timing: 0.35
+    recency_half_life_days: 5
+    notes: "Tape reading, intermarket analysis, sector rotation signals."
+
+  - id: dillian
+    name: "Jarred Dillian"
+    short: "Dillian"
+    active: true
+    tier: 2
+    specialty: ["sentiment", "contrarian", "behavioral"]
+    analytical_layers:
+      macro_regime: 0.10
+      micro_levels: 0.10
+      options_flow: 0.10
+      timing: 0.30
+      global_liquidity: 0.05
+      market_structure: 0.10
+    dimension_weights:
+      macro_regime: 0.10
+      micro_levels: 0.15
+      options_flow: 0.15
+      timing: 0.60
+    recency_half_life_days: 7
+    notes: "Contrarian sentiment signals, behavioral finance overlay."
+
+  - id: other_analyst
+    name: "Other Analyst"
+    short: "Other"
+    active: true
+    tier: 3
+    specialty: ["macro_regime", "guest_appearance", "occasional_substack"]
+    analytical_layers:
+      macro_regime: 0.40
+      micro_levels: 0.20
+      options_flow: 0.10
+      timing: 0.15
+      global_liquidity: 0.10
+      market_structure: 0.05
+    dimension_weights:
+      macro_regime: 0.40
+      micro_levels: 0.30
+      options_flow: 0.20
+      timing: 0.30
+    recency_half_life_days: 10
+    notes: "One-off analysts, guest appearances, occasional Substacks not in core roster."
+
+  - id: macro_data
+    name: "Macro Data"
+    short: "Data"
+    active: true
+    tier: 3
+    specialty: ["fed_releases", "economic_data", "earnings_transcripts"]
+    analytical_layers:
+      macro_regime: 0.60
+      micro_levels: 0.15
+      options_flow: 0.05
+      timing: 0.10
+      global_liquidity: 0.05
+      market_structure: 0.05
+    dimension_weights:
+      macro_regime: 0.60
+      micro_levels: 0.20
+      options_flow: 0.10
+      timing: 0.20
+    recency_half_life_days: 14
+    notes: "Fed releases, BLS, CPI, economic data points, earnings transcripts, official data sources."
+
+  - id: market_commentary
+    name: "Market Commentary"
+    short: "Commentary"
+    active: true
+    tier: 3
+    specialty: ["cycle_sentiment", "news", "market_moving_information"]
+    analytical_layers:
+      macro_regime: 0.20
+      micro_levels: 0.15
+      options_flow: 0.10
+      timing: 0.20
+      global_liquidity: 0.10
+      market_structure: 0.25
+    dimension_weights:
+      macro_regime: 0.30
+      micro_levels: 0.20
+      options_flow: 0.10
+      timing: 0.20
+    recency_half_life_days: 3
+    notes: "News articles, FT, WSJ, Bloomberg pieces with relevant data or market moving information."
+
+  - id: emerging_voice
+    name: "Emerging Voice"
+    short: "Emerging"
+    active: true
+    tier: 3
+    specialty: ["cycle_sentiment", "twitter", "podcast_guests"]
+    analytical_layers:
+      macro_regime: 0.20
+      micro_levels: 0.15
+      options_flow: 0.10
+      timing: 0.20
+      global_liquidity: 0.10
+      market_structure: 0.25
+    dimension_weights:
+      macro_regime: 0.35
+      micro_levels: 0.25
+      options_flow: 0.20
+      timing: 0.25
+    recency_half_life_days: 7
+    notes: "New or occasional Twitter voices, podcast guests, one-off research worth tracking but not yet a core source."
+
+# Global scoring config
+scoring:
+  regime_thresholds:
+    risk_on: 0.40
+    risk_off: -0.40
+  recency_decay_model: exponential  # exponential | linear
+  min_sources_for_regime: 3         # minimum active sources required to compute regime
+  staleness_hard_cutoff_days: 30    # research older than this is excluded entirely
+
+# Dimension global weights (how much each dimension contributes to composite regime score)
+dimension_global_weights:
+  macro_regime: 0.30
+  micro_levels: 0.20
+  options_flow: 0.20
+  timing: 0.30

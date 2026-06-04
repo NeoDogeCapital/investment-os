@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" width="200" height="80">
+  <!-- Circle ring -->
+  <circle cx="40" cy="40" r="34" fill="none" stroke="#af6452" stroke-width="6"/>
+  <!-- Serif I — drawn as three rectangles for classic serif style -->
+  <rect x="33" y="15" width="14" height="3.5" rx="0.5" fill="#633238"/>
+  <rect x="38.5" y="18" width="3" height="24" fill="#633238"/>
+  <rect x="33" y="41.5" width="14" height="3.5" rx="0.5" fill="#633238"/>
+  <!-- W letterform -->
+  <text x="86" y="32" font-family="Georgia,serif" font-size="26" font-weight="700"
+        fill="#633238" letter-spacing="-1">W</text>
+  <!-- Divider rule -->
+  <rect x="86" y="40" width="34" height="2.5" rx="1" fill="#af6452"/>
+  <!-- P letterform -->
+  <text x="91" y="68" font-family="Georgia,serif" font-size="26" font-weight="700"
+        fill="#633238" letter-spacing="-1">P</text>
+</svg>

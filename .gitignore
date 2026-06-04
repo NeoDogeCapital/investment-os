@@ -1,0 +1,46 @@
+# Environment & secrets
+.env
+*.env.local
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Generated reports (HTML)
+reports/*.html
+
+# Data files
+data/
+*.db
+*.sqlite
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Office / data files (contain sensitive allocations)
+*.xlsx
+*.xls
+*.csv
+
+# Logs (generated at runtime)
+logs/*.log
+logs/*.error.log
+
+# Price cache / large data (fetched at runtime via yfinance)
+# These are already in Supabase
+
+# Obsidian vault (user-specific, not part of repo)
+# OBSIDIAN_VAULT_PATH set in .env
+
+# Node (if any tooling added later)
+node_modules/
