@@ -121,9 +121,11 @@ def get_all_tickers(db):
     with db.cursor() as cur:
         cur.execute("SELECT DISTINCT ticker FROM model_allocations WHERE ticker != 'CASH'")
         tickers = {r["ticker"] for r in cur.fetchall()}
+        # Add the exact benchmark tickers from model_portfolios
+        cur.execute("SELECT benchmark_ticker FROM model_portfolios WHERE benchmark_ticker IS NOT NULL")
+        for r in cur.fetchall():
+            tickers.add(r["benchmark_ticker"])
     tickers.update(ALWAYS_FETCH)
-    for bm_list in MODEL_BENCHMARKS.values():
-        for t, _ in bm_list: tickers.add(t)
     return sorted(tickers)
 
 def fetch_prices(db, tickers, force_refresh=False):
@@ -266,21 +268,25 @@ def build_model_returns(portfolio_id, alloc_df, prices_df):
                   index=pd.DatetimeIndex([d for d, _ in daily_returns]))
     return s
 
-def build_benchmark_returns(portfolio_id, prices_df):
-    """Build benchmark daily return series for a given model."""
-    bm_components = MODEL_BENCHMARKS.get(portfolio_id, [("SPY", 0.60), ("AGG", 0.40)])
-    ret = pd.Series(0.0, index=prices_df.index)
-    total_w = 0
-    for ticker, w in bm_components:
-        if ticker not in prices_df.columns:
-            log.warning("Benchmark ticker %s not in prices — skipping", ticker)
-            continue
-        p = prices_df[ticker].pct_change()
-        ret = ret + w * p.reindex(ret.index, fill_value=0)
-        total_w += w
-    if total_w > 0 and total_w < 0.99:
-        ret = ret / total_w
-    return ret.dropna()
+def build_benchmark_returns(portfolio_id, prices_df, benchmark_ticker=None):
+    """
+    Build benchmark daily return series using the model's exact benchmark ticker
+    (FTANX, BIMPX, FASMX, BIGPX, VBIAX, FASGX) stored in model_portfolios.
+    Falls back to SPY only if the ticker is missing from the price matrix.
+    """
+    ticker = benchmark_ticker or "SPY"
+
+    if ticker in prices_df.columns:
+        ret = prices_df[ticker].pct_change()
+        log.info("  Benchmark: %s", ticker)
+        return ret.dropna()
+
+    # Fallback: if exact benchmark not in price matrix, try SPY
+    log.warning("  Benchmark ticker %s not in prices — falling back to SPY", ticker)
+    if "SPY" in prices_df.columns:
+        return prices_df["SPY"].pct_change().dropna()
+
+    return pd.Series(dtype=float)
 
 # ═════════════════════════════════════════════════════════════════════════════
 # Core analytics functions (all on monthly returns for consistency)
@@ -1005,7 +1011,8 @@ def build_model_page(portfolio, model_daily, bench_daily, prices_df, alloc_df,
     name  = portfolio["name"]
     pid   = portfolio["id"]
     alloc = portfolio.get("allocation_profile","")
-    bench_label = " / ".join(f"{w*100:.0f}% {t}" for t, w in MODEL_BENCHMARKS.get(pid, [("SPY",1.0)]))
+    bench_ticker = dict(portfolio).get("benchmark_ticker") or "SPY"
+    bench_label  = bench_ticker   # e.g. "FTANX", "BIGPX", etc.
 
     ytd_card     = ytd_scorecard(analytics_ytd)
     analytics_tbl = analytics_table(analytics_itd, stress_results, regime_data)
@@ -1241,8 +1248,9 @@ def run_model(portfolio, prices_df, db, gen_html=True, pages=None):
     if alloc_df.empty:
         log.warning("No allocations for %s — skipping", name); return None, None, None, []
 
+    benchmark_ticker = dict(portfolio).get("benchmark_ticker") or "SPY"
     model_daily = build_model_returns(pid, alloc_df, prices_df)
-    bench_daily = build_benchmark_returns(pid, prices_df)
+    bench_daily = build_benchmark_returns(pid, prices_df, benchmark_ticker=benchmark_ticker)
 
     if model_daily.empty:
         log.warning("Could not build return series for %s", name); return None, None, None, []
