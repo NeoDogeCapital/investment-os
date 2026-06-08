@@ -397,6 +397,23 @@ def process_file(
         log.warning("  Empty file — skipping")
         return {"file": note_path.name, "status": "skipped", "reason": "empty"}
 
+    # ── Detect chart-page scrapes that have no image data ──────────────────────
+    CHART_PLATFORMS = ["stockcharts.com", "tradingview.com/chart", "finviz.com/chart",
+                       "sharpchart", "sharpcharts"]
+    is_chart_scrape = any(p in content.lower() for p in CHART_PLATFORMS)
+    has_embedded_image = bool(
+        re.search(r'!\[\[.*\.(png|jpg|jpeg|webp)\]\]', content, re.IGNORECASE) or
+        re.search(r'data:image/', content)
+    )
+    if is_chart_scrape and not has_embedded_image:
+        log.warning("  ⚠  CHART PAGE SCRAPE — no image captured")
+        log.warning("     This file contains a chart URL but the chart image was not clipped.")
+        log.warning("     TO ANALYZE: take a screenshot of the chart and save as a PNG in Clippings/")
+        log.warning("     Example: Cmd+Shift+4 → save as '%s.png'", note_path.stem[:40])
+        log.warning("     Then re-run inbox_processor.py — Claude Vision will analyze the image.")
+        return {"file": note_path.name, "status": "skipped",
+                "reason": "chart_scrape_no_image — screenshot the chart and re-clip as PNG"}
+
     # ── Step 1: Claude classification + extraction ──
     log.info("  → Sending to Claude for classification and extraction...")
     extraction = classify_and_extract(client, content, filename)
@@ -557,14 +574,18 @@ def main():
         db_conn.close()
 
     # ── Summary ──
-    processed = [r for r in results if r.get("status") == "processed"]
-    skipped   = [r for r in results if r.get("status") != "processed"]
+    processed     = [r for r in results if r.get("status") == "processed"]
+    chart_scrapes = [r for r in results if "chart_scrape" in (r.get("reason") or "")]
+    skipped       = [r for r in results if r.get("status") not in ("processed",)
+                     and "chart_scrape" not in (r.get("reason") or "")]
 
     print("\n" + "═" * 60)
     print(f"  INBOX PROCESSOR COMPLETE")
     print("═" * 60)
     print(f"  Total found:    {len(notes)}")
     print(f"  Processed:      {len(processed)}")
+    if chart_scrapes:
+        print(f"  Need screenshot:{len(chart_scrapes)}  ← screenshot chart → save as PNG → re-run")
     print(f"  Skipped/errors: {len(skipped) + len(errors)}")
 
     if processed:
@@ -574,6 +595,13 @@ def main():
             print(f"  {r['file']}")
             print(f"    source={r['source_id']} ({r['confidence']}) | {r['signal']} | {r['regime']}")
             print(f"    → {r['dest']}{db_tag}")
+
+    if chart_scrapes:
+        print("\n  ── Need Screenshot (chart pages with no image) ──")
+        print("  These files contain chart URLs but the chart image wasn't captured.")
+        print("  HOW TO FIX: Open each chart → Cmd+Shift+4 → screenshot → save PNG to Clippings/")
+        for r in chart_scrapes:
+            print(f"  📸 {r['file']}")
 
     if errors:
         print("\n  ── Errors ──")
