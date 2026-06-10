@@ -98,3 +98,10 @@ CREATE TABLE IF NOT EXISTS model_position_returns (
 
 CREATE INDEX IF NOT EXISTS idx_pos_ret_date   ON model_position_returns (portfolio_id, snapshot_date DESC);
 CREATE INDEX IF NOT EXISTS idx_pos_ret_ticker ON model_position_returns (ticker);
+
+-- ─── Row Level Security ─────────────────────────────────────────────────────
+ALTER TABLE public.model_portfolios ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.model_allocations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.price_cache ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.model_snapshot_performance ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.model_position_returns ENABLE ROW LEVEL SECURITY;

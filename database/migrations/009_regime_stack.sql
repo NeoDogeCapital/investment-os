@@ -80,3 +80,7 @@ CREATE TABLE IF NOT EXISTS regime_stack_source_votes (
 CREATE INDEX IF NOT EXISTS idx_rssv_stack   ON regime_stack_source_votes (stack_id);
 CREATE INDEX IF NOT EXISTS idx_rssv_horizon ON regime_stack_source_votes (horizon);
 CREATE INDEX IF NOT EXISTS idx_rssv_source  ON regime_stack_source_votes (source_id);
+
+-- ─── Row Level Security ─────────────────────────────────────────────────────
+ALTER TABLE public.regime_stack ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.regime_stack_source_votes ENABLE ROW LEVEL SECURITY;

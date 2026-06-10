@@ -94,3 +94,9 @@ CREATE INDEX IF NOT EXISTS idx_alerts_unacked    ON alerts (acknowledged) WHERE 
 CREATE INDEX IF NOT EXISTS idx_alerts_position   ON alerts (position_id);
 CREATE INDEX IF NOT EXISTS idx_alerts_created    ON alerts (created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_alerts_severity   ON alerts (severity);
+
+-- ─── Row Level Security ─────────────────────────────────────────────────────
+ALTER TABLE public.source_accuracy ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.thesis_outcomes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.model_calibration ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.alerts ENABLE ROW LEVEL SECURITY;

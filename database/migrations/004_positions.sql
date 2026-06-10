@@ -90,3 +90,8 @@ CREATE TABLE IF NOT EXISTS position_events (
 
 CREATE INDEX IF NOT EXISTS idx_position_events_pos ON position_events (position_id);
 CREATE INDEX IF NOT EXISTS idx_position_events_ts  ON position_events (created_at DESC);
+
+-- ─── Row Level Security ─────────────────────────────────────────────────────
+ALTER TABLE public.model_rules ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.positions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.position_events ENABLE ROW LEVEL SECURITY;

@@ -165,3 +165,10 @@ CREATE TABLE IF NOT EXISTS regime_performance (
     UNIQUE (portfolio_id, regime, calc_date)
 );
 CREATE INDEX IF NOT EXISTS idx_rp_pid ON regime_performance (portfolio_id);
+
+-- ─── Row Level Security ─────────────────────────────────────────────────────
+ALTER TABLE public.ticker_price_history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.model_daily_returns ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.model_analytics ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.stress_test_results ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.regime_performance ENABLE ROW LEVEL SECURITY;

@@ -50,3 +50,7 @@ CREATE TABLE IF NOT EXISTS regime_change_log (
 );
 
 CREATE INDEX IF NOT EXISTS idx_regime_change_log_at ON regime_change_log (changed_at DESC);
+
+-- ─── Row Level Security ─────────────────────────────────────────────────────
+ALTER TABLE public.decision_journal ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.regime_change_log ENABLE ROW LEVEL SECURITY;

@@ -38,3 +38,6 @@ CREATE INDEX IF NOT EXISTS idx_research_published  ON research_notes (published_
 CREATE INDEX IF NOT EXISTS idx_research_tickers    ON research_notes USING GIN (tickers_mentioned);
 CREATE INDEX IF NOT EXISTS idx_research_layers     ON research_notes USING GIN (layers_mentioned);
 CREATE INDEX IF NOT EXISTS idx_research_signal     ON research_notes (signal_direction, signal_strength);
+
+-- ─── Row Level Security ─────────────────────────────────────────────────────
+ALTER TABLE public.research_notes ENABLE ROW LEVEL SECURITY;

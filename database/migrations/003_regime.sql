@@ -56,3 +56,7 @@ CREATE TABLE IF NOT EXISTS regime_source_scores (
 
 CREATE INDEX IF NOT EXISTS idx_rss_snapshot ON regime_source_scores (snapshot_id);
 CREATE INDEX IF NOT EXISTS idx_rss_source   ON regime_source_scores (source_id);
+
+-- ─── Row Level Security ─────────────────────────────────────────────────────
+ALTER TABLE public.regime_snapshots ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.regime_source_scores ENABLE ROW LEVEL SECURITY;

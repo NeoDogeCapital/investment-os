@@ -117,3 +117,8 @@ CREATE TABLE IF NOT EXISTS model_holdings_snapshot (
 CREATE INDEX IF NOT EXISTS idx_mhs_model ON model_holdings_snapshot (portfolio_id, snapshot_date DESC);
 CREATE INDEX IF NOT EXISTS idx_mhs_date  ON model_holdings_snapshot (snapshot_date DESC);
 CREATE INDEX IF NOT EXISTS idx_mhs_tick  ON model_holdings_snapshot (ticker);
+
+-- ─── Row Level Security ─────────────────────────────────────────────────────
+ALTER TABLE public.analytics_snapshots ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.firm_wide_snapshots ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.model_holdings_snapshot ENABLE ROW LEVEL SECURITY;

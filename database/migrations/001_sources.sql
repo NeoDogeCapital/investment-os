@@ -106,3 +106,6 @@ ON CONFLICT (id) DO UPDATE SET
 
 CREATE INDEX IF NOT EXISTS idx_sources_active ON sources (active);
 CREATE INDEX IF NOT EXISTS idx_sources_tier ON sources (tier);
+
+-- ─── Row Level Security ─────────────────────────────────────────────────────
+ALTER TABLE public.sources ENABLE ROW LEVEL SECURITY;

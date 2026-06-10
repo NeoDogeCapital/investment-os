@@ -33,3 +33,6 @@ CREATE INDEX IF NOT EXISTS idx_img_ticker   ON image_signals (ticker);
 CREATE INDEX IF NOT EXISTS idx_img_signal   ON image_signals (technical_signal);
 CREATE INDEX IF NOT EXISTS idx_img_created  ON image_signals (created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_img_path     ON image_signals (image_path);
+
+-- ─── Row Level Security ─────────────────────────────────────────────────────
+ALTER TABLE public.image_signals ENABLE ROW LEVEL SECURITY;

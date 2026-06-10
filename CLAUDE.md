@@ -59,7 +59,17 @@ investment-os/
 
 ## Database
 PostgreSQL via Supabase. Connect using `DATABASE_URL` from `.env`.
-Migrations in `database/migrations/` — run in order 001–007.
+Migrations in `database/migrations/` — run in order 001–011.
+
+### Row Level Security
+All tables have RLS enabled with no policies. The Supabase REST API is intentionally
+locked down (deny-by-default). All access goes through the direct Postgres connection
+(`DATABASE_URL` uses the `postgres` role which bypasses RLS). Any new table created
+in a migration must include:
+```sql
+ALTER TABLE public.<name> ENABLE ROW LEVEL SECURITY;
+```
+Never add permissive policies unless explicitly required and reviewed.
 
 ## Key Scripts
 - **vault_watcher.py**: Watches `OBSIDIAN_VAULT_PATH` for new/modified `.md` files and ingests research into the DB.
