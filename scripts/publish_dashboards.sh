@@ -37,6 +37,7 @@ mkdir -p docs
 
 [ -f reports/portfolio-dashboard.html ]   && cp reports/portfolio-dashboard.html   docs/portfolio-dashboard.html
 [ -f reports/models-overview.html ]       && cp reports/models-overview.html       docs/models-overview.html
+[ -f reports/performance-history.html ]   && cp reports/performance-history.html   docs/performance-history.html
 [ -f reports/model-liquid-core.html ]     && cp reports/model-liquid-core.html     docs/model-liquid-core.html
 [ -f reports/model-conservative-core.html ] && cp reports/model-conservative-core.html docs/model-conservative-core.html
 [ -f reports/model-income-real-return.html ] && cp reports/model-income-real-return.html docs/model-income-real-return.html
@@ -44,6 +45,7 @@ mkdir -p docs
 [ -f reports/model-balanced-core.html ]   && cp reports/model-balanced-core.html   docs/model-balanced-core.html
 [ -f reports/model-tax-aware-balanced.html ] && cp reports/model-tax-aware-balanced.html docs/model-tax-aware-balanced.html
 [ -f reports/model-diversified-growth.html ] && cp reports/model-diversified-growth.html docs/model-diversified-growth.html
+[ -f reports/analytics-diversified-growth.html ] && cp reports/analytics-diversified-growth.html docs/analytics-diversified-growth.html
 [ -f reports/analytics-diversified-growth.html ] && cp reports/analytics-diversified-growth.html docs/analytics-report.html
 
 # Latest regime memo — find most recent

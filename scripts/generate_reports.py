@@ -2392,6 +2392,220 @@ def build_model_overview(summaries, generated_at):
 </html>"""
 
 
+def fetch_analytics_history(db):
+    """One analytics snapshot per (model, date) — latest if a day has dupes.
+
+    Multiple engine runs on the same day create duplicate rows; keep only the
+    most recently written so the track record shows one point per date.
+    """
+    with db.cursor() as cur:
+        cur.execute("""
+            SELECT DISTINCT ON (model_name, snapshot_date)
+                   model_name, snapshot_date,
+                   ytd_return, sharpe_ratio, max_drawdown, batting_average,
+                   sortino_ratio, calmar_ratio, return_1y
+            FROM analytics_snapshots
+            ORDER BY model_name, snapshot_date, created_at DESC
+        """)
+        return cur.fetchall()
+
+
+def build_performance_history(history, generated_at):
+    """Render the Performance History page from analytics_snapshots rows.
+
+    Tracks each model's metrics over every snapshot date — an evergreen
+    track record that grows each time the analytics engine runs.
+    """
+    date_str = generated_at.strftime("%Y-%m-%d")
+
+    def num(v):
+        return float(v) if v is not None else None
+
+    rows = []
+    for h in history:
+        rows.append({
+            "model_name": h["model_name"],
+            "snapshot_date": h["snapshot_date"].strftime("%Y-%m-%d"),
+            "ytd_return": num(h["ytd_return"]),
+            "sharpe_ratio": num(h["sharpe_ratio"]),
+            "max_drawdown": num(h["max_drawdown"]),
+            "batting_average": num(h["batting_average"]),
+            "sortino_ratio": num(h["sortino_ratio"]),
+            "calmar_ratio": num(h["calmar_ratio"]),
+            "return_1y": num(h["return_1y"]),
+        })
+
+    models   = sorted({r["model_name"] for r in rows})
+    dates    = sorted({r["snapshot_date"] for r in rows})
+    n_snaps  = len(dates)
+    latest   = dates[-1] if dates else date_str
+
+    def pct(v):
+        if v is None:
+            return "—"
+        c = GREEN if v >= 0 else RED
+        return f'<span style="color:{c};font-weight:700;">{v*100:+.1f}%</span>'
+
+    def fnum(v):
+        return f"{v:.2f}" if v is not None else "—"
+
+    # ── Latest-snapshot rankings (sorted by YTD desc) ──
+    latest_rows = sorted([r for r in rows if r["snapshot_date"] == latest],
+                         key=lambda r: (r["ytd_return"] is None, -(r["ytd_return"] or 0)))
+    ranking_html = ""
+    for r in latest_rows:
+        bat = f'{r["batting_average"]*100:.0f}%' if r["batting_average"] is not None else "—"
+        ranking_html += (
+            f"<tr><td style='color:{GRAY}'>{r['snapshot_date']}</td>"
+            f"<td style='font-weight:600;color:{GOLD2}'>{r['model_name']}</td>"
+            f"<td>{pct(r['ytd_return'])}</td><td>{fnum(r['sharpe_ratio'])}</td>"
+            f"<td>{pct(r['max_drawdown'])}</td><td>{bat}</td></tr>"
+        )
+
+    # ── Per-model history grid ──
+    grid_html = ""
+    for m in models:
+        mrows = [r for r in rows if r["model_name"] == m]
+        body = ""
+        for r in mrows:
+            bat = f'{r["batting_average"]*100:.0f}%' if r["batting_average"] is not None else "—"
+            body += (
+                f"<tr><td style='color:{GRAY}'>{r['snapshot_date']}</td>"
+                f"<td>{pct(r['ytd_return'])}</td><td>{fnum(r['sharpe_ratio'])}</td>"
+                f"<td>{pct(r['max_drawdown'])}</td><td>{bat}</td></tr>"
+            )
+        grid_html += f"""
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:{GOLD};margin-bottom:10px;">{m}</div>
+      <table>
+        <thead><tr><th>Date</th><th>YTD</th><th>Sharpe</th><th>Max DD</th><th>Batting</th></tr></thead>
+        <tbody>{body}</tbody>
+      </table>
+    </div>"""
+
+    options = "".join(f'<option value="{m}">{m}</option>' for m in models)
+    history_json = json.dumps(rows)
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>IWP — Performance History</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    *{{box-sizing:border-box;margin:0;padding:0;}}
+    body{{background:{NAVY};color:{WHITE};font-family:'Segoe UI',Georgia,sans-serif;}}
+    header{{background:{NAVY2};border-bottom:3px solid {GOLD};border-top:5px solid {GOLD2};padding:16px 32px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(58,31,29,.07);}}
+    header h1{{font-size:17px;font-weight:700;color:{GOLD2};letter-spacing:.06em;text-transform:uppercase;}}
+    header p{{color:{GRAY};font-size:11px;margin-top:2px;}}
+    .back-btn{{padding:6px 14px;background:transparent;border:1.5px solid {NAVY3};border-radius:5px;color:{GRAY};font-size:12px;text-decoration:none;}}
+    .back-btn:hover{{border-color:{GOLD};color:{GOLD};}}
+    .body{{max-width:1200px;margin:0 auto;padding:28px 24px;}}
+    .section-title{{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:{GOLD};margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid {NAVY3};margin-top:24px;}}
+    .card{{background:{NAVY2};border:1px solid {NAVY3};border-radius:8px;padding:18px 20px;margin-bottom:18px;}}
+    table{{width:100%;border-collapse:collapse;font-size:13px;}}
+    th{{text-align:left;padding:7px 12px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:{GOLD};border-bottom:1px solid {NAVY3};}}
+    td{{padding:8px 12px;border-bottom:1px solid {NAVY3};}}
+    tr:last-child td{{border-bottom:none;}}
+    tr:hover td{{background:rgba(175,100,82,.04);}}
+    select{{padding:6px 12px;border:1.5px solid {NAVY3};border-radius:5px;background:{NAVY};color:{WHITE};font-size:13px;margin-right:8px;outline:none;}}
+    select:focus{{border-color:{GOLD};}}
+    footer{{border-top:1px solid {NAVY3};padding:14px 24px;display:flex;justify-content:space-between;font-size:11px;color:{GRAY};max-width:1200px;margin:0 auto;}}
+    .grid-2{{display:grid;grid-template-columns:1fr 1fr;gap:18px;}}
+    @media(max-width:700px){{.grid-2{{grid-template-columns:1fr;}}}}
+    .note-box{{background:rgba(175,100,82,.07);border:1px solid rgba(175,100,82,.2);border-radius:6px;padding:12px 16px;font-size:12px;color:{GRAY};margin-bottom:20px;}}
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Performance History</h1>
+    <p>{date_str} &nbsp;·&nbsp; {n_snaps} snapshot{'s' if n_snaps!=1 else ''} across {len(models)} models</p>
+  </div>
+  <a href="index.html" class="back-btn">← Back to Hub</a>
+</header>
+
+<div class="body">
+
+<div class="note-box">
+  📈 <strong>How this works:</strong> Every time analytics runs, a new permanent row is saved to Supabase.
+  This page builds your performance track record over time — run analytics daily or weekly to see trends evolve.
+  Currently showing <strong>{n_snaps}</strong> snapshot date(s) since tracking began.
+</div>
+
+<div class="section-title">Interactive Metric Tracker</div>
+<div style="margin-bottom:14px;">
+  <label style="font-size:12px;color:{GRAY};margin-right:6px;">Model:</label>
+  <select id="model-select" onchange="updateChart()">{options}</select>
+  <label style="font-size:12px;color:{GRAY};margin-right:6px;">Metric:</label>
+  <select id="metric-select" onchange="updateChart()">
+    <option value="ytd_return">YTD Return</option>
+    <option value="sharpe_ratio">Sharpe Ratio</option>
+    <option value="max_drawdown">Max Drawdown</option>
+    <option value="batting_average">Batting Average</option>
+    <option value="sortino_ratio">Sortino Ratio</option>
+    <option value="calmar_ratio">Calmar Ratio</option>
+    <option value="return_1y">1-Year Return</option>
+  </select>
+</div>
+<div id="metric-chart" style="background:{NAVY2};border:1px solid {NAVY3};border-radius:8px;padding:6px;margin-bottom:24px;min-height:260px;"></div>
+
+<div class="section-title">Latest Snapshot — Model Rankings</div>
+<div class="card">
+  <table>
+    <thead><tr><th>Date</th><th>Model</th><th>YTD Return</th><th>Sharpe</th><th>Max DD</th><th>Batting Avg</th></tr></thead>
+    <tbody>{ranking_html}</tbody>
+  </table>
+</div>
+
+<div class="section-title">History by Model</div>
+<div class="grid-2">{grid_html}</div>
+
+</div>
+
+<footer>
+  <div><strong style="color:{GOLD};font-size:10px;text-transform:uppercase;letter-spacing:.08em;">Confidential</strong> &nbsp;·&nbsp; IWP Wealth Partners</div>
+  <div>Run <code>python scripts/analytics_engine.py --all</code> to add today's snapshot</div>
+</footer>
+
+<script>
+const HISTORY = {history_json};
+const IS_PCT = new Set(['ytd_return','max_drawdown','batting_average','return_1y']);
+
+function updateChart() {{
+  const model  = document.getElementById('model-select').value;
+  const metric = document.getElementById('metric-select').value;
+  const sub    = HISTORY.filter(h => h.model_name === model && h[metric] != null);
+  if (!sub.length) {{
+    document.getElementById('metric-chart').innerHTML =
+      '<p style="color:{GRAY};text-align:center;padding:40px;">No data yet for this combination.</p>';
+    return;
+  }}
+  const dates = sub.map(h => h.snapshot_date);
+  const vals  = sub.map(h => IS_PCT.has(metric) ? parseFloat(h[metric])*100 : parseFloat(h[metric]));
+  const last  = vals[vals.length-1];
+  const col   = last >= 0 ? '{GREEN}' : '{RED}';
+  Plotly.newPlot('metric-chart', [{{
+    x: dates, y: vals, type: 'scatter', mode: 'lines+markers',
+    line: {{color: col, width: 2.5}},
+    marker: {{color: col, size: 8, symbol: 'circle'}},
+    hovertemplate: IS_PCT.has(metric) ? '%{{x}}<br>%{{y:.1f}}%<extra></extra>' : '%{{x}}<br>%{{y:.3f}}<extra></extra>',
+  }}], {{
+    paper_bgcolor:'{NAVY2}', plot_bgcolor:'{NAVY}',
+    font: {{family: 'Georgia, serif', color: '{WHITE}', size: 11}},
+    margin: {{l:55, r:20, t:16, b:40}},
+    xaxis: {{gridcolor:'{NAVY3}', showgrid:true}},
+    yaxis: {{gridcolor:'{NAVY3}', ticksuffix: IS_PCT.has(metric) ? '%' : ''}},
+    showlegend: false, height: 240,
+  }}, {{displayModeBar: false, responsive: true}});
+}}
+document.addEventListener('DOMContentLoaded', updateChart);
+</script>
+</body>
+</html>"""
+
+
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
 def main():
@@ -2499,6 +2713,14 @@ def main():
             ov_path.write_text(overview, encoding="utf-8")
             print(f"✅  Models overview    → {ov_path}")
 
+            # Performance history — track record from analytics_snapshots
+            history = fetch_analytics_history(db)
+            if history:
+                ph_html = build_performance_history(history, generated_at)
+                ph_path = REPORTS_DIR / "performance-history.html"
+                ph_path.write_text(ph_html, encoding="utf-8")
+                print(f"✅  Performance history → {ph_path}")
+
     # ── Full analytics run (--full flag) ──────────────────────────
     if do_analytics:
         import subprocess
@@ -2515,7 +2737,8 @@ def main():
             analytics_files = [
                 ("analytics-balanced-core.html",     "docs/analytics-balanced-core.html"),
                 ("analytics-conservative-core.html", "docs/analytics-conservative-core.html"),
-                ("analytics-diversified-growth.html","docs/analytics-report.html"),
+                ("analytics-diversified-growth.html","docs/analytics-diversified-growth.html"),
+                ("analytics-diversified-growth.html","docs/analytics-report.html"),  # legacy alias kept in sync
                 ("analytics-income-real-return.html","docs/analytics-income-real-return.html"),
                 ("analytics-flex-irr.html",          "docs/analytics-flex-irr.html"),
                 ("analytics-liquid-core.html",       "docs/analytics-liquid-core.html"),
