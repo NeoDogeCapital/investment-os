@@ -22,6 +22,7 @@ from datetime import datetime, timezone
 import psycopg2
 import psycopg2.extras
 import anthropic
+from typing import Optional
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
@@ -31,9 +32,17 @@ ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
 AI_MODEL = "claude-sonnet-4-6"
 
 # ─── Hardcoded model rules (mirrors DB model_rules + triggers) ─────────────────
-ALLOCATION_LADDER = [0.00, 0.02, 0.04, 0.07, 0.10, 0.12]
+ALLOCATION_LADDER = [0.00, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12]
 MAX_ALLOCATION = 0.12
 MIN_INITIATION = 0.02
+
+# Set to False to downgrade ladder violations from hard-block to soft-flag.
+# Use when executing rotations or off-rung legacy positions that don't fit the ladder.
+LADDER_HARD = True
+
+# Set to False to downgrade tier-cap violations from hard-block to soft-flag.
+# Use for funded rotations where gross equity exposure is unchanged (selling X to buy Y).
+TIER_CAP_HARD = True
 
 
 def get_db():
@@ -96,7 +105,7 @@ def get_latest_regime(db_conn) -> dict:
     }
 
 
-def get_existing_position(db_conn, ticker: str, direction: str) -> dict | None:
+def get_existing_position(db_conn, ticker: str, direction: str) -> Optional[dict]:
     with db_conn.cursor() as cur:
         cur.execute("""
             SELECT * FROM positions
@@ -111,12 +120,13 @@ def check_hard_rules(
     ticker: str,
     direction: str,
     proposed_allocation: float,
-    thesis: str | None,
-    invalidation: str | None,
-    existing_position: dict | None,
-) -> list[str]:
-    """Returns list of hard rule failure messages. Empty = all hard rules pass."""
+    thesis: Optional[str],
+    invalidation: Optional[str],
+    existing_position: Optional[dict],
+):
+    """Returns (hard_failures, ladder_violations). hard_failures blocks the gate."""
     failures = []
+    ladder_violations = []
 
     # 1. Max allocation
     if proposed_allocation > MAX_ALLOCATION:
@@ -132,8 +142,8 @@ def check_hard_rules(
         )
 
     # 3. Allocation ladder (no skipping when adding)
+    ladder_violations = []
     if proposed_allocation > current_alloc:
-        # Find current and proposed steps
         def nearest_step(val):
             return min(ALLOCATION_LADDER, key=lambda x: abs(x - val))
 
@@ -145,17 +155,20 @@ def check_hard_rules(
                 break
 
         if prop_step_idx == -1:
-            failures.append(
+            ladder_violations.append(
                 f"LADDER_INVALID: {proposed_allocation:.1%} is not a valid ladder step. "
                 f"Valid: {[f'{s:.0%}' for s in ALLOCATION_LADDER[1:]]}"
             )
         elif cur_step_idx != -1 and prop_step_idx > cur_step_idx + 1:
             from_step = ALLOCATION_LADDER[cur_step_idx]
             to_step = ALLOCATION_LADDER[prop_step_idx]
-            failures.append(
+            ladder_violations.append(
                 f"LADDER_SKIP: Cannot jump from {from_step:.1%} to {to_step:.1%}. "
                 f"Next step is {ALLOCATION_LADDER[cur_step_idx + 1]:.1%}"
             )
+
+    if ladder_violations and LADDER_HARD:
+        failures.extend(ladder_violations)
 
     # 4. Thesis required
     if not thesis or len(thesis.strip()) < 20:
@@ -169,26 +182,25 @@ def check_hard_rules(
             "INVALIDATION_REQUIRED: Documented invalidation conditions (>=20 chars) are required"
         )
 
-    return failures
+    return failures, ladder_violations
 
 
 def check_hard_rules_stack(
     proposed_allocation: float,
     stack: dict,
     existing_position,
-) -> list[str]:
-    """Hard rules derived from the regime stack tier eligibility."""
+):
+    """Returns (hard_failures, tier_violations). hard_failures blocks the gate."""
     failures = []
+    tier_violations = []
     max_tier = stack.get("max_tier_eligible", 5)
     new_allowed = stack.get("new_positions_allowed", True)
 
-    # Ladder step → tier mapping
-    STEP_TO_TIER = {0.02: 1, 0.04: 2, 0.07: 3, 0.10: 4, 0.12: 5}
+    STEP_TO_TIER = {0.02: 1, 0.04: 2, 0.06: 3, 0.08: 4, 0.10: 5, 0.12: 6}
     proposed_tier = STEP_TO_TIER.get(
         min(ALLOCATION_LADDER, key=lambda x: abs(x - proposed_allocation)), 5
     )
 
-    # Block if new position and stack says no new positions
     current_alloc = float(existing_position["current_allocation"]) if existing_position else 0.0
     is_new = current_alloc == 0.0
     if is_new and not new_allowed:
@@ -197,16 +209,18 @@ def check_hard_rules_stack(
             f"no new positions allowed per regime stack rules."
         )
 
-    # Block if proposed tier exceeds max_tier_eligible
     if proposed_tier > max_tier:
         max_alloc = ALLOCATION_LADDER[max_tier] if max_tier < len(ALLOCATION_LADDER) else 0.00
-        failures.append(
+        tier_violations.append(
             f"TIER_CAP_EXCEEDED: Proposed allocation {proposed_allocation:.1%} "
             f"is Tier {proposed_tier} but regime stack caps at Tier {max_tier} "
-            f"(max {max_alloc:.1%}). Reduce allocation to proceed."
+            f"(max {max_alloc:.1%}). Use --tier-soft for funded rotations where gross exposure is unchanged."
         )
 
-    return failures
+    if tier_violations and TIER_CAP_HARD:
+        failures.extend(tier_violations)
+
+    return failures, tier_violations
 
 
 def check_soft_rules(
@@ -214,9 +228,21 @@ def check_soft_rules(
     proposed_allocation: float,
     direction: str,
     existing_position,
-) -> list[str]:
+    ladder_violations: list = None,
+    tier_violations: list = None,
+) -> list:
     """Soft rule flags based on three-horizon stack. Require documentation to proceed."""
     flags = []
+
+    # When LADDER_HARD=False, ladder violations surface here as soft flags
+    if not LADDER_HARD and ladder_violations:
+        for v in ladder_violations:
+            flags.append(f"LADDER_SOFT: {v} — document rationale to proceed.")
+
+    # When TIER_CAP_HARD=False, tier violations surface here as soft flags
+    if not TIER_CAP_HARD and tier_violations:
+        for v in tier_violations:
+            flags.append(f"TIER_CAP_SOFT: {v}")
 
     st_label = stack.get("short_term_label",  "UNKNOWN")
     mt_label = stack.get("medium_term_label", "UNKNOWN")
@@ -326,7 +352,7 @@ def log_to_journal(db_conn, ticker: str, direction: str, allocation: float,
             json.dumps(hard_failures),
             json.dumps(soft_flags),
             regime.get("regime"), regime.get("composite_score"),
-            str(regime["id"]) if regime.get("id") else None,
+            None,  # regime_snapshot_id: regime_stack uses a separate table, FK not applicable
             thesis[:500] if thesis else None,
             override_doc,
         ))
@@ -343,7 +369,18 @@ def main():
     parser.add_argument("--invalidation", required=True, help="Invalidation conditions")
     parser.add_argument("--position-id", default=None, help="UUID of existing position (if adding)")
     parser.add_argument("--override-doc", default=None, help="Soft rule override documentation")
+    parser.add_argument("--ladder-soft", action="store_true",
+                        help="Downgrade ladder violations to soft flags (use for off-rung legacy positions)")
+    parser.add_argument("--tier-soft", action="store_true",
+                        help="Downgrade tier-cap violations to soft flags (use for funded rotations where gross exposure is unchanged)")
     args = parser.parse_args()
+
+    if args.ladder_soft:
+        global LADDER_HARD
+        LADDER_HARD = False
+    if args.tier_soft:
+        global TIER_CAP_HARD
+        TIER_CAP_HARD = False
 
     db_conn  = get_db()
     client   = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
@@ -372,12 +409,15 @@ def main():
     log.info("═══════════════════════════════════════════════════════════")
 
     # Hard rules: model rules + stack tier cap
-    hard_failures = check_hard_rules(
+    hard_failures, ladder_violations = check_hard_rules(
         args.ticker, args.direction, args.allocation,
         args.thesis, args.invalidation, existing
     )
-    hard_failures += check_hard_rules_stack(args.allocation, stack, existing)
-    soft_flags = check_soft_rules(stack, args.allocation, args.direction, existing)
+    stack_failures, tier_violations = check_hard_rules_stack(args.allocation, stack, existing)
+    hard_failures += stack_failures
+    soft_flags = check_soft_rules(stack, args.allocation, args.direction, existing,
+                                  ladder_violations=ladder_violations,
+                                  tier_violations=tier_violations)
 
     gate_passed = len(hard_failures) == 0
 

@@ -13,6 +13,7 @@ from pathlib import Path
 PROJECT_DIR = Path(__file__).parent.parent
 
 def load_env():
+    """Load .env, always overriding so shell remnants don't win."""
     env_file = PROJECT_DIR / ".env"
     if env_file.exists():
         for line in env_file.read_text().splitlines():
@@ -20,8 +21,7 @@ def load_env():
             if not line or line.startswith("#") or "=" not in line:
                 continue
             k, v = line.split("=", 1)
-            v = v.strip().strip('"').strip("'")
-            os.environ.setdefault(k.strip(), v)
+            os.environ[k.strip()] = v.strip().strip('"').strip("'")
 
 load_env()
 

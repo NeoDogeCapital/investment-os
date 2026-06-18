@@ -397,14 +397,48 @@ def process_file(
         log.warning("  Empty file — skipping")
         return {"file": note_path.name, "status": "skipped", "reason": "empty"}
 
+    # ── Detect and analyze embedded chart images (![[image.png]] syntax) ─────────
+    embedded_image_names = re.findall(
+        r'!\[\[([^\]]+\.(?:png|jpg|jpeg|webp|gif))\]\]', content, re.IGNORECASE
+    )
+    if embedded_image_names and not dry_run:
+        log.info("  Found %d embedded image(s) — running Vision analysis…",
+                 len(embedded_image_names))
+        for img_name in embedded_image_names:
+            # Search for image relative to note folder, then vault root
+            candidates = [
+                note_path.parent / img_name,
+                VAULT_PATH / img_name,
+                VAULT_PATH / "Clippings" / img_name,
+            ]
+            img_path = next((c for c in candidates if c.exists()), None)
+            if img_path:
+                log.info("    → Analyzing: %s", img_name)
+                try:
+                    from image_analyzer import analyze_image, save_to_db, write_analysis_note
+                    import sys as _sys
+                    _sys.path.insert(0, str(Path(__file__).parent))
+                    from image_analyzer import analyze_image as _ai, save_to_db as _sdb
+                    extraction = _ai(client, img_path,
+                                     note_context=content[:500],
+                                     filename_hint=img_name)
+                    if extraction:
+                        img_db_id = _sdb(db_conn, img_path, note_path, extraction)
+                        sig = extraction.get("technical_signal","?")
+                        vote = extraction.get("regime_vote", 0)
+                        log.info("    ✓ %s → %s (vote=%+.1f)  db=%s",
+                                 img_name, sig, float(vote or 0),
+                                 str(img_db_id)[:8] if img_db_id else "dup")
+                except Exception as e:
+                    log.warning("    Vision failed for %s: %s", img_name, e)
+            else:
+                log.warning("    Image not found on disk: %s", img_name)
+
     # ── Detect chart-page scrapes that have no image data ──────────────────────
     CHART_PLATFORMS = ["stockcharts.com", "tradingview.com/chart", "finviz.com/chart",
                        "sharpchart", "sharpcharts"]
     is_chart_scrape = any(p in content.lower() for p in CHART_PLATFORMS)
-    has_embedded_image = bool(
-        re.search(r'!\[\[.*\.(png|jpg|jpeg|webp)\]\]', content, re.IGNORECASE) or
-        re.search(r'data:image/', content)
-    )
+    has_embedded_image = bool(embedded_image_names or re.search(r'data:image/', content))
     if is_chart_scrape and not has_embedded_image:
         log.warning("  ⚠  CHART PAGE SCRAPE — no image captured")
         log.warning("     This file contains a chart URL but the chart image was not clipped.")

@@ -43,7 +43,7 @@ investment-os/
 ## Model Rules (HARDCODED — NEVER BYPASS)
 - Max allocation per position: **12%**
 - Min initiation size: **2%**
-- Allocation ladder: **2% → 4% → 7% → 10% → 12%** (sequential, no skipping)
+- Allocation ladder: **2% → 4% → 6% → 8% → 10% → 12%** (sequential, no skipping)
 - Every trade requires a **locked thesis** before entry
 - Every trade requires **documented invalidation conditions**
 - Hard rules cannot be bypassed under any circumstances
