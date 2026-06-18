@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><!-- IWP v2.1 2026-06-04 14:22 -->
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>IWP — Performance History</title>
@@ -11,7 +11,7 @@
     header{background:#efecdd;border-bottom:3px solid #af6452;border-top:5px solid #633238;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(58,31,29,.07);}
     header h1{font-size:17px;font-weight:700;color:#633238;letter-spacing:.06em;text-transform:uppercase;}
     header p{color:#7a6055;font-size:11px;margin-top:2px;}
-    .back-btn{padding:6px 14px;background:transparent;border:1.5px solid #d0c298;border-radius:5px;color:#7a6055;font-size:12px;text-decoration:none;transition:all .2s;}
+    .back-btn{padding:6px 14px;background:transparent;border:1.5px solid #d0c298;border-radius:5px;color:#7a6055;font-size:12px;text-decoration:none;}
     .back-btn:hover{border-color:#af6452;color:#af6452;}
     .body{max-width:1200px;margin:0 auto;padding:28px 24px;}
     .section-title{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#af6452;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #d0c298;margin-top:24px;}
@@ -33,7 +33,7 @@
 <header>
   <div>
     <h1>Performance History</h1>
-    <p>2026-06-04 &nbsp;·&nbsp; 7 snapshots across 7 models</p>
+    <p>2026-06-18 &nbsp;·&nbsp; 2 snapshots across 7 models</p>
   </div>
   <a href="index.html" class="back-btn">← Back to Hub</a>
 </header>
@@ -43,13 +43,13 @@
 <div class="note-box">
   📈 <strong>How this works:</strong> Every time analytics runs, a new permanent row is saved to Supabase.
   This page builds your performance track record over time — run analytics daily or weekly to see trends evolve.
-  Currently showing <strong>7</strong> snapshot(s) since tracking began.
+  Currently showing <strong>2</strong> snapshot date(s) since tracking began.
 </div>
 
 <div class="section-title">Interactive Metric Tracker</div>
 <div style="margin-bottom:14px;">
   <label style="font-size:12px;color:#7a6055;margin-right:6px;">Model:</label>
-  <select id="model-select" onchange="updateChart()"><option value="Balanced Core">Balanced Core</option><option value="Tax Aware Balanced">Tax Aware Balanced</option><option value="Flex IRR">Flex IRR</option><option value="Income Real Return">Income Real Return</option><option value="Liquid Core">Liquid Core</option><option value="Diversified Growth">Diversified Growth</option><option value="Conservative Core">Conservative Core</option></select>
+  <select id="model-select" onchange="updateChart()"><option value="Balanced Core">Balanced Core</option><option value="Conservative Core">Conservative Core</option><option value="Diversified Growth">Diversified Growth</option><option value="Flex IRR">Flex IRR</option><option value="Income Real Return">Income Real Return</option><option value="Liquid Core">Liquid Core</option><option value="Tax Aware Balanced">Tax Aware Balanced</option></select>
   <label style="font-size:12px;color:#7a6055;margin-right:6px;">Metric:</label>
   <select id="metric-select" onchange="updateChart()">
     <option value="ytd_return">YTD Return</option>
@@ -63,11 +63,11 @@
 </div>
 <div id="metric-chart" style="background:#efecdd;border:1px solid #d0c298;border-radius:8px;padding:6px;margin-bottom:24px;min-height:260px;"></div>
 
-<div class="section-title">All Snapshots — Model Rankings</div>
+<div class="section-title">Latest Snapshot — Model Rankings</div>
 <div class="card">
   <table>
     <thead><tr><th>Date</th><th>Model</th><th>YTD Return</th><th>Sharpe</th><th>Max DD</th><th>Batting Avg</th></tr></thead>
-    <tbody><tr><td style='color:#7a6055'>2026-06-04</td><td style='font-weight:600;color:#633238'>Tax Aware Balanced</td><td><span style="color:#2e7d4f;font-weight:700;">+7.0%</span></td><td>0.90</td><td style='color:#8f3d2c'><span style="color:#8f3d2c;font-weight:700;">-6.4%</span></td><td>70%<tr><td style='color:#7a6055'>2026-06-04</td><td style='font-weight:600;color:#633238'>Liquid Core</td><td><span style="color:#2e7d4f;font-weight:700;">+6.4%</span></td><td>0.47</td><td style='color:#8f3d2c'><span style="color:#8f3d2c;font-weight:700;">-1.2%</span></td><td>31%<tr><td style='color:#7a6055'>2026-06-04</td><td style='font-weight:600;color:#633238'>Income Real Return</td><td><span style="color:#2e7d4f;font-weight:700;">+6.4%</span></td><td>0.47</td><td style='color:#8f3d2c'><span style="color:#8f3d2c;font-weight:700;">-1.2%</span></td><td>31%<tr><td style='color:#7a6055'>2026-06-04</td><td style='font-weight:600;color:#633238'>Flex IRR</td><td><span style="color:#2e7d4f;font-weight:700;">+6.9%</span></td><td>1.72</td><td style='color:#8f3d2c'><span style="color:#8f3d2c;font-weight:700;">-2.2%</span></td><td>76%<tr><td style='color:#7a6055'>2026-06-04</td><td style='font-weight:600;color:#633238'>Diversified Growth</td><td><span style="color:#2e7d4f;font-weight:700;">+5.3%</span></td><td>1.17</td><td style='color:#8f3d2c'><span style="color:#8f3d2c;font-weight:700;">-4.8%</span></td><td>69%<tr><td style='color:#7a6055'>2026-06-04</td><td style='font-weight:600;color:#633238'>Conservative Core</td><td><span style="color:#2e7d4f;font-weight:700;">+5.2%</span></td><td>1.71</td><td style='color:#8f3d2c'><span style="color:#8f3d2c;font-weight:700;">-2.4%</span></td><td>76%<tr><td style='color:#7a6055'>2026-06-04</td><td style='font-weight:600;color:#633238'>Balanced Core</td><td><span style="color:#2e7d4f;font-weight:700;">+7.1%</span></td><td>1.65</td><td style='color:#8f3d2c'><span style="color:#8f3d2c;font-weight:700;">-2.5%</span></td><td>73%</tbody>
+    <tbody><tr><td style='color:#7a6055'>2026-06-18</td><td style='font-weight:600;color:#633238'>Tax Aware Balanced</td><td><span style="color:#2e7d4f;font-weight:700;">+6.9%</span></td><td>0.89</td><td><span style="color:#8f3d2c;font-weight:700;">-6.4%</span></td><td>70%</td></tr><tr><td style='color:#7a6055'>2026-06-18</td><td style='font-weight:600;color:#633238'>Balanced Core</td><td><span style="color:#2e7d4f;font-weight:700;">+6.9%</span></td><td>1.63</td><td><span style="color:#8f3d2c;font-weight:700;">-2.5%</span></td><td>73%</td></tr><tr><td style='color:#7a6055'>2026-06-18</td><td style='font-weight:600;color:#633238'>Flex IRR</td><td><span style="color:#2e7d4f;font-weight:700;">+6.7%</span></td><td>1.69</td><td><span style="color:#8f3d2c;font-weight:700;">-2.2%</span></td><td>76%</td></tr><tr><td style='color:#7a6055'>2026-06-18</td><td style='font-weight:600;color:#633238'>Diversified Growth</td><td><span style="color:#2e7d4f;font-weight:700;">+6.1%</span></td><td>1.20</td><td><span style="color:#8f3d2c;font-weight:700;">-4.8%</span></td><td>69%</td></tr><tr><td style='color:#7a6055'>2026-06-18</td><td style='font-weight:600;color:#633238'>Income Real Return</td><td><span style="color:#2e7d4f;font-weight:700;">+6.1%</span></td><td>0.45</td><td><span style="color:#8f3d2c;font-weight:700;">-1.2%</span></td><td>31%</td></tr><tr><td style='color:#7a6055'>2026-06-18</td><td style='font-weight:600;color:#633238'>Liquid Core</td><td><span style="color:#2e7d4f;font-weight:700;">+6.1%</span></td><td>0.45</td><td><span style="color:#8f3d2c;font-weight:700;">-1.2%</span></td><td>31%</td></tr><tr><td style='color:#7a6055'>2026-06-18</td><td style='font-weight:600;color:#633238'>Conservative Core</td><td><span style="color:#2e7d4f;font-weight:700;">+4.4%</span></td><td>1.62</td><td><span style="color:#8f3d2c;font-weight:700;">-2.4%</span></td><td>76%</td></tr></tbody>
   </table>
 </div>
 
@@ -77,49 +77,49 @@
       <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#af6452;margin-bottom:10px;">Balanced Core</div>
       <table>
         <thead><tr><th>Date</th><th>YTD</th><th>Sharpe</th><th>Max DD</th><th>Batting</th></tr></thead>
-        <tbody><tr><td style='color:#7a6055'>2026-06-04</td><td><span style="color:#2e7d4f;font-weight:700;">+7.1%</span></td><td>1.65</td><td style='color:#8f3d2c'><span style="color:#8f3d2c;font-weight:700;">-2.5%</span></td><td>73%</tbody>
-      </table>
-    </div>
-    <div class="card">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#af6452;margin-bottom:10px;">Tax Aware Balanced</div>
-      <table>
-        <thead><tr><th>Date</th><th>YTD</th><th>Sharpe</th><th>Max DD</th><th>Batting</th></tr></thead>
-        <tbody><tr><td style='color:#7a6055'>2026-06-04</td><td><span style="color:#2e7d4f;font-weight:700;">+7.0%</span></td><td>0.90</td><td style='color:#8f3d2c'><span style="color:#8f3d2c;font-weight:700;">-6.4%</span></td><td>70%</tbody>
-      </table>
-    </div>
-    <div class="card">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#af6452;margin-bottom:10px;">Flex IRR</div>
-      <table>
-        <thead><tr><th>Date</th><th>YTD</th><th>Sharpe</th><th>Max DD</th><th>Batting</th></tr></thead>
-        <tbody><tr><td style='color:#7a6055'>2026-06-04</td><td><span style="color:#2e7d4f;font-weight:700;">+6.9%</span></td><td>1.72</td><td style='color:#8f3d2c'><span style="color:#8f3d2c;font-weight:700;">-2.2%</span></td><td>76%</tbody>
-      </table>
-    </div>
-    <div class="card">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#af6452;margin-bottom:10px;">Income Real Return</div>
-      <table>
-        <thead><tr><th>Date</th><th>YTD</th><th>Sharpe</th><th>Max DD</th><th>Batting</th></tr></thead>
-        <tbody><tr><td style='color:#7a6055'>2026-06-04</td><td><span style="color:#2e7d4f;font-weight:700;">+6.4%</span></td><td>0.47</td><td style='color:#8f3d2c'><span style="color:#8f3d2c;font-weight:700;">-1.2%</span></td><td>31%</tbody>
-      </table>
-    </div>
-    <div class="card">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#af6452;margin-bottom:10px;">Liquid Core</div>
-      <table>
-        <thead><tr><th>Date</th><th>YTD</th><th>Sharpe</th><th>Max DD</th><th>Batting</th></tr></thead>
-        <tbody><tr><td style='color:#7a6055'>2026-06-04</td><td><span style="color:#2e7d4f;font-weight:700;">+6.4%</span></td><td>0.47</td><td style='color:#8f3d2c'><span style="color:#8f3d2c;font-weight:700;">-1.2%</span></td><td>31%</tbody>
-      </table>
-    </div>
-    <div class="card">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#af6452;margin-bottom:10px;">Diversified Growth</div>
-      <table>
-        <thead><tr><th>Date</th><th>YTD</th><th>Sharpe</th><th>Max DD</th><th>Batting</th></tr></thead>
-        <tbody><tr><td style='color:#7a6055'>2026-06-04</td><td><span style="color:#2e7d4f;font-weight:700;">+5.3%</span></td><td>1.17</td><td style='color:#8f3d2c'><span style="color:#8f3d2c;font-weight:700;">-4.8%</span></td><td>69%</tbody>
+        <tbody><tr><td style='color:#7a6055'>2026-06-04</td><td><span style="color:#2e7d4f;font-weight:700;">+7.1%</span></td><td>1.65</td><td><span style="color:#8f3d2c;font-weight:700;">-2.5%</span></td><td>73%</td></tr><tr><td style='color:#7a6055'>2026-06-18</td><td><span style="color:#2e7d4f;font-weight:700;">+6.9%</span></td><td>1.63</td><td><span style="color:#8f3d2c;font-weight:700;">-2.5%</span></td><td>73%</td></tr></tbody>
       </table>
     </div>
     <div class="card">
       <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#af6452;margin-bottom:10px;">Conservative Core</div>
       <table>
         <thead><tr><th>Date</th><th>YTD</th><th>Sharpe</th><th>Max DD</th><th>Batting</th></tr></thead>
-        <tbody><tr><td style='color:#7a6055'>2026-06-04</td><td><span style="color:#2e7d4f;font-weight:700;">+5.2%</span></td><td>1.71</td><td style='color:#8f3d2c'><span style="color:#8f3d2c;font-weight:700;">-2.4%</span></td><td>76%</tbody>
+        <tbody><tr><td style='color:#7a6055'>2026-06-04</td><td><span style="color:#2e7d4f;font-weight:700;">+5.2%</span></td><td>1.71</td><td><span style="color:#8f3d2c;font-weight:700;">-2.4%</span></td><td>76%</td></tr><tr><td style='color:#7a6055'>2026-06-18</td><td><span style="color:#2e7d4f;font-weight:700;">+4.4%</span></td><td>1.62</td><td><span style="color:#8f3d2c;font-weight:700;">-2.4%</span></td><td>76%</td></tr></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#af6452;margin-bottom:10px;">Diversified Growth</div>
+      <table>
+        <thead><tr><th>Date</th><th>YTD</th><th>Sharpe</th><th>Max DD</th><th>Batting</th></tr></thead>
+        <tbody><tr><td style='color:#7a6055'>2026-06-04</td><td><span style="color:#2e7d4f;font-weight:700;">+5.3%</span></td><td>1.17</td><td><span style="color:#8f3d2c;font-weight:700;">-4.8%</span></td><td>69%</td></tr><tr><td style='color:#7a6055'>2026-06-18</td><td><span style="color:#2e7d4f;font-weight:700;">+6.1%</span></td><td>1.20</td><td><span style="color:#8f3d2c;font-weight:700;">-4.8%</span></td><td>69%</td></tr></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#af6452;margin-bottom:10px;">Flex IRR</div>
+      <table>
+        <thead><tr><th>Date</th><th>YTD</th><th>Sharpe</th><th>Max DD</th><th>Batting</th></tr></thead>
+        <tbody><tr><td style='color:#7a6055'>2026-06-04</td><td><span style="color:#2e7d4f;font-weight:700;">+6.9%</span></td><td>1.72</td><td><span style="color:#8f3d2c;font-weight:700;">-2.2%</span></td><td>76%</td></tr><tr><td style='color:#7a6055'>2026-06-18</td><td><span style="color:#2e7d4f;font-weight:700;">+6.7%</span></td><td>1.69</td><td><span style="color:#8f3d2c;font-weight:700;">-2.2%</span></td><td>76%</td></tr></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#af6452;margin-bottom:10px;">Income Real Return</div>
+      <table>
+        <thead><tr><th>Date</th><th>YTD</th><th>Sharpe</th><th>Max DD</th><th>Batting</th></tr></thead>
+        <tbody><tr><td style='color:#7a6055'>2026-06-04</td><td><span style="color:#2e7d4f;font-weight:700;">+6.4%</span></td><td>0.47</td><td><span style="color:#8f3d2c;font-weight:700;">-1.2%</span></td><td>31%</td></tr><tr><td style='color:#7a6055'>2026-06-18</td><td><span style="color:#2e7d4f;font-weight:700;">+6.1%</span></td><td>0.45</td><td><span style="color:#8f3d2c;font-weight:700;">-1.2%</span></td><td>31%</td></tr></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#af6452;margin-bottom:10px;">Liquid Core</div>
+      <table>
+        <thead><tr><th>Date</th><th>YTD</th><th>Sharpe</th><th>Max DD</th><th>Batting</th></tr></thead>
+        <tbody><tr><td style='color:#7a6055'>2026-06-04</td><td><span style="color:#2e7d4f;font-weight:700;">+6.4%</span></td><td>0.47</td><td><span style="color:#8f3d2c;font-weight:700;">-1.2%</span></td><td>31%</td></tr><tr><td style='color:#7a6055'>2026-06-18</td><td><span style="color:#2e7d4f;font-weight:700;">+6.1%</span></td><td>0.45</td><td><span style="color:#8f3d2c;font-weight:700;">-1.2%</span></td><td>31%</td></tr></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#af6452;margin-bottom:10px;">Tax Aware Balanced</div>
+      <table>
+        <thead><tr><th>Date</th><th>YTD</th><th>Sharpe</th><th>Max DD</th><th>Batting</th></tr></thead>
+        <tbody><tr><td style='color:#7a6055'>2026-06-04</td><td><span style="color:#2e7d4f;font-weight:700;">+7.0%</span></td><td>0.90</td><td><span style="color:#8f3d2c;font-weight:700;">-6.4%</span></td><td>70%</td></tr><tr><td style='color:#7a6055'>2026-06-18</td><td><span style="color:#2e7d4f;font-weight:700;">+6.9%</span></td><td>0.89</td><td><span style="color:#8f3d2c;font-weight:700;">-6.4%</span></td><td>70%</td></tr></tbody>
       </table>
     </div></div>
 
@@ -131,7 +131,7 @@
 </footer>
 
 <script>
-const HISTORY = [{"model_name": "Balanced Core", "snapshot_date": "2026-06-04", "ytd_return": 0.070813, "sharpe_ratio": 1.648998, "max_drawdown": -0.024721, "batting_average": 0.7333, "sortino_ratio": 3.206082, "calmar_ratio": 4.833569, "return_1y": 0.178243}, {"model_name": "Conservative Core", "snapshot_date": "2026-06-04", "ytd_return": 0.05194, "sharpe_ratio": 1.713335, "max_drawdown": -0.023517, "batting_average": 0.7556, "sortino_ratio": 3.700906, "calmar_ratio": 4.716256, "return_1y": 0.152381}, {"model_name": "Diversified Growth", "snapshot_date": "2026-06-04", "ytd_return": 0.052966, "sharpe_ratio": 1.171584, "max_drawdown": -0.047524, "batting_average": 0.6889, "sortino_ratio": 1.898179, "calmar_ratio": 2.700978, "return_1y": 0.182426}, {"model_name": "Flex IRR", "snapshot_date": "2026-06-04", "ytd_return": 0.069453, "sharpe_ratio": 1.718629, "max_drawdown": -0.02205, "batting_average": 0.7556, "sortino_ratio": 3.375808, "calmar_ratio": 5.364288, "return_1y": 0.175554}, {"model_name": "Income Real Return", "snapshot_date": "2026-06-04", "ytd_return": 0.064294, "sharpe_ratio": 0.474105, "max_drawdown": -0.012232, "batting_average": 0.3117, "sortino_ratio": 1.981125, "calmar_ratio": 4.106542, "return_1y": 0.157871}, {"model_name": "Liquid Core", "snapshot_date": "2026-06-04", "ytd_return": 0.064294, "sharpe_ratio": 0.474105, "max_drawdown": -0.012232, "batting_average": 0.3117, "sortino_ratio": 1.981125, "calmar_ratio": 4.106542, "return_1y": 0.157871}, {"model_name": "Tax Aware Balanced", "snapshot_date": "2026-06-04", "ytd_return": 0.069524, "sharpe_ratio": 0.8961, "max_drawdown": -0.063534, "batting_average": 0.6981, "sortino_ratio": 1.669693, "calmar_ratio": 1.305941, "return_1y": 0.173538}];
+const HISTORY = [{"model_name": "Balanced Core", "snapshot_date": "2026-06-04", "ytd_return": 0.070813, "sharpe_ratio": 1.648998, "max_drawdown": -0.024721, "batting_average": 0.7333, "sortino_ratio": 3.206082, "calmar_ratio": 4.833569, "return_1y": 0.178243}, {"model_name": "Balanced Core", "snapshot_date": "2026-06-18", "ytd_return": 0.068888, "sharpe_ratio": 1.628375, "max_drawdown": -0.024721, "batting_average": 0.7333, "sortino_ratio": 3.18424, "calmar_ratio": 4.811858, "return_1y": 0.172313}, {"model_name": "Conservative Core", "snapshot_date": "2026-06-04", "ytd_return": 0.05194, "sharpe_ratio": 1.713335, "max_drawdown": -0.023517, "batting_average": 0.7556, "sortino_ratio": 3.700906, "calmar_ratio": 4.716256, "return_1y": 0.152381}, {"model_name": "Conservative Core", "snapshot_date": "2026-06-18", "ytd_return": 0.043592, "sharpe_ratio": 1.624657, "max_drawdown": -0.023517, "batting_average": 0.7556, "sortino_ratio": 3.432004, "calmar_ratio": 4.616014, "return_1y": 0.138766}, {"model_name": "Diversified Growth", "snapshot_date": "2026-06-04", "ytd_return": 0.052966, "sharpe_ratio": 1.171584, "max_drawdown": -0.047524, "batting_average": 0.6889, "sortino_ratio": 1.898179, "calmar_ratio": 2.700978, "return_1y": 0.182426}, {"model_name": "Diversified Growth", "snapshot_date": "2026-06-18", "ytd_return": 0.061499, "sharpe_ratio": 1.198807, "max_drawdown": -0.047524, "batting_average": 0.6889, "sortino_ratio": 1.934131, "calmar_ratio": 2.752133, "return_1y": 0.184605}, {"model_name": "Flex IRR", "snapshot_date": "2026-06-04", "ytd_return": 0.069453, "sharpe_ratio": 1.718629, "max_drawdown": -0.02205, "batting_average": 0.7556, "sortino_ratio": 3.375808, "calmar_ratio": 5.364288, "return_1y": 0.175554}, {"model_name": "Flex IRR", "snapshot_date": "2026-06-18", "ytd_return": 0.067199, "sharpe_ratio": 1.693671, "max_drawdown": -0.02205, "batting_average": 0.7556, "sortino_ratio": 3.344729, "calmar_ratio": 5.335764, "return_1y": 0.168591}, {"model_name": "Income Real Return", "snapshot_date": "2026-06-04", "ytd_return": 0.064294, "sharpe_ratio": 0.474105, "max_drawdown": -0.012232, "batting_average": 0.3117, "sortino_ratio": 1.981125, "calmar_ratio": 4.106542, "return_1y": 0.157871}, {"model_name": "Income Real Return", "snapshot_date": "2026-06-18", "ytd_return": 0.061285, "sharpe_ratio": 0.446929, "max_drawdown": -0.012232, "batting_average": 0.3117, "sortino_ratio": 1.937819, "calmar_ratio": 4.068672, "return_1y": 0.150595}, {"model_name": "Liquid Core", "snapshot_date": "2026-06-04", "ytd_return": 0.064294, "sharpe_ratio": 0.474105, "max_drawdown": -0.012232, "batting_average": 0.3117, "sortino_ratio": 1.981125, "calmar_ratio": 4.106542, "return_1y": 0.157871}, {"model_name": "Liquid Core", "snapshot_date": "2026-06-18", "ytd_return": 0.061285, "sharpe_ratio": 0.446929, "max_drawdown": -0.012232, "batting_average": 0.3117, "sortino_ratio": 1.937819, "calmar_ratio": 4.068672, "return_1y": 0.150595}, {"model_name": "Tax Aware Balanced", "snapshot_date": "2026-06-04", "ytd_return": 0.069524, "sharpe_ratio": 0.8961, "max_drawdown": -0.063534, "batting_average": 0.6981, "sortino_ratio": 1.669693, "calmar_ratio": 1.305941, "return_1y": 0.173538}, {"model_name": "Tax Aware Balanced", "snapshot_date": "2026-06-18", "ytd_return": 0.069244, "sharpe_ratio": 0.888496, "max_drawdown": -0.063534, "batting_average": 0.6981, "sortino_ratio": 1.668202, "calmar_ratio": 1.304932, "return_1y": 0.168289}];
 const IS_PCT = new Set(['ytd_return','max_drawdown','batting_average','return_1y']);
 
 function updateChart() {
