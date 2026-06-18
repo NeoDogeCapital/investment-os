@@ -45,6 +45,7 @@ mkdir -p docs
 [ -f reports/model-balanced-core.html ]   && cp reports/model-balanced-core.html   docs/model-balanced-core.html
 [ -f reports/model-tax-aware-balanced.html ] && cp reports/model-tax-aware-balanced.html docs/model-tax-aware-balanced.html
 [ -f reports/model-diversified-growth.html ] && cp reports/model-diversified-growth.html docs/model-diversified-growth.html
+[ -f reports/analytics-firmwide-risk.html ] && cp reports/analytics-firmwide-risk.html docs/analytics-firmwide-risk.html
 [ -f reports/analytics-diversified-growth.html ] && cp reports/analytics-diversified-growth.html docs/analytics-diversified-growth.html
 [ -f reports/analytics-diversified-growth.html ] && cp reports/analytics-diversified-growth.html docs/analytics-report.html
 

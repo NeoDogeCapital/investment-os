@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>IWP — Firm-Wide Risk</title>
+  <script src='https://cdn.plot.ly/plotly-2.35.2.min.js'></script>
+  <style>
+*, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+body { background:#faf9f4; color:#3a1f1d; font-family:'Segoe UI',system-ui,sans-serif; font-size:14px; line-height:1.6; }
+.page-header { background:linear-gradient(135deg,#efecdd,#d0c298); border-bottom:2px solid #af6452;
+                padding:24px 36px 18px; display:flex; justify-content:space-between; align-items:flex-start; }
+.page-header h1 { font-size:20px; font-weight:800; color:#af6452; letter-spacing:.06em; text-transform:uppercase; }
+.page-header p  { color:#7a6055; font-size:12px; margin-top:3px; }
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; }
+.grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+.full   { grid-column:1/-1; }
+.half   { grid-column:span 2; }
+.content { padding:20px 28px; }
+.card { background:#efecdd; border:1px solid #d0c298; border-radius:8px; padding:18px 20px; margin-bottom:18px; }
+.card-title { font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+               color:#af6452; border-bottom:1px solid #d0c298; padding-bottom:8px; margin-bottom:14px; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th { text-align:left; padding:7px 12px; font-size:10px; font-weight:700; letter-spacing:.1em;
+      text-transform:uppercase; color:#af6452; border-bottom:1px solid #d0c298; }
+td { padding:7px 12px; border-bottom:1px solid #d0c298; vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#d0c29833; }
+.tag { display:inline-block; padding:2px 8px; border-radius:3px; font-size:10px;
+        font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+.ytd-scorecard { display:grid; grid-template-columns:repeat(5,1fr); gap:0; background:#efecdd;
+                  border:1px solid #af645244; border-radius:8px; overflow:hidden; margin-bottom:18px; }
+.ytd-box { padding:14px 16px; border-right:1px solid #d0c298; }
+.ytd-box:last-child { border-right:none; }
+.ytd-label { font-size:9px; text-transform:uppercase; letter-spacing:.1em; color:#7a6055; margin-bottom:5px; }
+.ytd-value { font-size:22px; font-weight:800; }
+.page-footer { border-top:1px solid #d0c298; padding:14px 28px; display:flex;
+                justify-content:space-between; font-size:11px; color:#7a6055; margin-top:30px; }
+.nav { background:#efecdd; border-bottom:1px solid #d0c298; padding:8px 28px;
+        display:flex; gap:12px; font-size:12px; }
+.nav a { color:#7a6055; text-decoration:none; padding:4px 10px; border-radius:4px; }
+.nav a:hover { color:#af6452; background:#d0c298; }
+.nav a.active { color:#af6452; border:1px solid #af645244; }
+</style>
+</head>
+<body>
+<div class="page-header">
+  <div><h1>IWP — Firm-Wide Risk Dashboard</h1>
+  <p>AUM-weighted analytics across 7 models &nbsp;·&nbsp; June 18, 2026 &nbsp;·&nbsp; AUM as of 2026-06-18</p></div>
+</div>
+<div class="nav"><a href="analytics-balanced-core.html" class="">Balanced Core</a> <a href="analytics-conservative-core.html" class="">Conservative Core</a> <a href="analytics-diversified-growth.html" class="">Diversified Growth</a> <a href="analytics-flex-irr.html" class="">Flex IRR</a> <a href="analytics-income-real-return.html" class="">Income Real Return</a> <a href="analytics-liquid-core.html" class="">Liquid Core</a> <a href="analytics-tax-aware-balanced.html" class="">Tax Aware Balanced</a> <a href="analytics-comparison.html" class="">Comparison</a> <a href="analytics-firmwide.html" class="">Firm-Wide</a> <a href="analytics-firmwide-risk.html" class="active">Firm Risk</a></div>
+<div class="content">
+
+  
+    <div class="ytd-scorecard">
+      <div class="ytd-box"><div class="ytd-label">Total AUM</div><div class="ytd-value" style="color:#af6452">$383.0M</div></div>
+      <div class="ytd-box"><div class="ytd-label">Models</div><div class="ytd-value" style="color:#3a1f1d">7</div></div>
+      <div class="ytd-box"><div class="ytd-label">Firm YTD (AUM-wtd)</div><div class="ytd-value" style="color:#2e7d4f">+6.18%</div></div>
+      <div class="ytd-box"><div class="ytd-label">Firm Sharpe (ITD)</div><div class="ytd-value" style="color:#af6452">1.52x</div></div>
+      <div class="ytd-box"><div class="ytd-label">Max Drawdown</div><div class="ytd-value" style="color:#8f3d2c">-1.99%</div></div>
+    </div>
+
+  <div class="grid-2">
+    <div class="card"><div class="card-title">Firm Risk Metrics (AUM-weighted, ITD)</div>
+    <table>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">Annualized Return</td>
+      <td style="color:#2e7d4f;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        +10.33%
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">Annualized Volatility</td>
+      <td style="color:#8f3d2c;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        +3.96%
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">Sharpe Ratio</td>
+      <td style="color:#2e7d4f;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        1.52x
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">Sortino Ratio</td>
+      <td style="color:#2e7d4f;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        3.58x
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">Calmar Ratio</td>
+      <td style="color:#2e7d4f;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        5.18x
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">Max Drawdown</td>
+      <td style="color:#8f3d2c;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        -1.99%
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">Downside Deviation</td>
+      <td style="color:#8f3d2c;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        +2.88%
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">VaR (95%, monthly)</td>
+      <td style="color:#8f3d2c;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        -1.09%
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">CVaR (95%, monthly)</td>
+      <td style="color:#8f3d2c;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        -1.57%
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">VaR (99%, monthly)</td>
+      <td style="color:#8f3d2c;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        -1.99%
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">CVaR (99%, monthly)</td>
+      <td style="color:#8f3d2c;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        -1.99%
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">Batting Average</td>
+      <td style="color:#2e7d4f;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        73.33%
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">Slugging %</td>
+      <td style="color:#2e7d4f;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        2.14x
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">Win/Loss Ratio</td>
+      <td style="color:#2e7d4f;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        2.75x
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">Omega Ratio</td>
+      <td style="color:#2e7d4f;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        5.87x
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">Up Capture (vs SPY)</td>
+      <td style="color:#2e7d4f;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        0.37x
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">Down Capture (vs SPY)</td>
+      <td style="color:#8f3d2c;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        0.12x
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">Beta to SPY</td>
+      <td style="color:#2e7d4f;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        0.27x
+      </td>
+      
+    </tr>
+      <tr>
+      <td style="color:#7a6055;padding:7px 12px;border-bottom:1px solid #d0c298;">Beta to AGG</td>
+      <td style="color:#2e7d4f;font-weight:600;padding:7px 12px;border-bottom:1px solid #d0c298;text-align:right;">
+        0.24x
+      </td>
+      
+    </tr>
+    </table></div>
+    <div>
+      
+    <div class="card">
+      <div class="card-title">AUM Concentration (Business Risk)</div>
+      <table>
+        <tr><td style="color:#7a6055">Largest model</td><td style="text-align:right;font-weight:600;">Income Real Return (33%)</td></tr>
+        <tr><td style="color:#7a6055">Top-3 models</td><td style="text-align:right;font-weight:600;color:#af6452;">64% of AUM</td></tr>
+        <tr><td style="color:#7a6055">HHI (concentration)</td><td style="text-align:right;">0.194</td></tr>
+        <tr><td style="color:#7a6055">Effective # of models</td><td style="text-align:right;">5.1 of 7</td></tr>
+      </table>
+      <p style="color:#7a6055;font-size:11px;margin-top:8px;">HHI &gt; 0.25 or top-3 &gt; 70% signals revenue concentration risk.</p>
+    </div>
+      <div class="card">
+        <div class="card-title">Asset Allocation — Firm-Wide ($ look-through)</div>
+        <table>
+          <thead><tr><th>Asset Class</th><th style="text-align:right;">Exposure</th><th style="text-align:right;">% Firm</th></tr></thead>
+          <tbody><tr>
+          <td><span class="tag" style="background:#3d608022;color:#3d6080;">Equity</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$158.0M</td>
+          <td style="text-align:right;">41.3%</td>
+        </tr><tr>
+          <td><span class="tag" style="background:#2e7d4f22;color:#2e7d4f;">Fixed Income</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$149.7M</td>
+          <td style="text-align:right;">39.1%</td>
+        </tr><tr>
+          <td><span class="tag" style="background:#af645222;color:#af6452;">Real Assets</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$67.0M</td>
+          <td style="text-align:right;">17.5%</td>
+        </tr><tr>
+          <td><span class="tag" style="background:#7a605522;color:#7a6055;">Cash</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$17.3M</td>
+          <td style="text-align:right;">4.5%</td>
+        </tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  
+        <div class="grid-2">
+          <div class="card"><div>                            <div id="0761b3d0-80ab-42ba-ab48-06f406bea333" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("0761b3d0-80ab-42ba-ab48-06f406bea333")) {                    Plotly.newPlot(                        "0761b3d0-80ab-42ba-ab48-06f406bea333",                        [{"line":{"color":"#af6452","width":2.5},"name":"Firm (AUM-wtd)","x":["2022-10-31T00:00:00.000000000","2022-11-30T00:00:00.000000000","2022-12-31T00:00:00.000000000","2023-01-31T00:00:00.000000000","2023-02-28T00:00:00.000000000","2023-03-31T00:00:00.000000000","2023-04-30T00:00:00.000000000","2023-05-31T00:00:00.000000000","2023-06-30T00:00:00.000000000","2023-07-31T00:00:00.000000000","2023-08-31T00:00:00.000000000","2023-09-30T00:00:00.000000000","2023-10-31T00:00:00.000000000","2023-11-30T00:00:00.000000000","2023-12-31T00:00:00.000000000","2024-01-31T00:00:00.000000000","2024-02-29T00:00:00.000000000","2024-03-31T00:00:00.000000000","2024-04-30T00:00:00.000000000","2024-05-31T00:00:00.000000000","2024-06-30T00:00:00.000000000","2024-07-31T00:00:00.000000000","2024-08-31T00:00:00.000000000","2024-09-30T00:00:00.000000000","2024-10-31T00:00:00.000000000","2024-11-30T00:00:00.000000000","2024-12-31T00:00:00.000000000","2025-01-31T00:00:00.000000000","2025-02-28T00:00:00.000000000","2025-03-31T00:00:00.000000000","2025-04-30T00:00:00.000000000","2025-05-31T00:00:00.000000000","2025-06-30T00:00:00.000000000","2025-07-31T00:00:00.000000000","2025-08-31T00:00:00.000000000","2025-09-30T00:00:00.000000000","2025-10-31T00:00:00.000000000","2025-11-30T00:00:00.000000000","2025-12-31T00:00:00.000000000","2026-01-31T00:00:00.000000000","2026-02-28T00:00:00.000000000","2026-03-31T00:00:00.000000000","2026-04-30T00:00:00.000000000","2026-05-31T00:00:00.000000000","2026-06-30T00:00:00.000000000"],"y":{"dtype":"f8","bdata":"gGLHBkjZtD+gDhyGlZ38P9Qm8lk6EfM\u002ffMtUnGR9B0Bw0fsanu0BQOp0RuBLPApAbhPtSqz\u002fDEDWYZG\u002fQeILQAGtF4KA1RFAQZZomum3FUAadNESr6sUQFxAKpjfLRFAfLZhpA5xD0ChqqIXIFoWQDvWE8PjzRpAWh6OcgzaHUCCf7hk1pYhQGT\u002fjRAdxSZAuqsUeik8JECwbWe4xmgoQEhclS8R5ClAAi7c162VLECWx8FvKIMtQMl+YPLMWzBAOk6XHgjyL0B\u002fl4UCR\u002fIyQIBBhnUnpTFAZrtWkiePNEBgYVreWg41QN\u002fvoHe2SzVAGB6twggzNUASMfSHmls3QKl21GAzjDlAjL85cUF4OkBESyT6sCk9QLjnx2DSTUBAZLMKMTi2QEBoBiI3owlBQGUWam58FEJAbVaUmCX2QkAkucx+2H1EQAGiJulYFkNApDUETBvaREBZAxr1TG1GQGyKb4wqSUZA"},"type":"scatter"},{"line":{"color":"#3d6080","dash":"dot","width":1.8},"name":"SPY","x":["2022-10-31T00:00:00.000000000","2022-11-30T00:00:00.000000000","2022-12-31T00:00:00.000000000","2023-01-31T00:00:00.000000000","2023-02-28T00:00:00.000000000","2023-03-31T00:00:00.000000000","2023-04-30T00:00:00.000000000","2023-05-31T00:00:00.000000000","2023-06-30T00:00:00.000000000","2023-07-31T00:00:00.000000000","2023-08-31T00:00:00.000000000","2023-09-30T00:00:00.000000000","2023-10-31T00:00:00.000000000","2023-11-30T00:00:00.000000000","2023-12-31T00:00:00.000000000","2024-01-31T00:00:00.000000000","2024-02-29T00:00:00.000000000","2024-03-31T00:00:00.000000000","2024-04-30T00:00:00.000000000","2024-05-31T00:00:00.000000000","2024-06-30T00:00:00.000000000","2024-07-31T00:00:00.000000000","2024-08-31T00:00:00.000000000","2024-09-30T00:00:00.000000000","2024-10-31T00:00:00.000000000","2024-11-30T00:00:00.000000000","2024-12-31T00:00:00.000000000","2025-01-31T00:00:00.000000000","2025-02-28T00:00:00.000000000","2025-03-31T00:00:00.000000000","2025-04-30T00:00:00.000000000","2025-05-31T00:00:00.000000000","2025-06-30T00:00:00.000000000","2025-07-31T00:00:00.000000000","2025-08-31T00:00:00.000000000","2025-09-30T00:00:00.000000000","2025-10-31T00:00:00.000000000","2025-11-30T00:00:00.000000000","2025-12-31T00:00:00.000000000","2026-01-31T00:00:00.000000000","2026-02-28T00:00:00.000000000","2026-03-31T00:00:00.000000000","2026-04-30T00:00:00.000000000","2026-05-31T00:00:00.000000000","2026-06-30T00:00:00.000000000"],"y":{"dtype":"f8","bdata":"NARODqI7+j8QPk\u002fX0SgdQHRUMd8JtvE\u002faw6V4m7cHUBOgwwapg0TQKqyDSKjSyFAaOA5oUbEJEBQHswtLMklQOSggLcpFDJANTIHcqDxNUDZAXmHRvYzQM7EiMQYiyxASkdv7f2UJ0BB6CVHngA2QFZVgPCNkjtAOMHv3LCaPUBaA1k6Fy9CQMngFLjoaURAIZNZzxuTQUB7o0h1F\u002f5EQPqQQqdGf0dAsT2P6hxjSECbcrDSECBKQE3i+dZnuUtAYY+SAdkHS0DJVbaZz59PQDGajy4OqU1Ak8b5eb3MT0Dd3Qqi5sJOQJDYA+npQkpAmRFB9qSZSUBiwhgR7VlOQDsX\u002fnl3PVFAIF+VfYQ2UkCfeRXqgxlTQMcU6ginq1RACk3a6lnCVUBVR4xYsdlVQFsMoglC41VAbfoCpSiUVkBjgDL\u002f5SpWQMPYmjql1lNA3V648YGMWEAIM8MBCihbQA3fYpmmYVpA"},"type":"scatter"},{"line":{"color":"#7a6055","dash":"dash","width":1.2},"name":"SPY","x":["2020-01-31T00:00:00.000000000","2020-02-29T00:00:00.000000000","2020-03-31T00:00:00.000000000","2020-04-30T00:00:00.000000000","2020-05-31T00:00:00.000000000","2020-06-30T00:00:00.000000000","2020-07-31T00:00:00.000000000","2020-08-31T00:00:00.000000000","2020-09-30T00:00:00.000000000","2020-10-31T00:00:00.000000000","2020-11-30T00:00:00.000000000","2020-12-31T00:00:00.000000000","2021-01-31T00:00:00.000000000","2021-02-28T00:00:00.000000000","2021-03-31T00:00:00.000000000","2021-04-30T00:00:00.000000000","2021-05-31T00:00:00.000000000","2021-06-30T00:00:00.000000000","2021-07-31T00:00:00.000000000","2021-08-31T00:00:00.000000000","2021-09-30T00:00:00.000000000","2021-10-31T00:00:00.000000000","2021-11-30T00:00:00.000000000","2021-12-31T00:00:00.000000000","2022-01-31T00:00:00.000000000","2022-02-28T00:00:00.000000000","2022-03-31T00:00:00.000000000","2022-04-30T00:00:00.000000000","2022-05-31T00:00:00.000000000","2022-06-30T00:00:00.000000000","2022-07-31T00:00:00.000000000","2022-08-31T00:00:00.000000000","2022-09-30T00:00:00.000000000","2022-10-31T00:00:00.000000000","2022-11-30T00:00:00.000000000","2022-12-31T00:00:00.000000000","2023-01-31T00:00:00.000000000","2023-02-28T00:00:00.000000000","2023-03-31T00:00:00.000000000","2023-04-30T00:00:00.000000000","2023-05-31T00:00:00.000000000","2023-06-30T00:00:00.000000000","2023-07-31T00:00:00.000000000","2023-08-31T00:00:00.000000000","2023-09-30T00:00:00.000000000","2023-10-31T00:00:00.000000000","2023-11-30T00:00:00.000000000","2023-12-31T00:00:00.000000000","2024-01-31T00:00:00.000000000","2024-02-29T00:00:00.000000000","2024-03-31T00:00:00.000000000","2024-04-30T00:00:00.000000000","2024-05-31T00:00:00.000000000","2024-06-30T00:00:00.000000000","2024-07-31T00:00:00.000000000","2024-08-31T00:00:00.000000000","2024-09-30T00:00:00.000000000","2024-10-31T00:00:00.000000000","2024-11-30T00:00:00.000000000","2024-12-31T00:00:00.000000000","2025-01-31T00:00:00.000000000","2025-02-28T00:00:00.000000000","2025-03-31T00:00:00.000000000","2025-04-30T00:00:00.000000000","2025-05-31T00:00:00.000000000","2025-06-30T00:00:00.000000000","2025-07-31T00:00:00.000000000","2025-08-31T00:00:00.000000000","2025-09-30T00:00:00.000000000","2025-10-31T00:00:00.000000000","2025-11-30T00:00:00.000000000","2025-12-31T00:00:00.000000000","2026-01-31T00:00:00.000000000","2026-02-28T00:00:00.000000000","2026-03-31T00:00:00.000000000","2026-04-30T00:00:00.000000000","2026-05-31T00:00:00.000000000","2026-06-30T00:00:00.000000000"],"y":{"dtype":"f8","bdata":"uPfCzCHu7r9wXTVv+pwhwNaMQNWsMTTAH88\u002fMLkeJMBSKkf4YBkXwNn8NrRGahDAVBJnfGyz+D9qh1tULUMhQBViNcorQRJAhMf5o+pN\u002fz\u002fYQ+GMExgqQKSF7H03PDFA9XIAtGAKMEAY85sTYkQzQDayIoGHrjhAEx6JVltHP0B7VJ+kAhJAQPAgKe1YjUFAxfE094UzQ0B1h6lAvEJFQAslCvOF8EFAIZ16C9i0RkDwCuSZSx9GQIQyJVMudUlAh7uQpF16RUCTbQ1wQV5DQAb3fq7K+UVAMledWidRP0CJ1pwsCp0\u002fQOoYRvSzwjRAGODnx4zhP0BON7KRBYA6QBpQwtJ7nC1AvKYjNfQiOED13OGpmAk\u002fQB0VxK5sfDdAro1zS3BAP0D+PWRbpPM7QEOrJlgTWUBAc81ZgWhoQUDQ6pS0EbhBQHK3J7VxG0ZA0mdDL653SEDge8ok20FHQEd7ZKFGyENAqPwh23dEQkDNldbV1YBIQGTUxL+c50tA\u002fa7IhD4lTUD6NwGgTqNQQGF4MpTj\u002f1FATze3sA1EUEC3eHAzYVpSQHtsL5fu4VNASUtlthBtVECjnxPmyHxVQOXckKvBdlZAyabBv1MKVkAnksT9c9hYQO5cFWdvpVdAZnWw2OPzWEBns7TEjFFYQCdjGb4QklVArbgPmLIqVUCNCozgcRFYQL+tW43tllpASKkImBrHW0Dply1yWNxcQKfXjvZ9x15AVVsRafANYEDXTn1tMRxgQDANcMUIImBAS8cZ9g+OYEAAXf1wyE1gQH3Fr3xWw11AFPN+oQ3CYUCzJk3psVljQITGiYuL4GJA"},"type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"shapes":[{"line":{"color":"#d0c298","width":1},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":0,"y1":0,"yref":"y"}],"font":{"family":"Segoe UI, system-ui, sans-serif","color":"#3a1f1d","size":11},"xaxis":{"gridcolor":"#d0c298","showgrid":true},"yaxis":{"gridcolor":"#d0c298","showgrid":true,"ticksuffix":"%"},"margin":{"l":50,"r":20,"t":40,"b":40},"title":{"font":{"color":"#af6452","size":13},"text":"Cumulative Return"},"legend":{"bgcolor":"#efecdd","bordercolor":"#d0c298"},"paper_bgcolor":"#efecdd","plot_bgcolor":"#faf9f4"},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div></div>
+          <div class="card"><div>                            <div id="0580391f-1057-46e2-99c1-c37c23a8bfa9" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("0580391f-1057-46e2-99c1-c37c23a8bfa9")) {                    Plotly.newPlot(                        "0580391f-1057-46e2-99c1-c37c23a8bfa9",                        [{"fill":"tozeroy","fillcolor":"rgba(231,76,60,0.15)","line":{"color":"#8f3d2c","width":1.5},"name":"Drawdown","x":["2022-10-31T00:00:00.000000000","2022-11-30T00:00:00.000000000","2022-12-31T00:00:00.000000000","2023-01-31T00:00:00.000000000","2023-02-28T00:00:00.000000000","2023-03-31T00:00:00.000000000","2023-04-30T00:00:00.000000000","2023-05-31T00:00:00.000000000","2023-06-30T00:00:00.000000000","2023-07-31T00:00:00.000000000","2023-08-31T00:00:00.000000000","2023-09-30T00:00:00.000000000","2023-10-31T00:00:00.000000000","2023-11-30T00:00:00.000000000","2023-12-31T00:00:00.000000000","2024-01-31T00:00:00.000000000","2024-02-29T00:00:00.000000000","2024-03-31T00:00:00.000000000","2024-04-30T00:00:00.000000000","2024-05-31T00:00:00.000000000","2024-06-30T00:00:00.000000000","2024-07-31T00:00:00.000000000","2024-08-31T00:00:00.000000000","2024-09-30T00:00:00.000000000","2024-10-31T00:00:00.000000000","2024-11-30T00:00:00.000000000","2024-12-31T00:00:00.000000000","2025-01-31T00:00:00.000000000","2025-02-28T00:00:00.000000000","2025-03-31T00:00:00.000000000","2025-04-30T00:00:00.000000000","2025-05-31T00:00:00.000000000","2025-06-30T00:00:00.000000000","2025-07-31T00:00:00.000000000","2025-08-31T00:00:00.000000000","2025-09-30T00:00:00.000000000","2025-10-31T00:00:00.000000000","2025-11-30T00:00:00.000000000","2025-12-31T00:00:00.000000000","2026-01-31T00:00:00.000000000","2026-02-28T00:00:00.000000000","2026-03-31T00:00:00.000000000","2026-04-30T00:00:00.000000000","2026-05-31T00:00:00.000000000","2026-06-30T00:00:00.000000000"],"y":{"dtype":"f8","bdata":"AAAAAAAAAAAAAAAAAAAAACj2BbTQwuK\u002fAAAAAAAAAADm\u002fd2EppzlvwAAAAAAAAAAAAAAAAAAAAC4bB9W6jbBvwAAAAAAAAAAAAAAAAAAAACR3cb5Rs3Pv8A7m\u002f7GOPG\u002fDJb8dD\u002fB9r8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAd1prUPY08r8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANAN3CWU51b8AAAAAAAAAAG975In8gPG\u002fAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA01RNtINYtL8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGqvc2vN3\u002f+\u002fAAAAAAAAAAAAAAAAAAAAAA9TW7sG8si\u002f"},"type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"font":{"family":"Segoe UI, system-ui, sans-serif","color":"#3a1f1d","size":11},"xaxis":{"gridcolor":"#d0c298","showgrid":true},"yaxis":{"gridcolor":"#d0c298","showgrid":true,"ticksuffix":"%"},"margin":{"l":50,"r":20,"t":40,"b":40},"title":{"font":{"color":"#af6452","size":13},"text":"Drawdown"},"paper_bgcolor":"#efecdd","plot_bgcolor":"#faf9f4"},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div></div>
+          <div class="card"><div>                            <div id="96f82f72-b942-4e8b-b1b1-abf31e7ed54a" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("96f82f72-b942-4e8b-b1b1-abf31e7ed54a")) {                    Plotly.newPlot(                        "96f82f72-b942-4e8b-b1b1-abf31e7ed54a",                        [{"line":{"color":"#af6452","width":2},"name":"Rolling 12M Sharpe","x":["2023-10-31T00:00:00.000000000","2023-11-30T00:00:00.000000000","2023-12-31T00:00:00.000000000","2024-01-31T00:00:00.000000000","2024-02-29T00:00:00.000000000","2024-03-31T00:00:00.000000000","2024-04-30T00:00:00.000000000","2024-05-31T00:00:00.000000000","2024-06-30T00:00:00.000000000","2024-07-31T00:00:00.000000000","2024-08-31T00:00:00.000000000","2024-09-30T00:00:00.000000000","2024-10-31T00:00:00.000000000","2024-11-30T00:00:00.000000000","2024-12-31T00:00:00.000000000","2025-01-31T00:00:00.000000000","2025-02-28T00:00:00.000000000","2025-03-31T00:00:00.000000000","2025-04-30T00:00:00.000000000","2025-05-31T00:00:00.000000000","2025-06-30T00:00:00.000000000","2025-07-31T00:00:00.000000000","2025-08-31T00:00:00.000000000","2025-09-30T00:00:00.000000000","2025-10-31T00:00:00.000000000","2025-11-30T00:00:00.000000000","2025-12-31T00:00:00.000000000","2026-01-31T00:00:00.000000000","2026-02-28T00:00:00.000000000","2026-03-31T00:00:00.000000000","2026-04-30T00:00:00.000000000","2026-05-31T00:00:00.000000000","2026-06-30T00:00:00.000000000"],"y":{"dtype":"f8","bdata":"Trx8WqgQu7+Ccko6kk+8P\u002fl1JPU\u002fiuc\u002f2mfQK1Tq0D85VJ9phTvuP1fPG\u002fn5S\u002fs\u002f4EqMTZgU6D+dIt5Tw9j1P3FJAfT1NfU\u002feu0T2MD\u002f8j9ugmEq2UXzP6zqn1Ayifo\u002fADSMQzU2+j9tIeRSL079P09xJ+k+GvQ\u002fgXVXv+CQ+D8gxPHDD433PxClg4ftOu8\u002fFWaJrzfS6D91zy3ewUbqP5BLXF0z2fA\u002feEur8NFu8T9QA8h3V+H0P5EW5HsDAfg\u002f1jCAYFXn9z+nEMisoLb1Px9w6CFeOPs\u002fzulcmsOj+D94u16idmH7P5F8OF4ZmvY\u002fO2KhouRFAkDjkZUy0HoCQPhBfiV9c\u002f0\u002f"},"type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"shapes":[{"line":{"color":"#7a6055","dash":"dash","width":1},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":0,"y1":0,"yref":"y"},{"line":{"color":"#2e7d4f","dash":"dot","width":1},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":1,"y1":1,"yref":"y"}],"font":{"family":"Segoe UI, system-ui, sans-serif","color":"#3a1f1d","size":11},"xaxis":{"gridcolor":"#d0c298","showgrid":true},"yaxis":{"gridcolor":"#d0c298","showgrid":true},"margin":{"l":50,"r":20,"t":40,"b":40},"title":{"font":{"color":"#af6452","size":13},"text":"Rolling 12-Month Sharpe"},"paper_bgcolor":"#efecdd","plot_bgcolor":"#faf9f4"},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div></div>
+          <div class="card"><div>                            <div id="ca12344a-2c0b-4a65-bc7f-0b5f3203626d" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("ca12344a-2c0b-4a65-bc7f-0b5f3203626d")) {                    Plotly.newPlot(                        "ca12344a-2c0b-4a65-bc7f-0b5f3203626d",                        [{"line":{"color":"#af6452","width":2},"name":"Rolling 60d Vol (ann.)","x":["2023-01-31T00:00:00.000000000","2023-02-28T00:00:00.000000000","2023-03-31T00:00:00.000000000","2023-04-30T00:00:00.000000000","2023-05-31T00:00:00.000000000","2023-06-30T00:00:00.000000000","2023-07-31T00:00:00.000000000","2023-08-31T00:00:00.000000000","2023-09-30T00:00:00.000000000","2023-10-31T00:00:00.000000000","2023-11-30T00:00:00.000000000","2023-12-31T00:00:00.000000000","2024-01-31T00:00:00.000000000","2024-02-29T00:00:00.000000000","2024-03-31T00:00:00.000000000","2024-04-30T00:00:00.000000000","2024-05-31T00:00:00.000000000","2024-06-30T00:00:00.000000000","2024-07-31T00:00:00.000000000","2024-08-31T00:00:00.000000000","2024-09-30T00:00:00.000000000","2024-10-31T00:00:00.000000000","2024-11-30T00:00:00.000000000","2024-12-31T00:00:00.000000000","2025-01-31T00:00:00.000000000","2025-02-28T00:00:00.000000000","2025-03-31T00:00:00.000000000","2025-04-30T00:00:00.000000000","2025-05-31T00:00:00.000000000","2025-06-30T00:00:00.000000000","2025-07-31T00:00:00.000000000","2025-08-31T00:00:00.000000000","2025-09-30T00:00:00.000000000","2025-10-31T00:00:00.000000000","2025-11-30T00:00:00.000000000","2025-12-31T00:00:00.000000000","2026-01-31T00:00:00.000000000","2026-02-28T00:00:00.000000000","2026-03-31T00:00:00.000000000","2026-04-30T00:00:00.000000000","2026-05-31T00:00:00.000000000","2026-06-30T00:00:00.000000000"],"y":{"dtype":"f8","bdata":"vyLr1GMXEEA6OPlo6fIIQJhYirzk3gVA1ISGKLm6AkCe7LWGr2f\u002fP\u002fxI2szo8vw\u002fSikvD0gv\u002fz8iYbHT3jYAQP1IkUeJaABAzXLZEyVDAECYklGg12gBQIX1R8kp6gBAxJLiiWhjA0CwLB6MmSMJQPnr4bZ7CQtARDyuotO6EEDF3nHfnBwRQHYuh+d6NRFACdbiwBIfEkAkPYtZcBoXQDQm+ZwUGBlAemhcOTlxEkAQN7lQOtAQQHc8njxn3BJAlxtyNWWmE0B1f5Qpye0TQHS7Jkp\u002f2xRAlmD+EwEPJUBaaqf5ArwkQJ2IOCBR5CNAt4AQXTQrCEDKYcO0MXULQJ7lxZUKIAtA6VTKSYiEEUCHn2VwpEIUQIV9qCcLpxRArx3t4WWGFkD+w1Zb37kYQIqwM9xO5R5AGW29GLhoHECSDJV4bgQZQLmOEMoX+B5A"},"type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"font":{"family":"Segoe UI, system-ui, sans-serif","color":"#3a1f1d","size":11},"xaxis":{"gridcolor":"#d0c298","showgrid":true},"yaxis":{"gridcolor":"#d0c298","showgrid":true,"ticksuffix":"%"},"margin":{"l":50,"r":20,"t":40,"b":40},"title":{"font":{"color":"#af6452","size":13},"text":"Rolling Volatility (annualized)"},"paper_bgcolor":"#efecdd","plot_bgcolor":"#faf9f4"},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div></div>
+        </div>
+
+  <div class="card full">
+    <div class="card-title">Models — AUM, Performance &amp; Risk Contribution</div>
+    <table>
+      <thead><tr><th>Model</th><th style="text-align:right;">AUM</th><th style="text-align:right;">Weight</th><th style="text-align:right;">YTD</th><th style="text-align:right;">Vol</th><th style="text-align:right;">Sharpe</th><th style="text-align:right;">Max DD</th><th style="text-align:right;">Risk Contrib</th></tr></thead>
+      <tbody><tr>
+          <td><strong>Income Real Return</strong></td>
+          <td style="text-align:right;">$127.0M</td>
+          <td style="text-align:right;color:#af6452;">33.2%</td>
+          <td style="text-align:right;color:#2e7d4f;">+36.57%</td>
+          <td style="text-align:right;">2.94%</td>
+          <td style="text-align:right;">0.45x</td>
+          <td style="text-align:right;color:#8f3d2c;">-1.22%</td>
+          <td style="text-align:right;color:#af6452;">25%</td>
+        </tr><tr>
+          <td><strong>Balanced Core</strong></td>
+          <td style="text-align:right;">$60.0M</td>
+          <td style="text-align:right;color:#af6452;">15.7%</td>
+          <td style="text-align:right;color:#2e7d4f;">+52.42%</td>
+          <td style="text-align:right;">4.80%</td>
+          <td style="text-align:right;">1.63x</td>
+          <td style="text-align:right;color:#8f3d2c;">-2.47%</td>
+          <td style="text-align:right;color:#af6452;">18%</td>
+        </tr><tr>
+          <td><strong>Liquid Core</strong></td>
+          <td style="text-align:right;">$60.0M</td>
+          <td style="text-align:right;color:#af6452;">15.7%</td>
+          <td style="text-align:right;color:#2e7d4f;">+36.57%</td>
+          <td style="text-align:right;">2.94%</td>
+          <td style="text-align:right;">0.45x</td>
+          <td style="text-align:right;color:#8f3d2c;">-1.22%</td>
+          <td style="text-align:right;color:#af6452;">12%</td>
+        </tr><tr>
+          <td><strong>Diversified Growth</strong></td>
+          <td style="text-align:right;">$51.0M</td>
+          <td style="text-align:right;color:#af6452;">13.3%</td>
+          <td style="text-align:right;color:#2e7d4f;">+58.56%</td>
+          <td style="text-align:right;">7.54%</td>
+          <td style="text-align:right;">1.20x</td>
+          <td style="text-align:right;color:#8f3d2c;">-4.75%</td>
+          <td style="text-align:right;color:#af6452;">23%</td>
+        </tr><tr>
+          <td><strong>Conservative Core</strong></td>
+          <td style="text-align:right;">$37.0M</td>
+          <td style="text-align:right;color:#af6452;">9.7%</td>
+          <td style="text-align:right;color:#2e7d4f;">+47.18%</td>
+          <td style="text-align:right;">4.21%</td>
+          <td style="text-align:right;">1.62x</td>
+          <td style="text-align:right;color:#8f3d2c;">-2.35%</td>
+          <td style="text-align:right;color:#af6452;">9%</td>
+        </tr><tr>
+          <td><strong>Tax Aware Balanced</strong></td>
+          <td style="text-align:right;">$29.0M</td>
+          <td style="text-align:right;color:#af6452;">7.6%</td>
+          <td style="text-align:right;color:#2e7d4f;">+42.16%</td>
+          <td style="text-align:right;">5.09%</td>
+          <td style="text-align:right;">0.89x</td>
+          <td style="text-align:right;color:#8f3d2c;">-6.35%</td>
+          <td style="text-align:right;color:#af6452;">8%</td>
+        </tr><tr>
+          <td><strong>Flex IRR</strong></td>
+          <td style="text-align:right;">$19.0M</td>
+          <td style="text-align:right;color:#af6452;">5.0%</td>
+          <td style="text-align:right;color:#2e7d4f;">+51.76%</td>
+          <td style="text-align:right;">4.54%</td>
+          <td style="text-align:right;">1.69x</td>
+          <td style="text-align:right;color:#8f3d2c;">-2.20%</td>
+          <td style="text-align:right;color:#af6452;">5%</td>
+        </tr></tbody>
+    </table>
+    <p style="color:#7a6055;font-size:11px;margin-top:8px;">Firm volatility (AUM-weighted, annualized): <strong style="color:#af6452">4.0%</strong>. Risk contribution = each model's share of total firm volatility (accounts for correlation), which differs from its AUM weight.</p>
+  </div>
+
+  <div class="card full">
+    <div class="card-title">Single-Name Concentration — Firm-Wide Look-Through (Top 25)</div>
+    <table>
+      <thead><tr><th>Ticker</th><th>Class</th><th style="text-align:right;">Firm Exposure</th><th style="text-align:right;">% of AUM</th><th style="text-align:right;">Models</th></tr></thead>
+      <tbody><tr>
+          <td><strong>PRWCX</strong></td>
+          <td><span class="tag" style="background:#3d608022;color:#3d6080;">Equity</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$30.8M</td>
+          <td style="text-align:right;">8.1%</td>
+          <td style="text-align:right;">6/7</td>
+        </tr><tr>
+          <td><strong>QDSIX</strong></td>
+          <td><span class="tag" style="background:#2e7d4f22;color:#2e7d4f;">Fixed Income</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$30.1M</td>
+          <td style="text-align:right;">7.8%</td>
+          <td style="text-align:right;">7/7</td>
+        </tr><tr>
+          <td><strong>HOBIX</strong></td>
+          <td><span class="tag" style="background:#2e7d4f22;color:#2e7d4f;">Fixed Income</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$29.1M</td>
+          <td style="text-align:right;">7.6%</td>
+          <td style="text-align:right;">7/7</td>
+        </tr><tr>
+          <td><strong>HEQT</strong></td>
+          <td><span class="tag" style="background:#3d608022;color:#3d6080;">Equity</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$26.9M</td>
+          <td style="text-align:right;">7.0%</td>
+          <td style="text-align:right;">3/7</td>
+        </tr><tr>
+          <td><strong>BDMIX</strong></td>
+          <td><span class="tag" style="background:#2e7d4f22;color:#2e7d4f;">Fixed Income</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$26.0M</td>
+          <td style="text-align:right;">6.8%</td>
+          <td style="text-align:right;">6/7</td>
+        </tr><tr>
+          <td><strong>LCTIX</strong></td>
+          <td><span class="tag" style="background:#3d608022;color:#3d6080;">Equity</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$23.3M</td>
+          <td style="text-align:right;">6.1%</td>
+          <td style="text-align:right;">6/7</td>
+        </tr><tr>
+          <td><strong>CBYYX</strong></td>
+          <td><span class="tag" style="background:#2e7d4f22;color:#2e7d4f;">Fixed Income</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$19.9M</td>
+          <td style="text-align:right;">5.2%</td>
+          <td style="text-align:right;">6/7</td>
+        </tr><tr>
+          <td><strong>BFGIX</strong></td>
+          <td><span class="tag" style="background:#3d608022;color:#3d6080;">Equity</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$19.8M</td>
+          <td style="text-align:right;">5.2%</td>
+          <td style="text-align:right;">7/7</td>
+        </tr><tr>
+          <td><strong>APDPX</strong></td>
+          <td><span class="tag" style="background:#2e7d4f22;color:#2e7d4f;">Fixed Income</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$19.3M</td>
+          <td style="text-align:right;">5.0%</td>
+          <td style="text-align:right;">5/7</td>
+        </tr><tr>
+          <td><strong>KSPY</strong></td>
+          <td><span class="tag" style="background:#3d608022;color:#3d6080;">Equity</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$19.1M</td>
+          <td style="text-align:right;">5.0%</td>
+          <td style="text-align:right;">4/7</td>
+        </tr><tr>
+          <td><strong>HGER</strong></td>
+          <td><span class="tag" style="background:#af645222;color:#af6452;">Real Assets</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$16.6M</td>
+          <td style="text-align:right;">4.3%</td>
+          <td style="text-align:right;">6/7</td>
+        </tr><tr>
+          <td><strong>SHLD</strong></td>
+          <td><span class="tag" style="background:#af645222;color:#af6452;">Real Assets</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$15.3M</td>
+          <td style="text-align:right;">4.0%</td>
+          <td style="text-align:right;">7/7</td>
+        </tr><tr>
+          <td><strong>IAUI</strong></td>
+          <td><span class="tag" style="background:#af645222;color:#af6452;">Real Assets</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$15.0M</td>
+          <td style="text-align:right;">3.9%</td>
+          <td style="text-align:right;">2/7</td>
+        </tr><tr>
+          <td><strong>TIBIX</strong></td>
+          <td><span class="tag" style="background:#2e7d4f22;color:#2e7d4f;">Fixed Income</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$13.4M</td>
+          <td style="text-align:right;">3.5%</td>
+          <td style="text-align:right;">3/7</td>
+        </tr><tr>
+          <td><strong>EMEQ</strong></td>
+          <td><span class="tag" style="background:#3d608022;color:#3d6080;">Equity</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$13.3M</td>
+          <td style="text-align:right;">3.5%</td>
+          <td style="text-align:right;">6/7</td>
+        </tr><tr>
+          <td><strong>CEF</strong></td>
+          <td><span class="tag" style="background:#af645222;color:#af6452;">Real Assets</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$12.0M</td>
+          <td style="text-align:right;">3.1%</td>
+          <td style="text-align:right;">4/7</td>
+        </tr><tr>
+          <td><strong>CPAI</strong></td>
+          <td><span class="tag" style="background:#3d608022;color:#3d6080;">Equity</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$9.7M</td>
+          <td style="text-align:right;">2.5%</td>
+          <td style="text-align:right;">7/7</td>
+        </tr><tr>
+          <td><strong>FEOE</strong></td>
+          <td><span class="tag" style="background:#2e7d4f22;color:#2e7d4f;">Fixed Income</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$6.5M</td>
+          <td style="text-align:right;">1.7%</td>
+          <td style="text-align:right;">3/7</td>
+        </tr><tr>
+          <td><strong>SGOIX</strong></td>
+          <td><span class="tag" style="background:#3d608022;color:#3d6080;">Equity</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$5.1M</td>
+          <td style="text-align:right;">1.3%</td>
+          <td style="text-align:right;">1/7</td>
+        </tr><tr>
+          <td><strong>APDTX</strong></td>
+          <td><span class="tag" style="background:#3d608022;color:#3d6080;">Equity</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$4.1M</td>
+          <td style="text-align:right;">1.1%</td>
+          <td style="text-align:right;">1/7</td>
+        </tr><tr>
+          <td><strong>FWD</strong></td>
+          <td><span class="tag" style="background:#af645222;color:#af6452;">Real Assets</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$4.1M</td>
+          <td style="text-align:right;">1.1%</td>
+          <td style="text-align:right;">1/7</td>
+        </tr><tr>
+          <td><strong>PHYS</strong></td>
+          <td><span class="tag" style="background:#af645222;color:#af6452;">Real Assets</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$4.1M</td>
+          <td style="text-align:right;">1.1%</td>
+          <td style="text-align:right;">1/7</td>
+        </tr><tr>
+          <td><strong>USFR</strong></td>
+          <td><span class="tag" style="background:#2e7d4f22;color:#2e7d4f;">Fixed Income</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$3.7M</td>
+          <td style="text-align:right;">1.0%</td>
+          <td style="text-align:right;">1/7</td>
+        </tr><tr>
+          <td><strong>SPYI</strong></td>
+          <td><span class="tag" style="background:#3d608022;color:#3d6080;">Equity</span></td>
+          <td style="text-align:right;color:#af6452;font-weight:600;">$3.1M</td>
+          <td style="text-align:right;">0.8%</td>
+          <td style="text-align:right;">1/7</td>
+        </tr></tbody>
+    </table>
+    <p style="color:#7a6055;font-size:11px;margin-top:8px;">Aggregates each security's dollar exposure across all models (AUM × weight). The largest single-name lines are your concentrated firm-level bets.</p>
+  </div>
+
+  
+        <div class="card full">
+          <div class="card-title">Stress Tests — Firm-Wide Impact (AUM-weighted)</div>
+          <table>
+            <thead><tr><th>Scenario</th><th style="text-align:right;">Firm Return</th><th style="text-align:right;">$ Impact on Book</th><th>Worst Model</th></tr></thead>
+            <tbody><tr>
+              <td><strong>2020 Recovery</strong></td>
+              <td style="text-align:right;color:#8f3d2c;font-weight:600;">0.00%</td>
+              <td style="text-align:right;color:#8f3d2c;font-weight:600;">$0</td>
+              <td style="color:#7a6055;">Income Real Return (0.00%)</td>
+            </tr><tr>
+              <td><strong>2022 Q1</strong></td>
+              <td style="text-align:right;color:#2e7d4f;font-weight:600;">+0.06%</td>
+              <td style="text-align:right;color:#2e7d4f;font-weight:600;">$234K</td>
+              <td style="color:#7a6055;">Income Real Return (0.00%)</td>
+            </tr><tr>
+              <td><strong>2022 Rate Spike</strong></td>
+              <td style="text-align:right;color:#2e7d4f;font-weight:600;">+0.82%</td>
+              <td style="text-align:right;color:#2e7d4f;font-weight:600;">$3.2M</td>
+              <td style="color:#7a6055;">Tax Aware Balanced (-2.52%)</td>
+            </tr><tr>
+              <td><strong>COVID Crash</strong></td>
+              <td style="text-align:right;color:#8f3d2c;font-weight:600;">0.00%</td>
+              <td style="text-align:right;color:#8f3d2c;font-weight:600;">$0</td>
+              <td style="color:#7a6055;">Income Real Return (0.00%)</td>
+            </tr></tbody>
+          </table>
+          <p style="color:#7a6055;font-size:11px;margin-top:8px;">$ impact applies the AUM-weighted scenario return to the current $383.0M book.</p>
+        </div>
+
+</div>
+<div class="page-footer">
+  <div><strong style="color:#af6452">Confidential</strong> &nbsp;·&nbsp; IWP Firm-Wide Risk</div>
+  <div>Generated June 18, 2026 &nbsp;·&nbsp; AUM-weighted composite</div>
+</div>
+</body></html>

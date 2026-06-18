@@ -2745,6 +2745,7 @@ def main():
                 ("analytics-tax-aware-balanced.html","docs/analytics-tax-aware-balanced.html"),
                 ("analytics-comparison.html",        "docs/analytics-comparison.html"),
                 ("analytics-firmwide.html",          "docs/analytics-firm-wide.html"),
+                ("analytics-firmwide-risk.html",     "docs/analytics-firmwide-risk.html"),
             ]
             for src, dst in analytics_files:
                 s = REPORTS_DIR / src

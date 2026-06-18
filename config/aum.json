@@ -1,0 +1,13 @@
+{
+  "_comment": "Firm AUM by model, USD. Update as flows change. Keys must match model_portfolios.name exactly.",
+  "as_of": "2026-06-18",
+  "aum": {
+    "Liquid Core": 60000000,
+    "Conservative Core": 37000000,
+    "Income Real Return": 127000000,
+    "Flex IRR": 19000000,
+    "Balanced Core": 60000000,
+    "Tax Aware Balanced": 29000000,
+    "Diversified Growth": 51000000
+  }
+}

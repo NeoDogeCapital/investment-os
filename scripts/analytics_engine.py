@@ -1136,6 +1136,370 @@ def build_comparison_page(all_results, pages):
 </div>
 </body></html>"""
 
+# ═════════════════════════════════════════════════════════════════════════════
+# Firm-Wide RISK dashboard — AUM-weighted, CIO business-risk view
+# ═════════════════════════════════════════════════════════════════════════════
+
+FW_ASSET_CLASS = {
+    "KSPY": "Equity", "HEQT": "Equity", "PRWCX": "Equity", "LCTIX": "Equity",
+    "SGOIX": "Equity", "SPYI": "Equity", "EMEQ": "Equity", "BFGIX": "Equity",
+    "CPAI": "Equity", "APDTX": "Equity", "AUNYX": "Equity",
+    "USFR": "Fixed Income", "BDMIX": "Fixed Income", "QDSIX": "Fixed Income",
+    "HOBIX": "Fixed Income", "CBYYX": "Fixed Income", "TIBIX": "Fixed Income",
+    "APDPX": "Fixed Income", "FEOE": "Fixed Income", "FEHIX": "Fixed Income",
+    "IAUI": "Real Assets", "PHYS": "Real Assets", "CEF": "Real Assets",
+    "HGER": "Real Assets", "FWD": "Real Assets", "SHLD": "Real Assets",
+    "CASH": "Cash",
+}
+FW_AC_COLOR = {"Equity": BLUE, "Fixed Income": GREEN, "Real Assets": GOLD,
+               "Cash": GRAY, "Other": NAVY3}
+
+
+def load_aum():
+    """Load firm AUM-by-model from config/aum.json. Returns (aum dict, as_of)."""
+    path = PROJECT_DIR / "config" / "aum.json"
+    if not path.exists():
+        return {}, None
+    cfg = json.loads(path.read_text())
+    return cfg.get("aum", {}), cfg.get("as_of")
+
+
+def build_aum_composite(all_results, aum):
+    """AUM-weighted daily composite return series across models.
+
+    Weights each model's daily return by its share of total AUM, aligned on the
+    common trading-day index. Returns (composite_daily, weights, monthly_df).
+    """
+    weights, series = {}, {}
+    total = sum(aum.get(p["name"], 0) for p, _ in all_results)
+    if total <= 0:
+        return pd.Series(dtype=float), {}, pd.DataFrame()
+    for p, _ in all_results:
+        md = p.get("model_daily")
+        if md is None or md.empty or aum.get(p["name"], 0) <= 0:
+            continue
+        weights[p["name"]] = aum[p["name"]] / total
+        series[p["name"]]  = md
+    if not series:
+        return pd.Series(dtype=float), {}, pd.DataFrame()
+    daily_df = pd.DataFrame(series).dropna()
+    composite = sum(daily_df[name] * w for name, w in weights.items())
+    monthly_df = pd.DataFrame({n: to_monthly(s) for n, s in series.items()}).dropna()
+    return composite, weights, monthly_df
+
+
+def firm_risk_contributions(weights, monthly_df):
+    """Marginal/percent risk contribution of each model to firm volatility.
+
+    Uses the covariance of monthly model returns. RC_i = w_i·(Σw)_i / σ_p;
+    pct_i = RC_i / σ_p. Returns dict name -> {weight, vol, pct_contrib}.
+    """
+    names = [n for n in monthly_df.columns if n in weights]
+    if len(names) < 2:
+        return {}
+    w = np.array([weights[n] for n in names])
+    w = w / w.sum()  # renormalize across models with return data
+    cov = monthly_df[names].cov().values * 12  # annualized
+    port_var = float(w @ cov @ w)
+    if port_var <= 0:
+        return {}
+    port_vol = np.sqrt(port_var)
+    marginal = cov @ w
+    out = {}
+    for i, n in enumerate(names):
+        rc = w[i] * marginal[i] / port_vol
+        out[n] = {
+            "weight": weights[n],
+            "vol": float(np.sqrt(cov[i, i])),
+            "pct_contrib": float(rc / port_vol),
+        }
+    return out, port_vol
+
+
+def firm_lookthrough(db, aum):
+    """Aggregate single-name $ exposure across all models, AUM-weighted.
+
+    Uses the latest model_holdings_snapshot per model. Returns list of
+    {ticker, dollars, pct_firm, n_models, asset_class} sorted by dollars.
+    """
+    with db.cursor() as cur:
+        cur.execute("""
+            SELECT DISTINCT ON (model_name, ticker) model_name, ticker, weight
+            FROM model_holdings_snapshot
+            WHERE snapshot_date = (SELECT MAX(snapshot_date) FROM model_holdings_snapshot)
+            ORDER BY model_name, ticker, weight DESC
+        """)
+        rows = cur.fetchall()
+    total_aum = sum(aum.values()) or 1
+    agg = {}
+    for r in rows:
+        model, ticker, weight = r["model_name"], r["ticker"], float(r["weight"])
+        dollars = aum.get(model, 0) * weight
+        if ticker not in agg:
+            agg[ticker] = {"ticker": ticker, "dollars": 0.0, "n_models": 0}
+        agg[ticker]["dollars"] += dollars
+        agg[ticker]["n_models"] += 1
+    out = []
+    for t, d in agg.items():
+        d["pct_firm"] = d["dollars"] / total_aum
+        d["asset_class"] = FW_ASSET_CLASS.get(t, "Other")
+        out.append(d)
+    return sorted(out, key=lambda x: -x["dollars"]), total_aum
+
+
+def usd(v):
+    """Format USD compactly: $127.0M, $1.2M, $850K."""
+    a = abs(v)
+    if a >= 1e6:  return f"${v/1e6:.1f}M"
+    if a >= 1e3:  return f"${v/1e3:.0f}K"
+    return f"${v:,.0f}"
+
+
+def build_firmwide_risk_page(all_results, prices_df, pages, stress_all, db, aum, aum_as_of):
+    date_str = date.today().strftime("%B %d, %Y")
+    total_aum = sum(aum.values())
+
+    composite, weights, monthly_df = build_aum_composite(all_results, aum)
+    spy_daily = prices_df["SPY"].pct_change().dropna() if "SPY" in prices_df.columns else pd.Series(dtype=float)
+    agg_daily = prices_df["AGG"].pct_change().dropna() if "AGG" in prices_df.columns else pd.Series(dtype=float)
+
+    # ── Composite analytics (ITD + YTD) ──
+    a_itd, a_ytd = {}, {}
+    if not composite.empty:
+        aligned = pd.concat([composite, spy_daily], axis=1).dropna()
+        comp_d, spy_d = aligned.iloc[:, 0], aligned.iloc[:, 1]
+        itd_start = comp_d.index[0].date()
+        a_itd = compute_analytics("firmwide", comp_d, spy_d, prices_df, itd_start, date.today(), "ITD")
+        ytd_start = date(date.today().year, 1, 1)
+        a_ytd = compute_analytics("firmwide", comp_d, spy_d, prices_df, ytd_start, date.today(), "YTD")
+        beta_spy = beta(comp_d, spy_d) if not spy_d.empty else None
+        beta_agg = beta(comp_d, agg_daily) if not agg_daily.empty else None
+    else:
+        comp_d = pd.Series(dtype=float)
+        beta_spy = beta_agg = None
+
+    # ── AUM concentration ──
+    model_w = {p["name"]: aum.get(p["name"], 0) / total_aum for p, _ in all_results if aum.get(p["name"], 0)}
+    hhi = sum(w**2 for w in model_w.values())
+    eff_n = 1 / hhi if hhi else 0
+    largest = max(model_w.items(), key=lambda x: x[1]) if model_w else ("—", 0)
+    top3 = sum(sorted(model_w.values(), reverse=True)[:3])
+
+    # ── AUM scorecard ──
+    scorecard = f"""
+    <div class="ytd-scorecard">
+      <div class="ytd-box"><div class="ytd-label">Total AUM</div><div class="ytd-value" style="color:{GOLD}">{usd(total_aum)}</div></div>
+      <div class="ytd-box"><div class="ytd-label">Models</div><div class="ytd-value" style="color:{WHITE}">{len(model_w)}</div></div>
+      <div class="ytd-box"><div class="ytd-label">Firm YTD (AUM-wtd)</div><div class="ytd-value" style="color:{pcolor(a_ytd.get('total_return'))}">{p(a_ytd.get('total_return'))}</div></div>
+      <div class="ytd-box"><div class="ytd-label">Firm Sharpe (ITD)</div><div class="ytd-value" style="color:{GOLD}">{p(a_itd.get('sharpe_ratio'), pct=False, plus=False)}</div></div>
+      <div class="ytd-box"><div class="ytd-label">Max Drawdown</div><div class="ytd-value" style="color:{RED}">{p(a_itd.get('max_drawdown'))}</div></div>
+    </div>"""
+
+    # ── Risk metrics table ──
+    rm = lambda label, key, **kw: metric_row(label, a_itd.get(key), **kw)
+    risk_table = f"""
+    <table>
+      {metric_row("Annualized Return", a_itd.get("annualized_return"))}
+      {metric_row("Annualized Volatility", a_itd.get("volatility_ann"), invert=True)}
+      {metric_row("Sharpe Ratio", a_itd.get("sharpe_ratio"), pct=False, plus=False)}
+      {metric_row("Sortino Ratio", a_itd.get("sortino_ratio"), pct=False, plus=False)}
+      {metric_row("Calmar Ratio", a_itd.get("calmar_ratio"), pct=False, plus=False)}
+      {metric_row("Max Drawdown", a_itd.get("max_drawdown"))}
+      {metric_row("Downside Deviation", a_itd.get("downside_deviation"), invert=True)}
+      {metric_row("VaR (95%, monthly)", a_itd.get("var_95"))}
+      {metric_row("CVaR (95%, monthly)", a_itd.get("cvar_95"))}
+      {metric_row("VaR (99%, monthly)", a_itd.get("var_99"))}
+      {metric_row("CVaR (99%, monthly)", a_itd.get("cvar_99"))}
+      {metric_row("Batting Average", a_itd.get("batting_average"), plus=False)}
+      {metric_row("Slugging %", a_itd.get("slugging_pct"), pct=False, plus=False)}
+      {metric_row("Win/Loss Ratio", a_itd.get("win_loss_ratio"), pct=False, plus=False)}
+      {metric_row("Omega Ratio", a_itd.get("omega_ratio"), pct=False, plus=False)}
+      {metric_row("Up Capture (vs SPY)", a_itd.get("up_capture"), pct=False, plus=False)}
+      {metric_row("Down Capture (vs SPY)", a_itd.get("down_capture"), pct=False, plus=False, invert=True)}
+      {metric_row("Beta to SPY", beta_spy, pct=False, plus=False)}
+      {metric_row("Beta to AGG", beta_agg, pct=False, plus=False) if beta_agg is not None else ""}
+    </table>"""
+
+    # ── Charts (on AUM-weighted composite) ──
+    charts = ""
+    if not comp_d.empty:
+        cum_chart  = build_cumulative_chart(comp_d, spy_d, prices_df, "Firm (AUM-wtd)", "SPY")
+        dd_chart   = build_drawdown_chart(comp_d, "Firm")
+        rs_chart   = build_rolling_sharpe_chart(comp_d, "Firm")
+        rv = rolling_vol(comp_d, window=60).dropna().resample("ME").last()
+        rv_fig = go.Figure()
+        rv_fig.add_trace(go.Scatter(x=rv.index, y=rv*100, name="Rolling 60d Vol (ann.)", line=dict(color=GOLD, width=2)))
+        rv_fig.update_layout(**PLOTLY_THEME, yaxis_ticksuffix="%", title=dict(text="Rolling Volatility (annualized)", font=dict(color=GOLD, size=13)))
+        rv_chart = pio.to_html(rv_fig, full_html=False, config=PLOTLY_CONFIG, include_plotlyjs=False)
+        charts = f"""
+        <div class="grid-2">
+          <div class="card">{cum_chart}</div>
+          <div class="card">{dd_chart}</div>
+          <div class="card">{rs_chart}</div>
+          <div class="card">{rv_chart}</div>
+        </div>"""
+
+    # ── Per-model AUM + risk-contribution table ──
+    rc_result = firm_risk_contributions(weights, monthly_df)
+    rc_map, port_vol = (rc_result if isinstance(rc_result, tuple) else ({}, None))
+    model_rows = ""
+    a_by_name = {p["name"]: a for p, a in all_results}
+    for name in sorted(model_w, key=lambda n: -aum.get(n, 0)):
+        a = a_by_name.get(name) or {}
+        rc = rc_map.get(name, {})
+        model_rows += f"""<tr>
+          <td><strong>{name}</strong></td>
+          <td style="text-align:right;">{usd(aum.get(name,0))}</td>
+          <td style="text-align:right;color:{GOLD};">{model_w[name]*100:.1f}%</td>
+          <td style="text-align:right;color:{pcolor(a.get('ytd_return') or a.get('total_return'))};">{p(a.get('ytd_return') or a.get('total_return'))}</td>
+          <td style="text-align:right;">{p(a.get('volatility_ann'), plus=False)}</td>
+          <td style="text-align:right;">{p(a.get('sharpe_ratio'), pct=False, plus=False)}</td>
+          <td style="text-align:right;color:{RED};">{p(a.get('max_drawdown'))}</td>
+          <td style="text-align:right;color:{GOLD};">{(str(round(rc['pct_contrib']*100))+'%') if rc else '—'}</td>
+        </tr>"""
+    risk_contrib_note = (f'<p style="color:{GRAY};font-size:11px;margin-top:8px;">'
+                         f'Firm volatility (AUM-weighted, annualized): <strong style="color:{GOLD}">{port_vol*100:.1f}%</strong>. '
+                         f'Risk contribution = each model\'s share of total firm volatility (accounts for correlation), '
+                         f'which differs from its AUM weight.</p>') if port_vol else ""
+
+    # ── Single-name look-through concentration ──
+    lookthrough, _ = firm_lookthrough(db, aum)
+    lt_rows = ""
+    for d in lookthrough[:25]:
+        if d["ticker"] == "CASH":
+            continue
+        ac = d["asset_class"]
+        lt_rows += f"""<tr>
+          <td><strong>{d['ticker']}</strong></td>
+          <td><span class="tag" style="background:{FW_AC_COLOR.get(ac,NAVY3)}22;color:{FW_AC_COLOR.get(ac,GRAY)};">{ac}</span></td>
+          <td style="text-align:right;color:{GOLD};font-weight:600;">{usd(d['dollars'])}</td>
+          <td style="text-align:right;">{d['pct_firm']*100:.1f}%</td>
+          <td style="text-align:right;">{d['n_models']}/7</td>
+        </tr>"""
+
+    # ── Asset-class breakdown firm-wide ──
+    ac_agg = {}
+    for d in lookthrough:
+        ac_agg[d["asset_class"]] = ac_agg.get(d["asset_class"], 0) + d["dollars"]
+    ac_rows = ""
+    for ac in sorted(ac_agg, key=lambda x: -ac_agg[x]):
+        dollars = ac_agg[ac]
+        ac_rows += f"""<tr>
+          <td><span class="tag" style="background:{FW_AC_COLOR.get(ac,NAVY3)}22;color:{FW_AC_COLOR.get(ac,GRAY)};">{ac}</span></td>
+          <td style="text-align:right;color:{GOLD};font-weight:600;">{usd(dollars)}</td>
+          <td style="text-align:right;">{dollars/total_aum*100:.1f}%</td>
+        </tr>"""
+
+    # ── Stress tests: AUM-weighted firm impact per scenario ──
+    stress_section = ""
+    if stress_all:
+        by_scenario = defaultdict(dict)
+        for s in stress_all:
+            by_scenario[s["scenario_name"]][s["portfolio_id"]] = float(s["model_return"]) if s["model_return"] is not None else None
+        pid_to_name = {p["id"]: p["name"] for p, _ in all_results}
+        name_to_aum = {p["name"]: aum.get(p["name"], 0) for p, _ in all_results}
+        sc_rows = ""
+        for scenario, by_pid in sorted(by_scenario.items()):
+            num, den, worst = 0.0, 0.0, None
+            for pid, ret in by_pid.items():
+                if ret is None: continue
+                nm = pid_to_name.get(pid)
+                w_aum = name_to_aum.get(nm, 0)
+                num += ret * w_aum; den += w_aum
+                if worst is None or ret < worst[1]: worst = (nm, ret)
+            firm_ret = num / den if den else None
+            dollar_impact = firm_ret * total_aum if firm_ret is not None else None
+            sc_rows += f"""<tr>
+              <td><strong>{scenario}</strong></td>
+              <td style="text-align:right;color:{pcolor(firm_ret)};font-weight:600;">{p(firm_ret)}</td>
+              <td style="text-align:right;color:{pcolor(dollar_impact)};font-weight:600;">{usd(dollar_impact) if dollar_impact is not None else '—'}</td>
+              <td style="color:{GRAY};">{worst[0] if worst else '—'} ({p(worst[1]) if worst else '—'})</td>
+            </tr>"""
+        stress_section = f"""
+        <div class="card full">
+          <div class="card-title">Stress Tests — Firm-Wide Impact (AUM-weighted)</div>
+          <table>
+            <thead><tr><th>Scenario</th><th style="text-align:right;">Firm Return</th><th style="text-align:right;">$ Impact on Book</th><th>Worst Model</th></tr></thead>
+            <tbody>{sc_rows}</tbody>
+          </table>
+          <p style="color:{GRAY};font-size:11px;margin-top:8px;">$ impact applies the AUM-weighted scenario return to the current {usd(total_aum)} book.</p>
+        </div>"""
+
+    # ── Concentration scorecard ──
+    conc_card = f"""
+    <div class="card">
+      <div class="card-title">AUM Concentration (Business Risk)</div>
+      <table>
+        <tr><td style="color:{GRAY}">Largest model</td><td style="text-align:right;font-weight:600;">{largest[0]} ({largest[1]*100:.0f}%)</td></tr>
+        <tr><td style="color:{GRAY}">Top-3 models</td><td style="text-align:right;font-weight:600;color:{RED if top3>0.7 else GOLD};">{top3*100:.0f}% of AUM</td></tr>
+        <tr><td style="color:{GRAY}">HHI (concentration)</td><td style="text-align:right;">{hhi:.3f}</td></tr>
+        <tr><td style="color:{GRAY}">Effective # of models</td><td style="text-align:right;">{eff_n:.1f} of {len(model_w)}</td></tr>
+      </table>
+      <p style="color:{GRAY};font-size:11px;margin-top:8px;">HHI &gt; 0.25 or top-3 &gt; 70% signals revenue concentration risk.</p>
+    </div>"""
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>IWP — Firm-Wide Risk</title>
+  {PLOTLYJS}
+  <style>{BASE_CSS}</style>
+</head>
+<body>
+<div class="page-header">
+  <div><h1>IWP — Firm-Wide Risk Dashboard</h1>
+  <p>AUM-weighted analytics across {len(model_w)} models &nbsp;·&nbsp; {date_str} &nbsp;·&nbsp; AUM as of {aum_as_of or date_str}</p></div>
+</div>
+{nav_html(pages, "Firm Risk")}
+<div class="content">
+
+  {scorecard}
+
+  <div class="grid-2">
+    <div class="card"><div class="card-title">Firm Risk Metrics (AUM-weighted, ITD)</div>{risk_table}</div>
+    <div>
+      {conc_card}
+      <div class="card">
+        <div class="card-title">Asset Allocation — Firm-Wide ($ look-through)</div>
+        <table>
+          <thead><tr><th>Asset Class</th><th style="text-align:right;">Exposure</th><th style="text-align:right;">% Firm</th></tr></thead>
+          <tbody>{ac_rows}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {charts}
+
+  <div class="card full">
+    <div class="card-title">Models — AUM, Performance &amp; Risk Contribution</div>
+    <table>
+      <thead><tr><th>Model</th><th style="text-align:right;">AUM</th><th style="text-align:right;">Weight</th><th style="text-align:right;">YTD</th><th style="text-align:right;">Vol</th><th style="text-align:right;">Sharpe</th><th style="text-align:right;">Max DD</th><th style="text-align:right;">Risk Contrib</th></tr></thead>
+      <tbody>{model_rows}</tbody>
+    </table>
+    {risk_contrib_note}
+  </div>
+
+  <div class="card full">
+    <div class="card-title">Single-Name Concentration — Firm-Wide Look-Through (Top 25)</div>
+    <table>
+      <thead><tr><th>Ticker</th><th>Class</th><th style="text-align:right;">Firm Exposure</th><th style="text-align:right;">% of AUM</th><th style="text-align:right;">Models</th></tr></thead>
+      <tbody>{lt_rows}</tbody>
+    </table>
+    <p style="color:{GRAY};font-size:11px;margin-top:8px;">Aggregates each security's dollar exposure across all models (AUM × weight). The largest single-name lines are your concentrated firm-level bets.</p>
+  </div>
+
+  {stress_section}
+
+</div>
+<div class="page-footer">
+  <div><strong style="color:{GOLD}">Confidential</strong> &nbsp;·&nbsp; IWP Firm-Wide Risk</div>
+  <div>Generated {date_str} &nbsp;·&nbsp; AUM-weighted composite</div>
+</div>
+</body></html>"""
+
+
 def build_firmwide_page(all_results, prices_df, pages, stress_all, db):
     date_str = date.today().strftime("%B %d, %Y")
 
@@ -1470,7 +1834,8 @@ def main():
 
     # Build nav for HTML
     pages = [(p["name"], f"analytics-{p['id'].replace('_','-')}") for p in portfolios]
-    pages += [("Comparison", "analytics-comparison"), ("Firm-Wide", "analytics-firmwide")]
+    pages += [("Comparison", "analytics-comparison"), ("Firm-Wide", "analytics-firmwide"),
+              ("Firm Risk", "analytics-firmwide-risk")]
 
     all_results = []
     stress_all  = []
@@ -1493,6 +1858,14 @@ def main():
         log.info("Building firm-wide page…")
         fw_html = build_firmwide_page(all_results, prices_df, pages, stress_all, db)
         (REPORTS_DIR / "analytics-firmwide.html").write_text(fw_html, encoding="utf-8")
+
+        log.info("Building firm-wide RISK dashboard (AUM-weighted)…")
+        aum, aum_as_of = load_aum()
+        if aum:
+            fwr_html = build_firmwide_risk_page(all_results, prices_df, pages, stress_all, db, aum, aum_as_of)
+            (REPORTS_DIR / "analytics-firmwide-risk.html").write_text(fwr_html, encoding="utf-8")
+        else:
+            log.warning("  No AUM config found (config/aum.json) — skipping firm-risk page")
 
         # Save firm-wide snapshot
         save_firmwide_snapshot(db, all_results, date.today())
