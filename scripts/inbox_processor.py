@@ -486,12 +486,19 @@ def process_file(
         }
 
     dest_dir  = VAULT_PATH / dest_folder_rel
-    dest_path = dest_dir / note_path.name
+
+    # Cap filename length — macOS caps a single filename at 255 bytes. Long
+    # social-media titles (e.g. full tweets) blow past this, so truncate the
+    # stem, leaving headroom for a possible "_YYYYmmdd_HHMMSS" collision suffix.
+    MAX_STEM = 180
+    suffix = note_path.suffix
+    stem   = note_path.stem
+    if len(stem) > MAX_STEM:
+        stem = stem[:MAX_STEM].rstrip()
+    dest_path = dest_dir / f"{stem}{suffix}"
 
     # Handle filename collision
     if dest_path.exists() and dest_path != note_path:
-        stem = note_path.stem
-        suffix = note_path.suffix
         ts = datetime.now().strftime("%Y%m%d_%H%M%S")
         dest_path = dest_dir / f"{stem}_{ts}{suffix}"
         log.info("  Collision resolved → %s", dest_path.name)

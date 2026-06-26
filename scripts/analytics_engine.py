@@ -1764,12 +1764,28 @@ def save_analytics_snapshot(db, portfolio, a_itd, a_ytd, alloc_df, prices_df, sn
                 s(a_itd.get("beta_agg")),
             ))
 
-        # Holdings snapshot
+        # Holdings snapshot — do NOT clobber existing rows for this model/date.
+        # Manual trades (decision_gate / exit_gate workflow) are written directly
+        # to model_holdings_snapshot. This routine sources holdings from the base
+        # model_allocations table, which does NOT reflect those trades, so blindly
+        # re-inserting on every analytics run would bury the real book under stale
+        # pre-trade copies. Guard: first writer per (model, date) wins.
         if not alloc_df.empty:
-            latest = alloc_df["snapshot_date"].max()
-            holdings = alloc_df[alloc_df["snapshot_date"] == latest]
             with db.cursor() as cur:
-                for _, row in holdings.iterrows():
+                cur.execute("""
+                    SELECT 1 FROM model_holdings_snapshot
+                    WHERE model_name=%s AND snapshot_date=%s LIMIT 1
+                """, (name, snap_date))
+                exists = cur.fetchone()
+            if exists:
+                log.info("  → Holdings already recorded for %s on %s — preserving (no overwrite)",
+                         name, snap_date)
+                holdings = []  # skip insert below
+            else:
+                latest = alloc_df["snapshot_date"].max()
+                holdings = alloc_df[alloc_df["snapshot_date"] == latest]
+            with db.cursor() as cur:
+                for _, row in (holdings.iterrows() if hasattr(holdings, "iterrows") else []):
                     ticker = str(row["ticker"])
                     weight = float(row["weight"])
                     # Get YTD contribution from model_position_returns
