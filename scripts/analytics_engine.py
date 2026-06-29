@@ -1147,8 +1147,10 @@ FW_ASSET_CLASS = {
     "USFR": "Fixed Income", "BDMIX": "Fixed Income", "QDSIX": "Fixed Income",
     "HOBIX": "Fixed Income", "CBYYX": "Fixed Income", "TIBIX": "Fixed Income",
     "APDPX": "Fixed Income", "FEOE": "Fixed Income", "FEHIX": "Fixed Income",
+    "AGGH": "Fixed Income",
     "IAUI": "Real Assets", "PHYS": "Real Assets", "CEF": "Real Assets",
     "HGER": "Real Assets", "FWD": "Real Assets", "SHLD": "Real Assets",
+    "INFL": "Real Assets",
     "CASH": "Cash",
 }
 FW_AC_COLOR = {"Equity": BLUE, "Fixed Income": GREEN, "Real Assets": GOLD,
@@ -1772,14 +1774,19 @@ def save_analytics_snapshot(db, portfolio, a_itd, a_ytd, alloc_df, prices_df, sn
         # pre-trade copies. Guard: first writer per (model, date) wins.
         if not alloc_df.empty:
             with db.cursor() as cur:
+                # Skip if this model has ANY holdings snapshot already. Once a
+                # manual book exists (gate trades write directly here), it is the
+                # source of truth — analytics must never seed a fresh base-
+                # allocation snapshot on a new date, which would supersede and
+                # bury the real holdings. Only seeds a model that has none yet.
                 cur.execute("""
                     SELECT 1 FROM model_holdings_snapshot
-                    WHERE model_name=%s AND snapshot_date=%s LIMIT 1
-                """, (name, snap_date))
+                    WHERE model_name=%s LIMIT 1
+                """, (name,))
                 exists = cur.fetchone()
             if exists:
-                log.info("  → Holdings already recorded for %s on %s — preserving (no overwrite)",
-                         name, snap_date)
+                log.info("  → Holdings book exists for %s — preserving (analytics will not seed/overwrite)",
+                         name)
                 holdings = []  # skip insert below
             else:
                 latest = alloc_df["snapshot_date"].max()

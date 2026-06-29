@@ -61,8 +61,9 @@ ASSET_CLASS = {
     "CPAI": "equity", "APDTX": "equity",
     "USFR": "fixed", "BDMIX": "fixed", "QDSIX": "fixed", "HOBIX": "fixed",
     "CBYYX": "fixed", "TIBIX": "fixed", "APDPX": "fixed", "FEOE": "fixed",
-    "FEHIX": "fixed", "AUNYX": "fixed", "IAUI": "fixed",
+    "FEHIX": "fixed", "AUNYX": "fixed", "IAUI": "fixed", "AGGH": "fixed",
     "CEF": "alts", "HGER": "alts", "PHYS": "alts", "FWD": "alts", "SHLD": "alts",
+    "INFL": "alts",
     "CASH": "cash",
 }
 AC_COLOR = {"equity": "#3d6080", "fixed": "#2e7d4f", "alts": "#af6452",
