@@ -1945,10 +1945,10 @@ def save_firmwide_snapshot(db, all_results, snap_date):
 
     log.info("\n✅  Done. Open with:")
     if args.all:
-        log.info("  open ~/Documents/investment-os/reports/analytics-comparison.html")
+        log.info("  open ~/investment-os/reports/analytics-comparison.html")
     if args.model:
         pid = portfolios[0]["id"]
-        log.info("  open ~/Documents/investment-os/reports/analytics-%s.html",
+        log.info("  open ~/investment-os/reports/analytics-%s.html",
                  pid.replace("_","-"))
 
 

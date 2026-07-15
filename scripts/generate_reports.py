@@ -2761,13 +2761,13 @@ def main():
 
     print(f"\nDone. Open with:")
     if do_memo and snap:
-        print(f"  open ~/Documents/investment-os/reports/regime-memo-{date_str}.html")
+        print(f"  open ~/investment-os/reports/regime-memo-{date_str}.html")
     if do_dash:
-        print(f"  open ~/Documents/investment-os/reports/portfolio-dashboard.html")
+        print(f"  open ~/investment-os/reports/portfolio-dashboard.html")
     if do_model and summaries:
-        print(f"  open ~/Documents/investment-os/reports/models-overview.html")
+        print(f"  open ~/investment-os/reports/models-overview.html")
     if do_analytics:
-        print(f"  open ~/Documents/investment-os/reports/analytics-comparison.html")
+        print(f"  open ~/investment-os/reports/analytics-comparison.html")
 
 
 if __name__ == "__main__":

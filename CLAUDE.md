@@ -4,7 +4,7 @@ GITHUB:     https://github.com/NeoDogeCapital/investment-os
 MODEL:      IWP Models — Macro Investment OS
 DATABASE:   Supabase (credentials in .env)
 TO PULL LATEST: git pull origin main
-PROJECT DIR: ~/Documents/investment-os
+PROJECT DIR: ~/investment-os
 
 ## What This Is
 A personal investment research and decision management system that aggregates research from 10 macro/market sources, scores market regime, gates trade entries via hard rules, and journals decisions.

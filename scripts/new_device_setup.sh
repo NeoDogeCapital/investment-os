@@ -6,7 +6,7 @@
 set -euo pipefail
 
 REPO_URL="https://github.com/NeoDogeCapital/investment-os.git"
-INSTALL_DIR="$HOME/Documents/investment-os"
+INSTALL_DIR="$HOME/investment-os"
 VENV_DIR="$INSTALL_DIR/.venv"
 
 echo ""
