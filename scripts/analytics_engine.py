@@ -1225,11 +1225,18 @@ def firm_lookthrough(db, aum):
     {ticker, dollars, pct_firm, n_models, asset_class} sorted by dollars.
     """
     with db.cursor() as cur:
+        # Use the latest snapshot PER MODEL — models trade on different days, so a
+        # single global MAX(snapshot_date) would drop every model that didn't
+        # trade on the most recent date. Join each model to its own max date.
         cur.execute("""
-            SELECT DISTINCT ON (model_name, ticker) model_name, ticker, weight
-            FROM model_holdings_snapshot
-            WHERE snapshot_date = (SELECT MAX(snapshot_date) FROM model_holdings_snapshot)
-            ORDER BY model_name, ticker, weight DESC
+            WITH latest AS (
+                SELECT model_name, MAX(snapshot_date) AS sd
+                FROM model_holdings_snapshot GROUP BY model_name
+            )
+            SELECT DISTINCT ON (h.model_name, h.ticker) h.model_name, h.ticker, h.weight
+            FROM model_holdings_snapshot h
+            JOIN latest l ON h.model_name = l.model_name AND h.snapshot_date = l.sd
+            ORDER BY h.model_name, h.ticker, h.weight DESC
         """)
         rows = cur.fetchall()
     total_aum = sum(aum.values()) or 1
