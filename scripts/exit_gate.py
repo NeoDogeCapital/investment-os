@@ -203,12 +203,12 @@ def check_soft_rules(
             "cycle context. Document the catalyst for this size of reduction."
         )
 
-    # Soft: rotating into new position at Tier 1 (regime hasn't confirmed)
-    if rotation_into and stack.get("max_tier_eligible", 5) <= 1:
+    # Soft: rotating into new position while regime is Defensive (Tier 1 of 3)
+    if rotation_into and stack.get("max_tier_eligible", 2) <= 1:
         flags.append(
-            f"ROTATION_AT_TIER_1: Proceeds are rotating into {rotation_into} while regime is "
-            "Tier 1. The new position entry will also be capped at 2%. Document that you "
-            "understand the new position cannot be sized up until regime improves."
+            f"ROTATION_AT_TIER_1: Proceeds are rotating into {rotation_into} while the regime "
+            "is Tier 1/3 (Defensive). The new position entry is capped at 4%. Document that "
+            "you understand it cannot be sized up until the regime improves."
         )
 
     # Soft: regime is telling you to reduce (affirming — log as confirmation not flag)

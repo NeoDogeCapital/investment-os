@@ -162,7 +162,7 @@ def build_regime_history_chart(history_rows):
         f"Short: {s:+.4f} {sl}<br>"
         f"Medium: {m:+.4f} {ml}<br>"
         f"Long: {l:+.4f} {ll}<br>"
-        f"Alignment: {a} | Tier: {t}/5"
+        f"Alignment: {a} | Tier: {t}/3"
         for d, s, m, l, a, t, sl, ml, ll
         in zip(dates, st, mt, lt, aligns, tiers, st_labels, mt_labels, lt_labels)
     ]
@@ -226,7 +226,7 @@ def build_regime_history_chart(history_rows):
         text=[f"T{t}" for t in tiers],
         textposition="inside",
         textfont=dict(size=9, color="#faf9f4"),
-        hovertemplate="Tier %{y}/5<extra></extra>",
+        hovertemplate="Tier %{y}/3<extra></extra>",
     ), row=2, col=1)
 
     fig.update_layout(
@@ -244,7 +244,7 @@ def build_regime_history_chart(history_rows):
     fig.update_yaxes(gridcolor="#d0c298", zeroline=False, row=1, col=1,
                      title="Score", range=[-1.1, 1.1])
     fig.update_yaxes(gridcolor="#d0c298", row=2, col=1,
-                     title="Tier", range=[0, 5.5], tickvals=[0,1,2,3,4,5])
+                     title="Tier", range=[0, 3.5], tickvals=[1,2,3])
     fig.update_xaxes(gridcolor="#d0c298", showgrid=True)
 
     return pio.to_html(fig, full_html=False,

@@ -296,8 +296,8 @@ sources:
 # Global scoring config
 scoring:
   regime_thresholds:
-    risk_on: 0.40
-    risk_off: -0.40
+    risk_on: 0.15   # recalibrated 2026-08-10 from +/-0.40: empirical |score| p75=0.20, old threshold never fired
+    risk_off: -0.15
   recency_decay_model: exponential  # exponential | linear
   min_sources_for_regime: 3         # minimum active sources required to compute regime
   staleness_hard_cutoff_days: 30    # research older than this is excluded entirely

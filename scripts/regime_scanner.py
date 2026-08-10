@@ -310,7 +310,19 @@ def score_horizon(notes, horizon_cfg, now):
 
     n_src = len(source_scores)
     avg_decay_overall = (sum(ss["decay_factor"] for ss in source_scores.values()) / max(n_src, 1))
-    confidence = round(min(1.0, (n_src / 7) * avg_decay_overall), 3)
+    # Confidence (2026-08-10 redesign): measures signal QUALITY, not just coverage.
+    # agreement = how tightly sources cluster (low dispersion -> high agreement);
+    # freshness = recency decay; coverage is a soft floor rather than the driver.
+    # Old formula ((n_src/7) * decay) discounted unanimous-but-few readings as noise.
+    comps = [ss["composite"] for ss in source_scores.values() if ss.get("composite") is not None]
+    if len(comps) >= 2:
+        mean_c = sum(comps) / len(comps)
+        disp = (sum((c - mean_c) ** 2 for c in comps) / (len(comps) - 1)) ** 0.5
+    else:
+        disp = 0.35  # single source: neutral prior, neither penalize nor reward
+    agreement  = max(0.0, 1.0 - disp / 0.6)
+    coverage   = min(1.0, n_src / 5)
+    confidence = round(min(1.0, agreement * avg_decay_overall * (0.6 + 0.4 * coverage)), 3)
 
     return {
         "score":          composite,
@@ -366,26 +378,43 @@ def compute_alignment(st, mt, lt):
     if lt and st and lt != st:  return "OPPOSED"
     return "PARTIAL"
 
-def compute_tier_eligibility(st, mt, lt):
-    st = st or "NEUTRAL"; mt = mt or "NEUTRAL"; lt = lt or "NEUTRAL"
-    opposed = (st == "RISK_ON" and lt == "RISK_OFF") or \
-              (st == "RISK_OFF" and lt == "RISK_ON")
-    if lt == "RISK_OFF":
-        reduce = (st == "RISK_OFF" and mt == "RISK_OFF")
-        return {"max_tier": 0, "new_positions": False, "reduce": reduce, "opposed": opposed}
-    if lt == "RISK_ON":
-        if mt == "RISK_ON" and st == "RISK_ON":
-            return {"max_tier": 5, "new_positions": True, "reduce": False, "opposed": False}
-        if mt == "RISK_ON" and st == "RISK_OFF":
-            return {"max_tier": 2, "new_positions": True, "reduce": False, "opposed": True}
-        if mt == "RISK_ON":
-            return {"max_tier": 3, "new_positions": True, "reduce": False, "opposed": False}
-        return {"max_tier": 1 if st not in ("RISK_ON",) else 2,
-                "new_positions": True, "reduce": False, "opposed": opposed}
-    # lt == NEUTRAL
-    if mt == "RISK_ON":
-        return {"max_tier": 2, "new_positions": True, "reduce": False, "opposed": opposed}
-    return {"max_tier": 1, "new_positions": True, "reduce": False, "opposed": opposed}
+# ── 3-tier score-driven eligibility (2026-08-10 redesign) ──────────────────
+# Tier 1 = Defensive (minimum equity) · Tier 2 = Neutral · Tier 3 = Overweight.
+# Driven by the continuous weighted stack score, not label combinations —
+# the old +/-0.40 labels never fired in 59 scans, so tiers never moved.
+STACK_W_MED, STACK_W_SHORT, STACK_W_LONG = 0.50, 0.30, 0.20
+TIER_ENTER       = 0.12   # cross this to enter Tier 3 (mirrored for Tier 1)
+TIER_ENTER_TREND = 0.08   # relaxed entry when short-term trend agrees
+TIER_EXIT        = 0.05   # hysteresis: fall back inside this to leave an outer tier
+
+# Old 0-5 tiers map onto the new scale for hysteresis continuity
+_LEGACY_TIER_MAP = {0: 1, 1: 1, 2: 2, 3: 2, 4: 3, 5: 3}
+
+def compute_tier_eligibility(short_r, medium_r, long_r, prior_tier=None):
+    def sc(r): return float(r.get("score") or 0.0)
+    st_lbl = short_r.get("label") or "NEUTRAL"
+    lt_lbl = long_r.get("label") or "NEUTRAL"
+    S = (STACK_W_MED * sc(medium_r) + STACK_W_SHORT * sc(short_r)
+         + STACK_W_LONG * sc(long_r))
+
+    st_trend = short_r.get("trend")
+    up_gate = TIER_ENTER_TREND if st_trend == "IMPROVING"     else TIER_ENTER
+    dn_gate = TIER_ENTER_TREND if st_trend == "DETERIORATING" else TIER_ENTER
+
+    prior_tier = _LEGACY_TIER_MAP.get(prior_tier, prior_tier)
+    if prior_tier == 3:
+        tier = 3 if S > TIER_EXIT else (1 if S < -dn_gate else 2)
+    elif prior_tier == 1:
+        tier = 1 if S < -TIER_EXIT else (3 if S > up_gate else 2)
+    else:
+        tier = 3 if S > up_gate else (1 if S < -dn_gate else 2)
+
+    opposed = (st_lbl == "RISK_ON" and lt_lbl == "RISK_OFF") or \
+              (st_lbl == "RISK_OFF" and lt_lbl == "RISK_ON")
+    reduce  = tier == 1 and S < -0.20
+    return {"max_tier": tier, "stack_score": round(S, 4),
+            "new_positions": not (tier == 1 and S < -0.25),
+            "reduce": reduce, "opposed": opposed}
 
 # ---------------------------------------------------------------------------
 # AI narrative
@@ -407,7 +436,7 @@ REGIME STACK:
   Long-Term   (90d): {long_r.get('label','n/a')}   score={fmt_score(long_r)}  trend={long_r.get('trend','n/a')}  confidence={long_r.get('confidence',0):.0%}
 
 STACK ALIGNMENT: {alignment}
-MODEL ACTION: Tier {tier}/5 — see positioning section below
+MODEL ACTION: Tier {tier}/3 — 1=Defensive (minimum equity, 4% position cap), 2=Neutral (baseline, 8% cap), 3=Overweight equity (12% cap)
 LONG-TERM CYCLE POSITION: {cycle_pos}
 
 RECENT RESEARCH:
@@ -609,24 +638,22 @@ def print_stack(short_r, medium_r, long_r, tier_info, alignment, cycle_pos, inte
     new_pos   = tier_info["new_positions"]
     reduce    = tier_info["reduce"]
     ACTION_MAP = {
-        5: ("ADD RISK",         "Full conviction — size to max allocation"),
-        4: ("ADD RISK",         "High conviction — size aggressively"),
-        3: ("SELECTIVE ADD",    "Long + medium aligned — build carefully"),
-        2: ("MAINTAIN",         "Watch closely — no new adds above 4%"),
-        1: ("HOLD & WATCH",     "Minimal sizing only — protect capital"),
-        0: ("NO NEW POSITIONS", "Long-term Risk-Off — hold & protect"),
+        3: ("OVERWEIGHT EQUITY", "Regime supportive — size up to full 12% positions"),
+        2: ("NEUTRAL",           "Baseline weights — selective adds up to 8%"),
+        1: ("DEFENSIVE",         "Minimum equity — positions capped at 4%, protect capital"),
     }
     if reduce:
-        action, sublabel = "CUT RISK", "Reduce all existing positions"
-    elif not new_pos or max_tier == 0:
-        action, sublabel = "NO NEW POSITIONS", "Long-term Risk-Off — hold & protect"
+        action, sublabel = "CUT RISK", "Reduce existing positions — deep risk-off"
+    elif not new_pos:
+        action, sublabel = "NO NEW POSITIONS", "Deep risk-off — hold & protect"
     else:
-        action, sublabel = ACTION_MAP.get(max_tier, ("HOLD & WATCH", "Insufficient data"))
+        action, sublabel = ACTION_MAP.get(max_tier, ("NEUTRAL", "Insufficient data"))
 
     log.info("╠══════════════════════════════════════════════════════════════╣")
     log.info("  Alignment:      %s", alignment)
     log.info("  Cycle Position: %s  (long-term liquidity cycle)", cycle_pos)
-    log.info("  MODEL ACTION:   %s  (Tier %d/5)", action, max_tier)
+    log.info("  Stack Score:    %+.3f  (0.5·MT + 0.3·ST + 0.2·LT)", tier_info.get("stack_score", 0.0))
+    log.info("  MODEL ACTION:   %s  (Tier %d/3)", action, max_tier)
     log.info("                  %s", sublabel)
     if tier_info["opposed"]:
         log.warning("  ⚠️  ST OPPOSED TO LT — review before acting")
@@ -676,7 +703,8 @@ def main():
 
     cycle_pos  = determine_cycle_position(long_r)
     alignment  = compute_alignment(short_r.get("label"), medium_r.get("label"), long_r.get("label"))
-    tier_info  = compute_tier_eligibility(short_r.get("label"), medium_r.get("label"), long_r.get("label"))
+    prior_tier = int(prior["max_tier_eligible"]) if prior and prior.get("max_tier_eligible") is not None else None
+    tier_info  = compute_tier_eligibility(short_r, medium_r, long_r, prior_tier=prior_tier)
 
     log.info("Generating AI interpretation…")
     interpretation = generate_interpretation(

@@ -50,9 +50,18 @@ investment-os/
 - Soft rules require written documentation to override
 
 ## Regime System
-- **RISK_ON**: composite score > +0.40
-- **NEUTRAL**: score between -0.40 and +0.40
-- **RISK_OFF**: composite score < -0.40
+- **RISK_ON**: composite score > +0.15
+- **NEUTRAL**: score between -0.15 and +0.15
+- **RISK_OFF**: composite score < -0.15
+  (recalibrated 2026-08-10 from ±0.40, which never fired in 59 scans)
+
+**Tier system (2026-08-10 redesign — 3 tiers, score-driven):**
+- Stack score = 0.5·medium + 0.3·short + 0.2·long
+- **Tier 1 Defensive** (score < -0.10): minimum equity, gate caps positions at 4%
+- **Tier 2 Neutral** (-0.10 to +0.10): baseline weights, cap 8%
+- **Tier 3 Overweight** (score > +0.10): add equity, cap 12%
+- Hysteresis: enter outer tiers at ±0.12 (±0.08 if short-term trend agrees), exit back inside ±0.05
+- Confidence = source agreement × freshness (not coverage-based)
 - Scoring dimensions: `macro_regime`, `micro_levels`, `options_flow`, `timing`
 - Recency decay applied to research older than configured staleness window
 - Analytical layers: `global_liquidity`, `macro_regime`, `market_structure`, `cycle_sentiment`, `options_flow`, `macro_to_micro`

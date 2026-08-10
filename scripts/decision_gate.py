@@ -84,7 +84,7 @@ def get_regime_stack(db_conn) -> dict:
                 "long_term_label":     r.get("regime"),
                 "long_term_score":     r.get("composite_score"),
                 "stack_alignment":     "PARTIAL",
-                "max_tier_eligible":   3,
+                "max_tier_eligible":   2,
                 "new_positions_allowed": True,
                 "short_vs_long_opposed": False,
                 "_legacy": True,
@@ -193,28 +193,27 @@ def check_hard_rules_stack(
     """Returns (hard_failures, tier_violations). hard_failures blocks the gate."""
     failures = []
     tier_violations = []
-    max_tier = stack.get("max_tier_eligible", 5)
+    max_tier = stack.get("max_tier_eligible", 2)
     new_allowed = stack.get("new_positions_allowed", True)
 
-    STEP_TO_TIER = {0.02: 1, 0.04: 2, 0.06: 3, 0.08: 4, 0.10: 5, 0.12: 6}
-    proposed_tier = STEP_TO_TIER.get(
-        min(ALLOCATION_LADDER, key=lambda x: abs(x - proposed_allocation)), 5
-    )
+    # 3-tier caps (2026-08-10 redesign): Tier 1 Defensive / 2 Neutral / 3 Overweight.
+    # Legacy 0-5 tiers from older stacks map onto the same scale.
+    TIER_CAPS = {0: 0.00, 1: 0.04, 2: 0.08, 3: 0.12, 4: 0.12, 5: 0.12}
+    max_alloc = TIER_CAPS.get(max_tier, 0.08)
 
     current_alloc = float(existing_position["current_allocation"]) if existing_position else 0.0
     is_new = current_alloc == 0.0
     if is_new and not new_allowed:
         failures.append(
-            f"STACK_BLOCKS_NEW: Long-term regime is RISK_OFF — "
+            f"STACK_BLOCKS_NEW: Regime stack is deep risk-off — "
             f"no new positions allowed per regime stack rules."
         )
 
-    if proposed_tier > max_tier:
-        max_alloc = ALLOCATION_LADDER[max_tier] if max_tier < len(ALLOCATION_LADDER) else 0.00
+    if proposed_allocation > max_alloc + 1e-9:
         tier_violations.append(
-            f"TIER_CAP_EXCEEDED: Proposed allocation {proposed_allocation:.1%} "
-            f"is Tier {proposed_tier} but regime stack caps at Tier {max_tier} "
-            f"(max {max_alloc:.1%}). Use --tier-soft for funded rotations where gross exposure is unchanged."
+            f"TIER_CAP_EXCEEDED: Proposed allocation {proposed_allocation:.1%} exceeds the "
+            f"Tier {max_tier}/3 cap of {max_alloc:.0%}. Use --tier-soft for funded rotations "
+            f"where gross exposure is unchanged."
         )
 
     if tier_violations and TIER_CAP_HARD:
