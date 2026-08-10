@@ -1259,7 +1259,7 @@ def build_regime_memo(snap, last_change, source_scores, recent_notes, enrichment
             f'<td style="text-align:right;color:{mt_c};font-size:12px;">{float(r["medium_term_score"] or 0):+.4f}</td>'
             f'<td style="text-align:right;color:{lt_c};font-size:12px;">{float(r["long_term_score"] or 0):+.4f}</td>'
             f'<td style="color:{GRAY};font-size:11px;">{r.get("stack_alignment") or "—"}</td>'
-            f'<td style="text-align:center;font-weight:700;color:{GOLD};font-size:12px;">{r.get("max_tier_eligible") or 0}/5</td>'
+            f'<td style="text-align:center;font-weight:700;color:{GOLD};font-size:12px;">{min(int(r.get("max_tier_eligible") or 1),3)}/3</td>'
             f'</tr>'
         )
     if not _log_rows:
@@ -1489,16 +1489,16 @@ def build_regime_memo(snap, last_change, source_scores, recent_notes, enrichment
 def tier_action(tier, new_pos=True, reduce=False):
     """Return human action label, color, and sublabel for a given max tier."""
     if reduce:
-        return "CUT RISK", RED, "Reduce all existing positions"
-    if not new_pos or tier == 0:
-        return "NO NEW POSITIONS", RED, "Long-term Risk-Off — hold & protect"
+        return "CUT RISK", RED, "Reduce existing positions — deep risk-off"
+    if not new_pos:
+        return "NO NEW POSITIONS", RED, "Deep risk-off — hold & protect"
+    # 3-tier system (2026-08-10): legacy 0-5 tiers map onto the same scale
+    tier = {0: 1, 1: 1, 2: 2, 3: 2, 4: 3, 5: 3}.get(tier, tier)
     return {
-        5: ("ADD RISK",       GREEN,  "Full conviction — size to max allocation"),
-        4: ("ADD RISK",       GREEN,  "High conviction — size aggressively"),
-        3: ("SELECTIVE ADD",  GOLD,   "Long + medium aligned — build carefully"),
-        2: ("MAINTAIN",       YELLOW, "Watch closely — no new adds above 4%"),
-        1: ("HOLD & WATCH",   GRAY,   "Minimal sizing only — protect capital"),
-    }.get(tier, ("HOLD & WATCH", GRAY, "Insufficient regime data"))
+        3: ("OVERWEIGHT",  GREEN,  "Regime supportive — positions up to 12%"),
+        2: ("NEUTRAL",     YELLOW, "Baseline weights — selective adds up to 8%"),
+        1: ("DEFENSIVE",   GRAY,   "Minimum equity — positions capped at 4%"),
+    }.get(tier, ("NEUTRAL", GRAY, "Insufficient regime data"))
 
 
 def _dash_header_regime(stack, snap_regime, r_color):
@@ -1572,7 +1572,7 @@ def build_regime_stack_panel(stack):
         f'<span style="display:inline-block;width:14px;height:14px;border-radius:50%;'
         f'background:{tier_color if i<=max_tier else NAVY3};'
         f'border:1.5px solid {tier_color};margin:0 2px;"></span>'
-        for i in range(1,6)
+        for i in range(1,4)
     )
 
     return f"""
@@ -1592,7 +1592,7 @@ def build_regime_stack_panel(stack):
         {(lambda a,c,sl: f'<div style="font-size:20px;font-weight:800;color:{c};line-height:1.2;">{a}</div>'
             f'<div style="margin:6px 0 4px;">{tier_dots}</div>'
             f'<div style="font-size:10px;color:{GRAY};">{sl}</div>'
-            f'<div style="font-size:10px;color:{c};font-weight:700;margin-top:4px;">Tier {max_tier}/5</div>'
+            f'<div style="font-size:10px;color:{c};font-weight:700;margin-top:4px;">Tier {min(max_tier,3) if max_tier else 1}/3</div>'
         )(*tier_action(max_tier, new_pos, stack.get("reduce_existing_flag", False)))}
       </div>
       <div style="background:{NAVY3};border-radius:6px;padding:12px;text-align:center;">
