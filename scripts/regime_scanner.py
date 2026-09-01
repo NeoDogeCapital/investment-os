@@ -51,6 +51,7 @@ HORIZONS = {
             "dillian": 1.1, "mike_green": 0.9, "milton_berg": 0.9,
             "fftt": 0.6, "crossborder": 0.6, "investech": 0.5,
             "other_analyst": 0.8, "macro_data": 0.7,
+            "santiago_capital": 0.7, "distressed_assets": 0.7,
         },
     },
     "medium": {
@@ -65,6 +66,7 @@ HORIZONS = {
             "emerging_voice": 1.0, "market_commentary": 0.9,
             "milton_berg": 1.1, "fftt": 0.9, "crossborder": 0.9,
             "investech": 1.0, "other_analyst": 0.9, "macro_data": 1.1,
+            "santiago_capital": 1.0, "distressed_assets": 1.1,
         },
     },
     "long": {
@@ -78,6 +80,7 @@ HORIZONS = {
             # T3 demotion: spotgamma 0.4 → 0.2 (negligible at 90d)
             "spotgamma": 0.2, "emerging_voice": 0.5,
             "market_commentary": 0.4, "other_analyst": 0.9, "macro_data": 1.2,
+            "santiago_capital": 1.3, "distressed_assets": 1.2,
         },
     },
 }

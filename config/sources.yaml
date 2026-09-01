@@ -209,6 +209,48 @@ sources:
     recency_half_life_days: 7
     notes: "Contrarian sentiment signals, behavioral finance overlay."
 
+  - id: santiago_capital
+    name: "Santiago Capital / Brent Johnson"
+    short: "Santiago"
+    active: true
+    tier: 2
+    specialty: ["dollar_cycle", "global_liquidity", "gold"]
+    analytical_layers:
+      macro_regime: 0.25
+      micro_levels: 0.00
+      options_flow: 0.00
+      timing: 0.10
+      global_liquidity: 0.50
+      market_structure: 0.15
+    dimension_weights:
+      macro_regime: 0.35
+      micro_levels: 0.05
+      options_flow: 0.00
+      timing: 0.60
+    recency_half_life_days: 14
+    notes: "Brent Johnson's Substack (Dollar Milkshake framework). Dollar cycle, gold, global liquidity. Long-cycle thinker, low timing precision."
+
+  - id: distressed_assets
+    name: "Distressed Assets Blog / Nick Nemeth"
+    short: "Nemeth"
+    active: true
+    tier: 2
+    specialty: ["credit_markets", "distressed_debt", "market_structure"]
+    analytical_layers:
+      macro_regime: 0.25
+      micro_levels: 0.15
+      options_flow: 0.00
+      timing: 0.15
+      global_liquidity: 0.20
+      market_structure: 0.25
+    dimension_weights:
+      macro_regime: 0.35
+      micro_levels: 0.30
+      options_flow: 0.00
+      timing: 0.35
+    recency_half_life_days: 14
+    notes: "Nick Nemeth's credit/distressed blog. Credit stress and market-structure signal; leading indicator value at medium/long horizons."
+
   - id: other_analyst
     name: "Other Analyst"
     short: "Other"

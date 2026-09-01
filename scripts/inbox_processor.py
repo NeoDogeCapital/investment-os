@@ -68,6 +68,8 @@ SOURCE_FOLDERS = {
     "investech":        "Sources/Investech",
     "laduc":            "Sources/LaDuc",
     "dillian":          "Sources/Jarred-Dillian",
+    "santiago_capital": "Sources/Santiago-Capital",
+    "distressed_assets":"Sources/Distressed-Assets",
     "other_analyst":    "Sources/Other-Analyst",
     "macro_data":       "Sources/Macro-Data",
     "market_commentary":"Sources/Market-Commentary",
