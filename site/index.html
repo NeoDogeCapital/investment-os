@@ -237,13 +237,13 @@ const VIEWS = {
       c.setOption({backgroundColor:"transparent",
         grid:{left:44,right:16,top:26,bottom:34},
         legend:{textStyle:{color:"#8b93a3"},top:0},
-        xAxis:{type:"category",data:LIVE.rh.map(r=>r.stack_date),axisLabel:{color:"#5d6575"}},
+        xAxis:{type:"category",data:LIVE.rh.map(r=>String(r.stack_date).slice(0,10)),axisLabel:{color:"#5d6575"}},
         yAxis:{type:"value",axisLabel:{color:"#5d6575"},splitLine:{lineStyle:{color:"rgba(255,255,255,.06)"}}},
         tooltip:{trigger:"axis",backgroundColor:"#161b24",borderColor:"rgba(255,255,255,.12)",textStyle:{color:"#e6e9ef"}},
         series:[
-          {name:"Short",type:"line",smooth:true,symbol:"none",data:LIVE.rh.map(r=>r.short_term_score),lineStyle:{color:"#6aa6f8"},itemStyle:{color:"#6aa6f8"}},
-          {name:"Medium",type:"line",smooth:true,symbol:"none",data:LIVE.rh.map(r=>r.medium_term_score),lineStyle:{color:"#af6452",width:2.5},itemStyle:{color:"#af6452"}},
-          {name:"Long",type:"line",smooth:true,symbol:"none",data:LIVE.rh.map(r=>r.long_term_score),lineStyle:{color:"#d4b25c"},itemStyle:{color:"#d4b25c"}},
+          {name:"Short",type:"line",smooth:true,symbol:"none",data:LIVE.rh.map(r=>+(+r.short_term_score).toFixed(3)),lineStyle:{color:"#6aa6f8"},itemStyle:{color:"#6aa6f8"}},
+          {name:"Medium",type:"line",smooth:true,symbol:"none",data:LIVE.rh.map(r=>+(+r.medium_term_score).toFixed(3)),lineStyle:{color:"#af6452",width:2.5},itemStyle:{color:"#af6452"}},
+          {name:"Long",type:"line",smooth:true,symbol:"none",data:LIVE.rh.map(r=>+(+r.long_term_score).toFixed(3)),lineStyle:{color:"#d4b25c"},itemStyle:{color:"#d4b25c"}},
           {name:"Tier",type:"line",step:"end",symbol:"none",yAxisIndex:0,data:LIVE.rh.map(r=>(r.max_tier_eligible-2)/5),lineStyle:{color:"rgba(63,207,142,.5)",type:"dashed"},itemStyle:{color:"#3fcf8e"}}
         ]});
       addEventListener("resize",()=>c.resize(),{once:true});
