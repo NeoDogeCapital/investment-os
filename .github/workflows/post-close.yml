@@ -1,0 +1,32 @@
+name: post-close
+on:
+  schedule:
+    - cron: '45 20 * * 1-5'   # 4:45pm ET (EDT); 21:45 UTC line below covers EST
+    - cron: '45 21 * * 1-5'
+  workflow_dispatch: {}
+jobs:
+  post-close:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install -q -r requirements.txt
+      # DST guard: only one of the two crons is 4:45pm ET on any given day.
+      # post_close self-checks: skip if a run for today's market date already succeeded.
+      - run: |
+          python - <<'PY'
+          import os, psycopg2, sys
+          sys.path.insert(0,'scripts'); from lib_market_date import us_market_date
+          c=psycopg2.connect(os.environ['DATABASE_URL']); cur=c.cursor()
+          cur.execute("SELECT 1 FROM job_runs WHERE job_name='post_close' AND status='ok' AND market_date=%s",(us_market_date(),))
+          already=cur.fetchone(); c.close()
+          if already: print('post_close already ran for this market date; skipping'); sys.exit(78)
+          PY
+        env: { DATABASE_URL: '${{ secrets.SUPABASE_DB_URL }}' }
+        continue-on-error: false
+      - run: python cloud_jobs/post_close.py
+        env:
+          DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

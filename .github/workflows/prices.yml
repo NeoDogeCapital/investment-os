@@ -1,0 +1,18 @@
+name: price-refresh
+on:
+  schedule:
+    # every 30 min, 13:30-20:30 UTC covers 9:30-4 ET across DST (script self-gates precisely)
+    - cron: '0,30 13-20 * * 1-5'
+  workflow_dispatch: {}
+jobs:
+  prices:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install -q psycopg2-binary yfinance pandas
+      - run: python cloud_jobs/refresh_prices.py
+        env:
+          DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}   # POOLER host
