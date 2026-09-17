@@ -71,6 +71,7 @@ def main():
     step("prices", [py, os.path.join(HERE, "refresh_prices.py"), "--force"])
     step("analytics", [py, os.path.join(SCRIPTS, "analytics_engine.py"), "--all"])
     step("scanner", [py, os.path.join(SCRIPTS, "regime_scanner.py")])
+    step("risk", [py, os.path.join(SCRIPTS, "risk_engine.py")])
     step("memo", [py, os.path.join(SCRIPTS, "generate_reports.py"), "--memo-only"])
     store_memo()
     log_run("post_close", "ok", "chain complete")

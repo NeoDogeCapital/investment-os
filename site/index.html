@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="assets/logomark.png">
+<title>IWP Models — Macro Investment OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<style>
+:root{
+  --brand:#af6452; --brand-deep:#633238; --brand-soft:rgba(175,100,82,.14);
+  --bg:#0a0d12; --bg2:#0f131a; --panel:rgba(22,27,36,.72); --panel-solid:#161b24;
+  --line:rgba(255,255,255,.07); --line2:rgba(255,255,255,.12);
+  --text:#e6e9ef; --muted:#8b93a3; --dim:#5d6575;
+  --green:#3fcf8e; --red:#ef6464; --amber:#f0a94a; --blue:#6aa6f8;
+  --r:14px; --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:48px 48px;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;background:radial-gradient(1200px 600px at 50% -10%,rgba(175,100,82,.09),transparent 60%),linear-gradient(to bottom,transparent 0,var(--bg) 85%);pointer-events:none;z-index:0}
+.mono{font-family:var(--mono)}
+.caps{font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim)}
+.muted{color:var(--muted)} .pos{color:var(--green)} .neg{color:var(--red)} .amber{color:var(--amber)}
+[hidden]{display:none!important}
+
+/* gate */
+#gate{position:relative;z-index:2;min-height:100vh;display:grid;place-items:center;padding:24px}
+.gate-card{width:100%;max-width:340px}
+.gate-hero{background:linear-gradient(180deg,rgba(99,50,56,.30),rgba(18,22,30,.90));border:1px solid var(--line2);border-radius:18px;padding:44px 24px 44px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.logo{width:48px;height:48px;border-radius:12px;border:1px solid var(--line2);background:rgba(10,13,18,.6);display:grid;place-items:center;margin:0 auto 18px;overflow:hidden}
+.logo img{width:70%;height:70%;object-fit:contain}
+.gate-hero h1{margin:0 0 6px;font-size:20px;font-weight:700;letter-spacing:-.01em}
+.field{margin-top:26px;text-align:left}
+.field+.field{margin-top:12px}
+.input{width:100%;background:var(--bg2);border:1px solid var(--line2);color:var(--text);border-radius:10px;padding:12px 13px;font:inherit;outline:none}
+.input:focus{border-color:var(--brand)}
+.btn{width:100%;background:var(--brand);color:#0a0d12;border:0;border-radius:10px;padding:12px;font:600 14px Inter,sans-serif;cursor:pointer;margin-top:16px}
+.btn:hover{filter:brightness(1.08)} .btn:disabled{opacity:.6;cursor:wait}
+.err{color:var(--red);font-size:12.5px;margin-top:10px;min-height:18px;text-align:center}
+.gate-foot{border-top:1px solid var(--line);margin-top:26px;padding-top:14px;color:var(--dim);font-size:11.5px}
+
+/* shell */
+#app{position:relative;z-index:1}
+header.top{position:sticky;top:0;z-index:20;background:rgba(10,13,18,.78);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1320px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:18px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand .logo{width:34px;height:34px;margin:0;border-radius:9px}
+.brand b{font-size:15px;white-space:nowrap}
+.brand .caps{display:block;margin-top:1px}
+nav.tabs{display:flex;gap:2px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+nav.tabs a{color:var(--muted);text-decoration:none;padding:7px 12px;border-radius:8px;font-weight:500;font-size:13px;white-space:nowrap}
+nav.tabs a:hover{color:var(--text);background:rgba(255,255,255,.04)}
+nav.tabs a.on{color:var(--text);background:var(--brand-soft);box-shadow:inset 0 0 0 1px rgba(175,100,82,.4)}
+.lock{background:none;border:1px solid var(--line2);color:var(--muted);border-radius:8px;padding:6px 11px;font:500 12px Inter;cursor:pointer}
+.lock:hover{color:var(--text);border-color:var(--brand)}
+main{max-width:1320px;margin:0 auto;padding:26px 24px 80px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;backdrop-filter:blur(6px)}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.stat .caps{margin-bottom:7px}
+.stat .v{font-size:24px;font-weight:700;font-family:var(--mono)}
+.stat .s{font-size:12px;color:var(--muted);margin-top:3px}
+h2{font-size:15px;margin:26px 0 12px;font-weight:600}
+h2 .fresh{font-family:var(--mono);font-size:10.5px;color:var(--dim);font-weight:400;margin-left:10px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);text-align:left;padding:7px 10px;border-bottom:1px solid var(--line2)}
+td{padding:8px 10px;border-bottom:1px solid var(--line)}
+tr:hover td{background:rgba(255,255,255,.02)}
+.table-wrap{overflow-x:auto}
+.chip{display:inline-block;padding:2px 10px;border-radius:20px;font:500 11px var(--mono);border:1px solid var(--line2);color:var(--muted);cursor:pointer;margin:0 4px 6px 0}
+.chip.on{background:var(--brand-soft);color:var(--text);border-color:var(--brand)}
+.badge{display:inline-block;padding:3px 12px;border-radius:20px;font:600 11px var(--mono);letter-spacing:.08em}
+.b-green{background:rgba(63,207,142,.12);color:var(--green);border:1px solid rgba(63,207,142,.4)}
+.b-amber{background:rgba(240,169,74,.12);color:var(--amber);border:1px solid rgba(240,169,74,.4)}
+.b-red{background:rgba(239,100,100,.12);color:var(--red);border:1px solid rgba(239,100,100,.4)}
+.chart{height:340px}
+.memo-frame{width:100%;height:78vh;border:1px solid var(--line);border-radius:var(--r);background:#fff}
+footer{max-width:1320px;margin:0 auto;padding:14px 24px;border-top:1px solid var(--line);display:flex;gap:16px;flex-wrap:wrap;color:var(--dim);font-size:11px;font-family:var(--mono)}
+.hchip{display:flex;align-items:center;gap:5px}
+.dot{width:7px;height:7px;border-radius:50%}
+.loading{color:var(--dim);font-family:var(--mono);font-size:12px;padding:30px;text-align:center}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-hero">
+      <div class="logo"><img src="assets/logomark.png" alt="" onerror="this.style.display='none'"></div>
+      <h1>IWP Models</h1>
+      <div class="caps">Macro Investment OS</div>
+      <form id="gform">
+        <div class="field"><input class="input" id="gemail" type="email" placeholder="Email" autocomplete="username" required></div>
+        <div class="field"><input class="input" id="gpw" type="password" placeholder="Password" autocomplete="current-password" required></div>
+        <button id="go" class="btn" type="submit">Sign in</button>
+        <div class="err" id="gerr"></div>
+      </form>
+      <div class="gate-foot">Confidential · Internal use only</div>
+    </div>
+  </div>
+</div>
+
+<div id="app" hidden>
+  <header class="top"><div class="top-in">
+    <div class="brand">
+      <div class="logo"><img src="assets/logomark.png" alt="" onerror="this.style.display='none'"></div>
+      <div><b>IWP Models</b><span class="caps" id="buildstamp"></span></div>
+    </div>
+    <nav class="tabs" id="tabs">
+      <a href="#overview" data-v="overview" class="on">Overview</a>
+      <a href="#portfolios" data-v="portfolios">Portfolios</a>
+      <a href="#regime" data-v="regime">Regime</a>
+      <a href="#risk" data-v="risk">Risk</a>
+      <a href="#analytics" data-v="analytics">Analytics</a>
+      <a href="#performance" data-v="performance">Performance</a>
+      <a href="#memo" data-v="memo">Memo</a>
+      <a href="#journal" data-v="journal">Journal</a>
+    </nav>
+    <button class="lock" id="lock">Sign out</button>
+  </div></header>
+  <main id="view"><div class="loading">Loading…</div></main>
+  <footer id="health"></footer>
+</div>
+
+<script>
+const CFG = window.IWP_CONFIG;
+const sb = supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey);
+const $ = s => document.querySelector(s);
+const LIVE = {};          // per-view cache; cleared on refresh cycle
+let refreshTimer = null;
+
+document.getElementById("buildstamp").textContent = CFG.build;
+
+/* ── data access: views only ── */
+async function q(view, mod){
+  let r = sb.from(view).select("*");
+  if (mod) r = mod(r);
+  const { data, error } = await r;
+  if (error) throw new Error(view + ": " + error.message);
+  return data || [];
+}
+const pct = x => x==null ? "—" : (x*100).toFixed(1) + "%";
+const pctS = x => x==null ? "—" : (x>=0?"+":"") + (x*100).toFixed(1) + "%";
+const num = (x,d=2) => x==null ? "—" : (+x).toFixed(d);
+const cls = x => x>0.0001 ? "pos" : x<-0.0001 ? "neg" : "muted";
+const fresh = ts => { if(!ts) return ""; const d=new Date(ts), m=(Date.now()-d)/6e4;
+  return `<span class="fresh">as of ${d.toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}${m<90?"":" ⚠"}</span>`; };
+const TIER = {1:["DEFENSIVE","b-red"],2:["NEUTRAL","b-amber"],3:["OVERWEIGHT","b-green"]};
+
+/* ── auth ── */
+$("#gform").addEventListener("submit", async e => {
+  e.preventDefault(); const b=$("#go"); b.disabled=true; $("#gerr").textContent="";
+  const { error } = await sb.auth.signInWithPassword({ email:$("#gemail").value.trim(), password:$("#gpw").value });
+  b.disabled=false;
+  if (error) $("#gerr").textContent = error.message;
+});
+$("#lock").addEventListener("click", () => sb.auth.signOut());
+sb.auth.onAuthStateChange((_e, session) => {
+  const authed = !!session;
+  $("#gate").hidden = authed; $("#app").hidden = !authed;
+  if (authed){ route(); startRefresh(); } else stopRefresh();
+});
+
+/* ── live refresh: prices + health every 2 min while visible ── */
+function startRefresh(){ stopRefresh();
+  refreshTimer = setInterval(() => { if(!document.hidden){ LIVE.prices=null; LIVE.health=null;
+    if(location.hash.replace("#","")==="portfolios") render("portfolios"); healthBar(); } }, 120000);
+}
+function stopRefresh(){ if(refreshTimer) clearInterval(refreshTimer); }
+
+/* ── views ── */
+const VIEWS = {
+  async overview(){
+    const [reg, models, an, jobs] = await Promise.all([
+      q("v_regime_current"), q("v_models"), q("v_model_analytics"), q("v_job_health")]);
+    const r = reg[0] || {};
+    const aum = models.reduce((s,m)=>s+(+m.aum_usd||0),0);
+    const wAvg = k => { let n=0,d=0; an.forEach(a=>{const m=models.find(x=>x.name===a.model_name); if(m){n+=(+a[k]||0)*(+m.aum_usd||0); d+=+m.aum_usd||0;}}); return d?n/d:null; };
+    const [tl, tc] = TIER[r.max_tier_eligible] || ["—","b-amber"];
+    const horiz = (lbl,s,t,c) => `<div class="panel stat"><div class="caps">${lbl}</div>
+      <div class="v ${cls(s)}">${s==null?"—":(+s).toFixed(3)}</div>
+      <div class="s">${t||""} · conf ${c==null?"—":Math.round(c*100)+"%"}</div></div>`;
+    return `<div class="grid g4">
+      <div class="panel stat"><div class="caps">Regime</div><div style="margin:6px 0 4px"><span class="badge ${tc}">TIER ${r.max_tier_eligible||"—"}/3 · ${tl}</span></div>
+        <div class="s">${r.stack_alignment||""} · ${r.long_term_cycle_position||""} cycle ${fresh(r.computed_at)}</div></div>
+      ${horiz("Short (7d)", r.short_term_score, r.short_term_trend, r.short_term_confidence)}
+      ${horiz("Medium (30d)", r.medium_term_score, r.medium_term_trend, r.medium_term_confidence)}
+      ${horiz("Long (90d)", r.long_term_score, r.long_term_trend, r.long_term_confidence)}
+    </div>
+    <div class="grid g4" style="margin-top:14px">
+      <div class="panel stat"><div class="caps">Firm AUM</div><div class="v">$${(aum/1e6).toFixed(0)}M</div><div class="s">${models.length} model portfolios</div></div>
+      <div class="panel stat"><div class="caps">Firm YTD (AUM-wtd)</div><div class="v ${cls(wAvg("ytd_return"))}">${pctS(wAvg("ytd_return"))}</div><div class="s">across all models</div></div>
+      <div class="panel stat"><div class="caps">Avg Sharpe</div><div class="v">${num(an.reduce((s,a)=>s+(+a.sharpe_ratio||0),0)/(an.length||1))}</div><div class="s">simple average</div></div>
+      <div class="panel stat"><div class="caps">Jobs</div><div class="v" style="font-size:16px">${jobs.filter(j=>j.status==="ok").length}/${jobs.length} ok</div>
+        <div class="s">latest pipeline runs</div></div>
+    </div>
+    <h2>Current interpretation ${fresh(r.computed_at)}</h2>
+    <div class="panel" style="font-size:13.5px;line-height:1.65;color:var(--muted)">${
+      (r.ai_interpretation||"").split(". ").slice(0,4).join(". ") || "No interpretation available."}</div>`;
+  },
+
+  async portfolios(){
+    if(!LIVE.hold)   LIVE.hold   = await q("v_latest_holdings");
+    if(!LIVE.prices) LIVE.prices = Object.fromEntries((await q("v_latest_prices")).map(p=>[p.ticker,p]));
+    const models = [...new Set(LIVE.hold.map(h=>h.model_name))].sort();
+    const sel = LIVE.selModel && models.includes(LIVE.selModel) ? LIVE.selModel : models[0];
+    LIVE.selModel = sel;
+    const rows = LIVE.hold.filter(h=>h.model_name===sel).sort((a,b)=>b.weight-a.weight);
+    const asOf = rows[0]?.as_of;
+    const pAsOf = Object.values(LIVE.prices)[0]?.computed_at;
+    return `<div>${models.map(m=>`<span class="chip ${m===sel?"on":""}" data-m="${m}">${m}</span>`).join("")}</div>
+    <h2>${sel} <span class="fresh">holdings as of ${asOf||"—"}</span>${fresh(pAsOf)}</h2>
+    <div class="panel table-wrap"><table><thead><tr>
+      <th>Ticker</th><th>Fund</th><th style="text-align:right">Weight</th>
+      <th style="text-align:right">Last px</th><th style="text-align:right">Day</th></tr></thead><tbody>
+      ${rows.map(h=>{ const p=LIVE.prices[h.ticker]||{}; const cash=h.ticker==="CASH";
+        return `<tr><td class="mono" style="${cash?"color:var(--amber)":""}">${h.ticker}</td>
+        <td class="muted" style="max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.fund_name||""}</td>
+        <td class="mono" style="text-align:right">${pct(h.weight)}</td>
+        <td class="mono" style="text-align:right">${cash?"—":(p.close_price?(+p.close_price).toFixed(2):"—")}</td>
+        <td class="mono ${cls(p.daily_return)}" style="text-align:right">${cash?"—":pctS(p.daily_return)}</td></tr>`;}).join("")}
+    </tbody></table></div>`;
+  },
+
+  async regime(){
+    if(!LIVE.rh) LIVE.rh = await q("v_regime_history");
+    const cur = (await q("v_regime_current"))[0] || {};
+    setTimeout(()=>{ const el=$("#rchart"); if(!el) return;
+      const c=echarts.init(el,null,{renderer:"svg"});
+      c.setOption({backgroundColor:"transparent",
+        grid:{left:44,right:16,top:26,bottom:34},
+        legend:{textStyle:{color:"#8b93a3"},top:0},
+        xAxis:{type:"category",data:LIVE.rh.map(r=>r.stack_date),axisLabel:{color:"#5d6575"}},
+        yAxis:{type:"value",axisLabel:{color:"#5d6575"},splitLine:{lineStyle:{color:"rgba(255,255,255,.06)"}}},
+        tooltip:{trigger:"axis",backgroundColor:"#161b24",borderColor:"rgba(255,255,255,.12)",textStyle:{color:"#e6e9ef"}},
+        series:[
+          {name:"Short",type:"line",smooth:true,symbol:"none",data:LIVE.rh.map(r=>r.short_term_score),lineStyle:{color:"#6aa6f8"},itemStyle:{color:"#6aa6f8"}},
+          {name:"Medium",type:"line",smooth:true,symbol:"none",data:LIVE.rh.map(r=>r.medium_term_score),lineStyle:{color:"#af6452",width:2.5},itemStyle:{color:"#af6452"}},
+          {name:"Long",type:"line",smooth:true,symbol:"none",data:LIVE.rh.map(r=>r.long_term_score),lineStyle:{color:"#d4b25c"},itemStyle:{color:"#d4b25c"}},
+          {name:"Tier",type:"line",step:"end",symbol:"none",yAxisIndex:0,data:LIVE.rh.map(r=>(r.max_tier_eligible-2)/5),lineStyle:{color:"rgba(63,207,142,.5)",type:"dashed"},itemStyle:{color:"#3fcf8e"}}
+        ]});
+      addEventListener("resize",()=>c.resize(),{once:true});
+    },30);
+    return `<h2>Regime stack history ${fresh(cur.computed_at)}</h2>
+    <div class="panel"><div id="rchart" class="chart"></div></div>
+    <h2>Full interpretation</h2>
+    <div class="panel" style="font-size:13.5px;line-height:1.7;color:var(--muted);white-space:pre-line">${cur.ai_interpretation||"—"}</div>`;
+  },
+
+
+  async risk(){
+    if(!LIVE.risk) LIVE.risk = await q("v_risk");
+    const firm = LIVE.risk.find(r=>r.model_name==="FIRM") || {};
+    const models = LIVE.risk.filter(r=>r.model_name!=="FIRM").sort((a,b)=>b.risk_score-a.risk_score);
+    const col = s => s<=3.5 ? "var(--green)" : s<=6.5 ? "var(--amber)" : "var(--red)";
+    const band = s => s<=2 ? "Very low" : s<=3.5 ? "Low" : s<=5 ? "Moderate" : s<=6.5 ? "Elevated" : s<=8 ? "High" : "Very high";
+    const bar = (v,max=10) => `<div style="background:rgba(255,255,255,.06);border-radius:4px;height:8px;width:120px;display:inline-block;vertical-align:middle"><div style="height:8px;border-radius:4px;width:${v/max*100}%;background:${col(v)}"></div></div>`;
+    return `<div class="grid g3">
+      <div class="panel stat" style="text-align:center;padding:26px">
+        <div class="caps">Firm risk score</div>
+        <div class="v" style="font-size:52px;color:${col(firm.risk_score)}">${num(firm.risk_score,1)}</div>
+        <div class="s">${band(firm.risk_score)} · AUM-weighted across ${models.length} models ${fresh(firm.computed_at)}</div></div>
+      <div class="panel stat" style="text-align:center;padding:26px">
+        <div class="caps">Firm daily VaR (95%)</div>
+        <div class="v" style="font-size:36px">$${firm.var95_dollars?(+firm.var95_dollars/1e6).toFixed(2)+"M":"—"}</div>
+        <div class="s">1-in-20-day loss threshold on $${(+firm.aum_usd/1e6).toFixed(0)}M · ${firm.var95_dollars?((+firm.var95_dollars/+firm.aum_usd)*100).toFixed(2)+"% of book":""}</div></div>
+      <div class="panel stat" style="text-align:center;padding:26px">
+        <div class="caps">Firm cash weight</div>
+        <div class="v" style="font-size:36px">${pct(firm.cash_weight)}</div>
+        <div class="s">dry powder, AUM-weighted</div></div>
+    </div>
+    <h2>Model risk scores <span class="fresh">1 = min risk · 10 = max</span>${fresh(firm.computed_at)}</h2>
+    <div class="panel table-wrap"><table><thead><tr>
+      <th>Model</th><th>Score</th><th></th><th style="text-align:right">Vol (rw, ann)</th>
+      <th style="text-align:right">VaR95 / day</th><th style="text-align:right">VaR95 $</th>
+      <th style="text-align:right">Tail freq</th><th style="text-align:right">Top pos</th>
+      <th style="text-align:right">Eff. N</th><th style="text-align:right">Cash</th>
+      <th>Vol · VaR · Conc · Struct</th></tr></thead><tbody>
+      ${models.map(r=>`<tr><td>${r.model_name}</td>
+        <td class="mono" style="color:${col(r.risk_score)};font-weight:700">${num(r.risk_score,1)}</td>
+        <td>${bar(r.risk_score)}</td>
+        <td class="mono" style="text-align:right">${pct(r.ann_volatility)}</td>
+        <td class="mono" style="text-align:right">${r.var95_daily?(+r.var95_daily*100).toFixed(2)+"%":"—"}</td>
+        <td class="mono" style="text-align:right">$${r.var95_dollars?(+r.var95_dollars/1e3).toFixed(0)+"k":"—"}</td>
+        <td class="mono" style="text-align:right">${pct(r.tail_freq)}</td>
+        <td class="mono" style="text-align:right">${pct(r.top_position_w)}</td>
+        <td class="mono" style="text-align:right">${num(r.effective_n,1)}</td>
+        <td class="mono" style="text-align:right">${pct(r.cash_weight)}</td>
+        <td class="mono muted">${[r.s_volatility,r.s_var,r.s_concentration,r.s_structure].map(x=>x==null?"—":num(x,1)).join(" · ")}</td>
+      </tr>`).join("")}
+    </tbody></table></div>
+    <div class="panel" style="margin-top:14px;font-size:12.5px;color:var(--dim)">
+      Methodology: PRISM-style composite — recency-weighted volatility (35%), historical 95% VaR + tail frequency (25%),
+      ticker-level concentration (15%), security-type structure (25%; hedged, income-overlay, alternative, bond and cash
+      sleeves carry reduced equity-risk multipliers). Intra-fund look-through overlap requires fund holdings data and is
+      not yet included.</div>`;
+  },
+
+  async analytics(){
+    const [an, models] = await Promise.all([q("v_model_analytics"), q("v_models")]);
+    const asOf = an[0]?.computed_at;
+    return `<h2>Model analytics ${fresh(asOf)}</h2>
+    <div class="panel table-wrap"><table><thead><tr>
+      <th>Model</th><th style="text-align:right">AUM</th><th style="text-align:right">YTD</th>
+      <th style="text-align:right">1M</th><th style="text-align:right">3M</th><th style="text-align:right">1Y</th>
+      <th style="text-align:right">Sharpe</th><th style="text-align:right">Sortino</th>
+      <th style="text-align:right">Max DD</th><th style="text-align:right">Vol</th>
+      <th style="text-align:right">Bat</th><th style="text-align:right">Slug</th><th style="text-align:right">β SPY</th>
+      </tr></thead><tbody>
+      ${an.sort((a,b)=>b.ytd_return-a.ytd_return).map(a=>{const m=models.find(x=>x.name===a.model_name)||{};
+        return `<tr><td>${a.model_name}</td>
+        <td class="mono" style="text-align:right">$${m.aum_usd?(+m.aum_usd/1e6).toFixed(0)+"M":"—"}</td>
+        <td class="mono ${cls(a.ytd_return)}" style="text-align:right">${pctS(a.ytd_return)}</td>
+        <td class="mono ${cls(a.return_1m)}" style="text-align:right">${pctS(a.return_1m)}</td>
+        <td class="mono ${cls(a.return_3m)}" style="text-align:right">${pctS(a.return_3m)}</td>
+        <td class="mono ${cls(a.return_1y)}" style="text-align:right">${pctS(a.return_1y)}</td>
+        <td class="mono" style="text-align:right">${num(a.sharpe_ratio)}</td>
+        <td class="mono" style="text-align:right">${num(a.sortino_ratio)}</td>
+        <td class="mono neg" style="text-align:right">${pct(a.max_drawdown)}</td>
+        <td class="mono" style="text-align:right">${pct(a.std_dev_annualized)}</td>
+        <td class="mono" style="text-align:right">${pct(a.batting_average)}</td>
+        <td class="mono" style="text-align:right">${num(a.slugging_pct)}</td>
+        <td class="mono" style="text-align:right">${num(a.beta_to_spy)}</td></tr>`;}).join("")}
+    </tbody></table></div>`;
+  },
+
+  async performance(){
+    if(!LIVE.perf) LIVE.perf = await q("v_performance_history");
+    const models=[...new Set(LIVE.perf.map(p=>p.model_name))].sort();
+    const palette=["#af6452","#6aa6f8","#3fcf8e","#d4b25c","#a78bfa","#f0a94a","#ef6464"];
+    setTimeout(()=>{ const el=$("#pchart"); if(!el) return;
+      const c=echarts.init(el,null,{renderer:"svg"});
+      const dates=[...new Set(LIVE.perf.map(p=>p.snapshot_date))].sort();
+      c.setOption({backgroundColor:"transparent",grid:{left:50,right:16,top:30,bottom:34},
+        legend:{textStyle:{color:"#8b93a3"},top:0},
+        xAxis:{type:"category",data:dates,axisLabel:{color:"#5d6575"}},
+        yAxis:{type:"value",axisLabel:{color:"#5d6575",formatter:v=>(v*100).toFixed(0)+"%"},splitLine:{lineStyle:{color:"rgba(255,255,255,.06)"}}},
+        tooltip:{trigger:"axis",backgroundColor:"#161b24",borderColor:"rgba(255,255,255,.12)",textStyle:{color:"#e6e9ef"},valueFormatter:v=>v==null?"—":(v*100).toFixed(2)+"%"},
+        series:models.map((m,i)=>({name:m,type:"line",smooth:true,symbol:"none",
+          lineStyle:{color:palette[i%7]},itemStyle:{color:palette[i%7]},
+          data:dates.map(d=>{const r=LIVE.perf.find(p=>p.model_name===m&&p.snapshot_date===d);return r?+r.ytd_return:null;})}))});
+      addEventListener("resize",()=>c.resize(),{once:true});
+    },30);
+    return `<h2>YTD return history ${fresh(LIVE.perf[0]?.computed_at)}</h2>
+    <div class="panel"><div id="pchart" class="chart" style="height:420px"></div></div>`;
+  },
+
+  async memo(){
+    const m = (await q("v_latest_memo"))[0];
+    if(!m) return `<h2>Macro memo</h2><div class="panel loading">No memo stored yet — the first post-close cloud run will populate this.</div>`;
+    setTimeout(()=>{ const f=$("#memoframe"); if(f) f.srcdoc = m.html; },30);
+    return `<h2>Macro memo — ${m.memo_date} ${fresh(m.computed_at)}</h2>
+    <iframe id="memoframe" class="memo-frame" sandbox="allow-same-origin"></iframe>`;
+  },
+
+  async journal(){
+    if(!LIVE.tl) LIVE.tl = await q("v_trade_log", r=>r.limit(120));
+    return `<h2>Decision journal <span class="fresh">${LIVE.tl.length} most recent</span></h2>
+    <div class="panel table-wrap"><table><thead><tr>
+      <th>Date</th><th>Ticker</th><th>Type</th><th style="text-align:right">Alloc</th><th>Gate</th><th>Thesis</th>
+      </tr></thead><tbody>
+      ${LIVE.tl.map(t=>`<tr><td class="mono">${t.trade_date}</td>
+        <td class="mono">${t.ticker}</td><td class="muted">${t.decision_type||""}</td>
+        <td class="mono" style="text-align:right">${pct(t.proposed_allocation)}</td>
+        <td>${t.gate_passed?'<span class="pos">passed</span>':'<span class="neg">blocked</span>'}</td>
+        <td class="muted" style="max-width:520px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(t.thesis_summary||"").replace(/"/g,"&quot;")}">${t.thesis_summary||""}</td></tr>`).join("")}
+    </tbody></table></div>`;
+  }
+};
+
+/* ── router + health bar ── */
+async function render(v){
+  const view = $("#view");
+  view.innerHTML = `<div class="loading">Loading ${v}…</div>`;
+  try { view.innerHTML = await VIEWS[v](); }
+  catch(e){ view.innerHTML = `<div class="panel loading">Error: ${e.message}<br><br>
+    If this says "permission denied", your account may not be on the allowlist yet.</div>`; }
+  view.addEventListener("click", e => {
+    const chip = e.target.closest(".chip[data-m]");
+    if (chip){ LIVE.selModel = chip.dataset.m; render("portfolios"); }
+  }, { once:true });
+}
+async function healthBar(){
+  try{
+    if(!LIVE.health) LIVE.health = await q("v_job_health");
+    $("#health").innerHTML = LIVE.health.map(j=>`<span class="hchip">
+      <span class="dot" style="background:${j.status==="ok"?"var(--green)":"var(--red)"}"></span>
+      ${j.job_name} · ${j.market_date}</span>`).join("") +
+      `<span style="margin-left:auto">build ${CFG.build}</span>`;
+  }catch(e){ $("#health").innerHTML = ""; }
+}
+function route(){
+  const v = location.hash.replace("#","") || "overview";
+  const target = VIEWS[v] ? v : "overview";
+  document.querySelectorAll("#tabs a").forEach(a=>a.classList.toggle("on", a.dataset.v===target));
+  render(target); healthBar();
+}
+addEventListener("hashchange", route);
+</script>
+</body>
+</html>
