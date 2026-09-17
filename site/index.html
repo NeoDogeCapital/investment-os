@@ -85,6 +85,21 @@ tr:hover td{background:rgba(255,255,255,.02)}
 footer{max-width:1320px;margin:0 auto;padding:14px 24px;border-top:1px solid var(--line);display:flex;gap:16px;flex-wrap:wrap;color:var(--dim);font-size:11px;font-family:var(--mono)}
 .hchip{display:flex;align-items:center;gap:5px}
 .dot{width:7px;height:7px;border-radius:50%}
+.stance{display:inline-block;padding:2px 9px;border-radius:5px;font:600 10.5px var(--mono);letter-spacing:.06em}
+.s-bull{background:rgba(63,207,142,.13);color:var(--green)} .s-bear{background:rgba(239,100,100,.13);color:var(--red)}
+.s-neut{background:rgba(139,147,163,.13);color:var(--muted)}
+.driver{border-left:2px solid var(--line2);padding:8px 0 8px 12px;margin-bottom:10px}
+.driver b{font-size:13px} .driver .d-note{color:var(--muted);font-size:12.5px;margin-top:2px}
+.risk-item{background:rgba(239,100,100,.05);border-left:3px solid var(--red);border-radius:0 8px 8px 0;padding:9px 13px;margin-bottom:9px}
+.risk-item b{font-size:13px} .risk-item .trig{color:var(--muted);font-size:12px;margin-top:3px;font-family:var(--mono)}
+.note-row{padding:9px 0;border-bottom:1px solid var(--line)}
+.note-row:last-child{border:0}
+.src{font:600 10.5px var(--mono);letter-spacing:.08em;color:var(--brand);text-transform:uppercase}
+.sig{font:600 11px var(--mono);padding:1px 7px;border-radius:4px;margin-left:8px}
+.tim{font:600 10px var(--mono);padding:2px 7px;border-radius:4px;letter-spacing:.04em}
+.t-buy{background:rgba(63,207,142,.15);color:var(--green)} .t-acc{background:rgba(63,207,142,.09);color:#8fd9b5}
+.t-neu{background:rgba(139,147,163,.12);color:var(--muted)} .t-wait{background:rgba(240,169,74,.13);color:var(--amber)}
+.t-trim{background:rgba(240,169,74,.16);color:var(--amber)} .t-avoid{background:rgba(239,100,100,.14);color:var(--red)}
 .loading{color:var(--dim);font-family:var(--mono);font-size:12px;padding:30px;text-align:center}
 </style>
 </head>
@@ -115,6 +130,8 @@ footer{max-width:1320px;margin:0 auto;padding:14px 24px;border-top:1px solid var
     </div>
     <nav class="tabs" id="tabs">
       <a href="#overview" data-v="overview" class="on">Overview</a>
+      <a href="#research" data-v="research">Research</a>
+      <a href="#universe" data-v="universe">Universe</a>
       <a href="#portfolios" data-v="portfolios">Portfolios</a>
       <a href="#regime" data-v="regime">Regime</a>
       <a href="#risk" data-v="risk">Risk</a>
@@ -303,6 +320,95 @@ const VIEWS = {
       not yet included.</div>`;
   },
 
+
+  async research(){
+    const [ol, feed, reg] = await Promise.all([
+      q("v_daily_outlook"), q("v_research_feed"), q("v_regime_current")]);
+    const o = ol[0]?.payload; const r = reg[0]||{};
+    if(!o) return `<div class="panel loading">No daily outlook yet — the post-close chain will generate it.</div>`;
+    const sc = v => v==="RISK_ON"?"b-green":v==="RISK_OFF"?"b-red":"b-amber";
+    const stc = s => s==="bullish"?"s-bull":s==="bearish"?"s-bear":"s-neut";
+    const dcol = d => d==="supportive"?"var(--green)":d==="headwind"?"var(--red)":"var(--amber)";
+    const H = (lbl,h,live) => `<div class="panel stat"><div class="caps">${lbl}</div>
+      <div style="margin:6px 0 4px"><span class="badge ${sc(h?.label)}">${h?.label||"—"}</span></div>
+      <div class="s">score ${live==null?"—":(+live).toFixed(3)} · ${h?.trend||""}</div></div>`;
+    const byDay = {}; feed.forEach(n=>{ (byDay[n.note_date] ||= []).push(n); });
+    const days = Object.keys(byDay).sort().reverse().slice(0,6);
+    return `<div class="grid g4">
+      <div class="panel stat" style="border-color:rgba(175,100,82,.4)"><div class="caps">House view</div>
+        <div style="margin:6px 0 4px"><span class="badge ${sc(o.regime.call)}" style="font-size:13px;padding:5px 15px">${o.regime.call.replace("_"," ")}</span></div>
+        <div class="s">Tier ${o.regime.tier}/3 · ${o.regime.cycle} cycle ${fresh(ol[0].computed_at)}</div></div>
+      ${H("Short term", o.regime.short, r.short_term_score)}
+      ${H("Medium term", o.regime.medium, r.medium_term_score)}
+      ${H("Long term", o.regime.long, r.long_term_score)}
+    </div>
+    <h2>Macro outlook</h2>
+    <div class="panel" style="font-size:14px;line-height:1.7">${o.macro_outlook}</div>
+    <div class="grid g3" style="margin-top:14px;align-items:start">
+      <div class="panel"><div class="caps" style="margin-bottom:12px">What's driving markets</div>
+        ${o.drivers.map(d=>`<div class="driver" style="border-left-color:${dcol(d.direction)}">
+          <b>${d.name}</b> <span class="mono" style="font-size:10.5px;color:${dcol(d.direction)}">${d.direction}</span>
+          <div class="d-note">${d.note}</div></div>`).join("")}</div>
+      <div class="panel"><div class="caps" style="margin-bottom:12px">Key risks to watch</div>
+        ${o.key_risks.map(k=>`<div class="risk-item"><b>${k.risk}</b><div class="trig">▸ ${k.trigger}</div></div>`).join("")}</div>
+    </div>
+    <h2>Asset class &amp; sector outlook</h2>
+    <div class="panel table-wrap"><table><thead><tr><th>Asset class</th><th>Stance</th><th>Rationale</th></tr></thead><tbody>
+      ${o.asset_outlook.map(a=>`<tr><td>${a.asset}</td>
+        <td><span class="stance ${stc(a.stance)}">${a.stance.toUpperCase()}</span></td>
+        <td class="muted">${a.note}</td></tr>`).join("")}
+    </tbody></table></div>
+    <h2>Source feed <span class="fresh">${feed.length} notes, last 14 days</span></h2>
+    ${days.map(d=>`<div class="panel" style="margin-bottom:10px">
+      <div class="caps" style="margin-bottom:8px">${d} · ${byDay[d].length} notes</div>
+      ${byDay[d].slice(0,12).map(n=>{const v=+n.signal_strength||0;
+        const col=v>0.15?"var(--green)":v<-0.15?"var(--red)":"var(--muted)";
+        return `<div class="note-row"><span class="src">${n.short_name||n.source_id}</span>
+        <span class="sig" style="color:${col};background:${col.replace("var(--","rgba(").replace(")","")==col?"transparent":"rgba(255,255,255,.04)"}">${v>=0?"+":""}${v.toFixed(2)}</span>
+        <span style="margin-left:8px">${(n.title||"").slice(0,90)}</span>
+        <div class="muted" style="font-size:12.5px;margin-top:3px">${(n.ai_summary||"").slice(0,260)}…</div></div>`;}).join("")}
+    </div>`).join("")}`;
+  },
+
+  async universe(){
+    if(!LIVE.uni) LIVE.uni = await q("v_universe");
+    const cats = ["all","macro_monitor","sector","factor","international","bond","commodity","holding_lineup","watchlist"];
+    const f = LIVE.uniF || "macro_monitor";
+    const rows = LIVE.uni.filter(u => f==="all" ? true
+      : f==="watchlist" ? u.is_watchlist
+      : u.category===f).filter(u=>u.price!=null)
+      .sort((a,b)=>(b.rel_strength_63d??-9)-(a.rel_strength_63d??-9));
+    const tcl = t => ({buy_zone:"t-buy",accumulate:"t-acc",neutral:"t-neu",
+      wait_range_low:"t-wait",trim_zone:"t-trim",avoid_extended:"t-avoid"}[t]||"t-neu");
+    const trc = t => t==="bullish"?"pos":t==="bearish"?"neg":"muted";
+    const bar = u => { const p=(u.pos_in_range_1m??.5)*100;
+      return `<div style="position:relative;height:6px;background:rgba(255,255,255,.07);border-radius:3px;width:86px">
+        <div style="position:absolute;left:${p}%;top:-2px;width:3px;height:10px;background:var(--brand);border-radius:2px"></div></div>`; };
+    return `<div>${cats.map(c=>`<span class="chip ${c===f?"on":""}" data-u="${c}">${c.replace("_"," ")}</span>`).join("")}</div>
+    <h2>${f.replace("_"," ")} <span class="fresh">${rows.length} tickers · sorted by 3-month relative strength</span>${fresh(rows[0]?.computed_at)}</h2>
+    <div class="panel table-wrap"><table><thead><tr>
+      <th>Ticker</th><th>Name</th><th style="text-align:right">Price</th><th>Trend</th>
+      <th style="text-align:right">RS 3m</th><th style="text-align:right">RSI</th><th>Regime</th>
+      <th style="text-align:right">Off 52wH</th><th style="text-align:right">Vol</th>
+      <th>1M range</th><th>Timing</th></tr></thead><tbody>
+      ${rows.map(u=>`<tr><td class="mono" style="font-weight:600">${u.ticker}</td>
+        <td class="muted" style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.name||""}</td>
+        <td class="mono" style="text-align:right">${u.price?(+u.price).toFixed(2):"—"}</td>
+        <td class="${trc(u.trend)}" style="font-size:12px">${u.trend||"—"}</td>
+        <td class="mono ${cls(u.rel_strength_63d)}" style="text-align:right">${pctS(u.rel_strength_63d)}</td>
+        <td class="mono" style="text-align:right">${u.rsi?(+u.rsi).toFixed(0):"—"}</td>
+        <td class="muted" style="font-size:12px">${u.rsi_regime||""}</td>
+        <td class="mono neg" style="text-align:right">${pct(u.off_high_52w)}</td>
+        <td class="mono" style="text-align:right">${pct(u.vol20)}</td>
+        <td>${bar(u)}</td>
+        <td><span class="tim ${tcl(u.timing)}">${(u.timing||"").replace(/_/g," ")}</span></td></tr>`).join("")}
+    </tbody></table></div>
+    <div class="panel" style="margin-top:12px;font-size:12px;color:var(--dim)">
+      Trend = 200-day anchor confirmed by a 26-day track line. Timing paces entries and exits from position in
+      the 1-month risk range; it never decides what is ownable. Mutual funds price on NAV, so their ranges are
+      derived from return volatility rather than intraday range.</div>`;
+  },
+
   async analytics(){
     const [an, models] = await Promise.all([q("v_model_analytics"), q("v_models")]);
     const asOf = an[0]?.computed_at;
@@ -328,7 +434,33 @@ const VIEWS = {
         <td class="mono" style="text-align:right">${pct(a.batting_average)}</td>
         <td class="mono" style="text-align:right">${num(a.slugging_pct)}</td>
         <td class="mono" style="text-align:right">${num(a.beta_to_spy)}</td></tr>`;}).join("")}
-    </tbody></table></div>`;
+    </tbody></table></div>
+    ${await VIEWS._factors()}`;
+  },
+
+  async _factors(){
+    const fx = await q("v_factor_exposures");
+    if(!fx.length) return "";
+    const firm = fx.find(f=>f.model_name==="FIRM");
+    const rest = fx.filter(f=>f.model_name!=="FIRM").sort((a,b)=>b.beta_spy-a.beta_spy);
+    const fcol = v => v>0.05?"pos":v<-0.05?"neg":"muted";
+    const row = f => `<tr><td${f.model_name==="FIRM"?' style="font-weight:700;color:var(--brand)"':""}>${f.model_name}</td>
+      ${["beta_spy","beta_momentum","beta_quality","beta_value","beta_minvol","beta_highbeta","beta_rates","beta_gold"]
+        .map(k=>`<td class="mono ${fcol(+f[k])}" style="text-align:right">${num(f[k])}</td>`).join("")}
+      <td class="mono muted" style="text-align:right">${num(f.r2)}</td></tr>`;
+    return `<h2>Factor exposures <span class="fresh">252-day regression · style factors as tilts vs SPY</span>${fresh(firm?.created_at)}</h2>
+    <div class="panel table-wrap"><table><thead><tr><th>Model</th>
+      <th style="text-align:right">Market</th><th style="text-align:right">Momentum</th>
+      <th style="text-align:right">Quality</th><th style="text-align:right">Value</th>
+      <th style="text-align:right">Min vol</th><th style="text-align:right">High beta</th>
+      <th style="text-align:right">Rates</th><th style="text-align:right">Gold</th>
+      <th style="text-align:right">R²</th></tr></thead><tbody>
+      ${firm?row(firm):""}${rest.map(row).join("")}
+    </tbody></table></div>
+    <div class="panel" style="margin-top:12px;font-size:12px;color:var(--dim)">
+      Market beta is versus SPY. Style columns are betas to each factor ETF minus SPY, so they read as tilts:
+      positive means the book leans that way relative to the market. Rates is beta to IEF (duration sensitivity),
+      Gold is beta to GLD.</div>`;
   },
 
   async performance(){
@@ -385,6 +517,8 @@ async function render(v){
   view.addEventListener("click", e => {
     const chip = e.target.closest(".chip[data-m]");
     if (chip){ LIVE.selModel = chip.dataset.m; render("portfolios"); }
+    const uchip = e.target.closest(".chip[data-u]");
+    if (uchip){ LIVE.uniF = uchip.dataset.u; render("universe"); }
   }, { once:true });
 }
 async function healthBar(){
