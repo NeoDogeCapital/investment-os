@@ -35,9 +35,25 @@ CLASS_MAP = {
     "alternative":    (0.55, ["AIWEX", "VOLT", "RSNYX", "QCFIX", "MAGRX", "BFGIX"]),
     "real_asset":     (0.70, ["PHYS", "INFL", "GLD"]),
     "bond":           (0.35, ["AGGH", "LCTIX", "BUXX", "CLOX"]),
+    # long-dated TIPS carry real-rate duration: more volatile than aggregate bonds
+    "long_dur_bond":  (0.50, ["LTPZ", "TLT", "ZROZ"]),
     "cash_like":      (0.05, ["USFR", "CASH", "SGOV", "BIL"]),
 }
 TICKER_CLASS = {t: (name, mult) for name, (mult, ts) in CLASS_MAP.items() for t in ts}
+
+# SPY's typical annualized vol; unknown tickers are scaled against it rather than
+# silently assumed to carry full equity risk (which overstated the score).
+SPY_VOL_REF = 0.16
+
+
+def classify(ticker, vol=None):
+    """Return (class_name, multiplier). Unknown tickers infer their multiplier
+    from realized volatility relative to SPY, capped at 1.2."""
+    if ticker in TICKER_CLASS:
+        return TICKER_CLASS[ticker]
+    if vol and vol == vol and vol > 0:
+        return ("inferred", round(min(vol / SPY_VOL_REF, 1.2), 2))
+    return ("unknown", 1.0)
 
 
 def recency_weighted_vol(returns: pd.Series) -> float:
@@ -84,6 +100,10 @@ def main():
     cur.execute("SELECT name, aum_usd FROM model_portfolios WHERE aum_usd IS NOT NULL")
     aum = dict(cur.fetchall())
 
+    cur.execute("""SELECT ticker, vol20 FROM fund_technicals
+                   WHERE score_date = (SELECT MAX(score_date) FROM fund_technicals)""")
+    vols = {t: float(v) for t, v in cur.fetchall() if v is not None}
+
     tickers = [t for t in hold.ticker.unique() if t != "CASH"]
     cur.execute("""SELECT ticker, price_date, daily_return FROM ticker_price_history
                    WHERE ticker = ANY(%s) AND price_date >= %s""",
@@ -103,8 +123,7 @@ def main():
         top_w = float(noncash.max()) if len(noncash) else 0.0
         hhi = float((noncash ** 2).sum())
         eff_n = 1.0 / hhi if hhi > 0 else 0.0
-        struct = float(sum(w.get(t, 0) * TICKER_CLASS.get(t, ("core_equity", 1.0))[1]
-                           for t in w.index))
+        struct = float(sum(w.get(t, 0) * classify(t, vols.get(t))[1] for t in w.index))
         cash_w = float(w.get("CASH", 0.0))
 
         s_vol = scale(vol, 0.02, 0.25)
