@@ -505,7 +505,27 @@ def process_file(
         dest_path = dest_dir / f"{stem}_{ts}{suffix}"
         log.info("  Collision resolved → %s", dest_path.name)
 
-    # ── Step 4: Write rewritten note + move ──
+    # ── Step 4: Ingest into the database FIRST ──
+    # The move only happens after the row is committed. Filing a note before
+    # the write succeeded loses it silently when the DB is unreachable: the
+    # file leaves Clippings, never lands in research_notes, and the regime
+    # scanner then runs on a window with nothing in it. (Hit twice: the July
+    # SSL timeout and the 2026-09-29 post-restore run.)
+    db_id = None
+    if not dry_run:
+        vault_rel = str(dest_path.relative_to(VAULT_PATH))
+        try:
+            db_id = ingest_to_db(db_conn, vault_rel, rewritten, extraction)
+        except Exception as e:
+            log.error("  ✗ DB ingest FAILED (%s) — leaving in Clippings, not filing", e)
+            return {"file": note_path.name, "status": "ingest_failed",
+                    "source_id": source_id, "reason": str(e)[:200]}
+        if db_id:
+            log.info("  → Ingested to Supabase: %s", db_id)
+        else:
+            log.warning("  → Supabase ingest skipped (source not in DB) — filing anyway")
+
+    # ── Step 5: Write rewritten note + move (only reached on a good write) ──
     if dry_run:
         log.info("  [DRY RUN] Would write frontmatter and move to: %s", dest_folder_rel)
     else:
@@ -514,22 +534,10 @@ def process_file(
         shutil.move(str(note_path), str(dest_path))
         log.info("  → Moved to: %s", dest_folder_rel + "/" + dest_path.name)
 
-        # If a PDF with the same stem exists alongside this note, move it too
         orig_pdf = note_path.parent / (note_path.stem + ".pdf")
         if orig_pdf.exists():
-            pdf_dest = dest_dir / orig_pdf.name
-            shutil.move(str(orig_pdf), str(pdf_dest))
+            shutil.move(str(orig_pdf), str(dest_dir / orig_pdf.name))
             log.info("  → PDF archived: %s", dest_folder_rel + "/" + orig_pdf.name)
-
-    # ── Step 5: Ingest into Supabase ──
-    db_id = None
-    if not dry_run:
-        vault_rel = str(dest_path.relative_to(VAULT_PATH))
-        db_id = ingest_to_db(db_conn, vault_rel, rewritten, extraction)
-        if db_id:
-            log.info("  → Ingested to Supabase: %s", db_id)
-        else:
-            log.warning("  → Supabase ingest skipped (source not in DB)")
 
     return {
         "file":       note_path.name,
@@ -600,7 +608,20 @@ def main():
         log.info("─── DRY RUN MODE — no changes will be made ───")
 
     client  = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
-    db_conn = get_db() if not args.dry_run else None
+    db_conn = None
+    if not args.dry_run:
+        # Refuse to start against a dead database. Classification costs API
+        # calls and, before the Step 4/5 reorder, silently destroyed notes.
+        try:
+            db_conn = get_db()
+            with db_conn.cursor() as _c:
+                _c.execute("SELECT 1 FROM research_notes LIMIT 1")
+        except Exception as e:
+            log.error("DATABASE UNREACHABLE — refusing to process.")
+            log.error("  %s", str(e).strip().splitlines()[0][:160])
+            log.error("  Notes left untouched in Clippings/. If the Supabase project")
+            log.error("  was paused, restore it, wait ~2 min for the pooler, re-run.")
+            return
 
     results = []
     errors  = []

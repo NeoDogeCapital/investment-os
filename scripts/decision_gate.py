@@ -106,6 +106,15 @@ def get_latest_regime(db_conn) -> dict:
 
 
 def get_existing_position(db_conn, ticker: str, direction: str) -> Optional[dict]:
+    """Current exposure to `ticker`.
+
+    The `positions` table is legacy and empty; the live book is
+    model_holdings_snapshot. Reading only `positions` made every add to a
+    long-held position look like a jump from 0%, so real ladder violations
+    were buried under routine --ladder-soft overrides. Fall back to the
+    holdings book, using the largest weight across models, since the gate is
+    evaluated once per ticker against a single proposed allocation.
+    """
     with db_conn.cursor() as cur:
         cur.execute("""
             SELECT * FROM positions
@@ -113,7 +122,25 @@ def get_existing_position(db_conn, ticker: str, direction: str) -> Optional[dict
             ORDER BY created_at DESC LIMIT 1
         """, (ticker, direction))
         row = cur.fetchone()
-        return dict(row) if row else None
+        if row:
+            return dict(row)
+
+        cur.execute("""
+            WITH latest AS (
+              SELECT model_name, MAX(snapshot_date) AS sd
+              FROM model_holdings_snapshot GROUP BY model_name
+            )
+            SELECT MAX(h.weight) AS w, COUNT(*) AS n_models
+            FROM model_holdings_snapshot h
+            JOIN latest l ON l.model_name = h.model_name AND l.sd = h.snapshot_date
+            WHERE h.ticker = %s
+        """, (ticker,))
+        r = cur.fetchone()
+        if not r or r["w"] is None:
+            return None
+        return {"current_allocation": float(r["w"]),
+                "source": "model_holdings_snapshot",
+                "n_models": int(r["n_models"])}
 
 
 def check_hard_rules(
