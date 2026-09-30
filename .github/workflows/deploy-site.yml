@@ -1,0 +1,62 @@
+name: deploy-site
+on:
+  push:
+    branches: [main]
+    paths: ['site/**', '.github/workflows/deploy-site.yml']
+  workflow_dispatch: {}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Stamp build (time + short commit)
+        run: |
+          STAMP="$(date -u '+%Y-%m-%d %H:%M UTC') · ${GITHUB_SHA::7}"
+          python3 - "$STAMP" <<'PY'
+          import sys, re, pathlib
+          p = pathlib.Path("site/config.js")
+          s = p.read_text()
+          s = re.sub(r'build:\s*"[^"]*"', f'build: "{sys.argv[1]}"', s)
+          p.write_text(s)
+          print("stamped:", sys.argv[1])
+          PY
+
+      - name: Inject Supabase public config
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_PUBLIC_URL }}
+          SUPABASE_ANON: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          python3 - <<'PY'
+          import os, re, pathlib
+          p = pathlib.Path("site/config.js"); s = p.read_text()
+          s = s.replace("REPLACE_WITH_SUPABASE_PROJECT_URL", os.environ["SUPABASE_URL"])
+          s = s.replace("REPLACE_WITH_PUBLISHABLE_KEY", os.environ["SUPABASE_ANON"])
+          p.write_text(s)
+          PY
+
+      # Refuse to publish if anything resembling a service key or DB URL leaked
+      # into the payload. The anon/publishable key belongs here; nothing else does.
+      - name: Secret guard
+        run: |
+          if grep -rInE 'service_role|SUPABASE_SERVICE|postgresql://|sk-ant-|ghp_' site/; then
+            echo "::error::Secret-like string found in site/ — refusing to publish."
+            exit 1
+          fi
+          echo "✓ no secrets in payload"
+
+      - name: Publish to public site repo
+        env:
+          TOKEN: ${{ secrets.SITE_DEPLOY_TOKEN }}
+        run: |
+          git clone --depth 1 "https://x-access-token:${TOKEN}@github.com/NeoDogeCapital/investment-os-site.git" out
+          rm -rf out/* || true
+          cp -R site/* out/
+          touch out/.nojekyll
+          cd out
+          git config user.name  "iwp-deploy"
+          git config user.email "noreply@integritywealth.com"
+          git add -A
+          git commit -m "Deploy ${GITHUB_SHA::7}" || { echo "no changes"; exit 0; }
+          git push
